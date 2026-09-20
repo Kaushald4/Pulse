@@ -5,6 +5,7 @@
  * refresh its descriptive fields, but it must never clobber the user's status,
  * score or notes about it.
  */
+import { JOB_STATUS_ORDER, isJobStatus } from "../jobs/types";
 import type { Job, JobDraft, JobFilter } from "../jobs/types";
 import { getDatabase, readLocal, writeLocal } from "./client";
 import { blank, LS_JOBS, newJobId, rowToJob } from "./jobs-common";
@@ -89,6 +90,52 @@ export async function getJob(id: string): Promise<Job | null> {
     return rows[0] ? rowToJob(rows[0]) : null;
   }
   return readLocal<Job[]>(LS_JOBS, []).find((job) => job.id === id) ?? null;
+}
+
+/** Visible jobs per status, plus the scoring backlog — powers the header badge and tabs. */
+export interface JobCounts {
+  total: number;
+  saved: number;
+  applied: number;
+  shortlisted: number;
+  rejected: number;
+  /** Jobs with a description and no score yet: exactly what the Score button acts on. */
+  unscored: number;
+}
+
+export function emptyJobCounts(): JobCounts {
+  return { total: 0, saved: 0, applied: 0, shortlisted: 0, rejected: 0, unscored: 0 };
+}
+
+/**
+ * Counts over visible jobs, deliberately independent of the active filter: the
+ * tabs have to show every status's count while you are looking at one of them.
+ */
+export async function getJobCounts(): Promise<JobCounts> {
+  const counts = emptyJobCounts();
+  const db = await getDatabase();
+
+  if (db) {
+    const rows = (await db.select(
+      `SELECT status, COUNT(*) AS n FROM jobs
+       WHERE (closed_at IS NULL OR status IN ('applied','shortlisted','rejected'))
+       GROUP BY status;`
+    )) as Array<{ status: string; n: number }>;
+
+    for (const row of rows) {
+      if (!isJobStatus(row.status)) continue;
+      counts[row.status] = Number(row.n) || 0;
+    }
+    counts.total = JOB_STATUS_ORDER.reduce((sum, status) => sum + counts[status], 0);
+    counts.unscored = await countUnscoredJobs();
+    return counts;
+  }
+
+  const visible = readLocal<Job[]>(LS_JOBS, []).filter(isVisible);
+  for (const job of visible) counts[job.status] += 1;
+  counts.total = visible.length;
+  counts.unscored = visible.filter((job) => job.relevanceScore === null && job.description).length;
+  return counts;
 }
 
 /** Inserts new listings and refreshes known ones. Returns how many were written. */
@@ -297,20 +344,43 @@ export async function saveJobScore(
   writeLocal(LS_JOBS, stored);
 }
 
-/** Unscored jobs that actually have a description to score against. */
+/** How many jobs are waiting to be scored. Kept in step with `getUnscoredJobs`. */
+export async function countUnscoredJobs(): Promise<number> {
+  const db = await getDatabase();
+  if (db) {
+    const rows = (await db.select(
+      `SELECT COUNT(*) AS n FROM jobs
+       WHERE relevance_score IS NULL AND description IS NOT NULL
+         AND (closed_at IS NULL OR status IN ('applied','shortlisted','rejected'));`
+    )) as Array<{ n: number }>;
+    return Number(rows[0]?.n) || 0;
+  }
+  return readLocal<Job[]>(LS_JOBS, []).filter(
+    (job) => isVisible(job) && job.relevanceScore === null && job.description
+  ).length;
+}
+
+/**
+ * Unscored jobs that actually have a description to score against.
+ *
+ * Mirrors `isVisible`, so a closed listing you never acted on is never picked up
+ * by the scoring backlog — nothing should be sent to a model that the list
+ * would not show you.
+ */
 export async function getUnscoredJobs(limit = 25): Promise<Job[]> {
   const db = await getDatabase();
   if (db) {
     const rows = (await db.select(
       `SELECT * FROM jobs
        WHERE relevance_score IS NULL AND description IS NOT NULL
+         AND (closed_at IS NULL OR status IN ('applied','shortlisted','rejected'))
        ORDER BY created_at DESC LIMIT $1;`,
       [limit]
     )) as any[];
     return rows.map(rowToJob);
   }
   return readLocal<Job[]>(LS_JOBS, [])
-    .filter((job) => job.relevanceScore === null && job.description)
+    .filter((job) => isVisible(job) && job.relevanceScore === null && job.description)
     .slice(0, limit);
 }
 

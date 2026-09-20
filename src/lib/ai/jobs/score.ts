@@ -1,7 +1,7 @@
 /**
  * Fit scoring: how well the active base resume matches one job description.
  */
-import { getJob, getUnscoredJobs, saveJobScore } from "../../db/jobs";
+import { countUnscoredJobs, getJob, getUnscoredJobs, saveJobScore } from "../../db/jobs";
 import { getActiveResume } from "../../db/job-resumes";
 import type { JobScanProgress } from "../../jobs/types";
 import { parseJsonLoose } from "../../utils";
@@ -64,38 +64,54 @@ export async function scoreJobRelevance(jobId: string): Promise<ScoreJobResult> 
   });
 }
 
-export interface ScoreUnscoredResult {
-  processed: number;
+export interface ScoreBacklogResult {
   scored: number;
+  /** Jobs the model ran on but whose score could not be read. They stay unscored. */
+  failed: number;
 }
 
 /**
- * Scores the backlog of listings that arrived without a score.
+ * Scores every unscored job that has a description, in batches.
  *
- * Portal-sourced jobs are stored unscored, so this is what catches them up.
- * With no base resume there is nothing to score against, so it does nothing
- * rather than failing a scan.
+ * Driven by the user from the jobs screen — a scan never calls this, so a
+ * routine board refresh cannot spend model calls on its own.
  */
-export async function scoreUnscoredJobs(
-  limit = BATCH_LIMIT,
+export async function scoreUnscoredBacklog(
   onProgress?: (progress: JobScanProgress) => void
-): Promise<ScoreUnscoredResult> {
+): Promise<ScoreBacklogResult> {
   const resume = await getActiveResume();
-  if (!resume) return { processed: 0, scored: 0 };
+  if (!resume) return { scored: 0, failed: 0 };
 
-  const pending = await getUnscoredJobs(limit);
+  // Counted once so progress reads `n / total` instead of restarting each batch.
+  const total = await countUnscoredJobs();
+
+  // A job whose score comes back unreadable stays unscored, so it would be
+  // selected again forever. Track what has been attempted and stop once a batch
+  // brings nothing new.
+  const attempted = new Set<string>();
   let scored = 0;
+  let failed = 0;
 
-  for (const [offset, job] of pending.entries()) {
-    onProgress?.({
-      stage: "scoring",
-      label: `${job.title}${job.company ? ` @ ${job.company}` : ""}`,
-      index: offset + 1,
-      total: pending.length,
-    });
-    const result = await scoreJobRelevance(job.id);
-    if (result.scored) scored += 1;
+  for (;;) {
+    const batch = (await getUnscoredJobs(BATCH_LIMIT)).filter((job) => !attempted.has(job.id));
+    if (batch.length === 0) break;
+
+    for (const job of batch) {
+      attempted.add(job.id);
+      onProgress?.({
+        stage: "scoring",
+        label: jobLabel(job.title, job.company),
+        index: attempted.size,
+        total: Math.max(total, attempted.size),
+      });
+
+      const result = await scoreJobRelevance(job.id);
+      if (result.scored) scored += 1;
+      else failed += 1;
+    }
+
+    if (batch.length < BATCH_LIMIT) break;
   }
 
-  return { processed: pending.length, scored };
+  return { scored, failed };
 }

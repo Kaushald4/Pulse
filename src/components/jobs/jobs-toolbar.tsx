@@ -12,6 +12,7 @@ import {
   type JobFilter,
   type JobSort,
 } from "../../lib/jobs/types";
+import type { JobCounts } from "../../lib/db/jobs";
 
 const SORTS: Array<{ id: JobSort; label: string }> = [
   { id: "postedAt", label: "Newest posted" },
@@ -21,11 +22,18 @@ const SORTS: Array<{ id: JobSort; label: string }> = [
 
 const SEARCH_DEBOUNCE_MS = 400;
 
+/** The job count on a tab, muted so it never competes with the label. */
+function TabCount({ value }: { value: number }) {
+  return <span className="ml-1.5 tabular-nums text-muted-foreground">{value}</span>;
+}
+
 export function JobsToolbar({
   filter,
+  counts,
   onChange,
 }: {
   filter: JobFilter;
+  counts?: JobCounts;
   onChange: (patch: Partial<JobFilter>) => void;
 }) {
   const [query, setQuery] = React.useState(filter.search);
@@ -54,10 +62,12 @@ export function JobsToolbar({
         <TabsList className="h-8 flex-wrap">
           <TabsTrigger value="all" className="px-2.5 text-xs">
             All
+            {counts && <TabCount value={counts.total} />}
           </TabsTrigger>
           {JOB_STATUS_ORDER.map((status) => (
             <TabsTrigger key={status} value={status} className="px-2.5 text-xs">
               {JOB_STATUS_LABELS[status]}
+              {counts && <TabCount value={counts[status]} />}
             </TabsTrigger>
           ))}
         </TabsList>

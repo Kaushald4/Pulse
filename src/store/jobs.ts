@@ -10,8 +10,9 @@
 import { create } from "zustand";
 import { generateCoverLetter, rewriteCoverLetter } from "../lib/ai/jobs/cover-letter";
 import { generateTailoredResume, rewriteResumeSelection } from "../lib/ai/jobs/resume-writer";
-import { scoreJobRelevance } from "../lib/ai/jobs/score";
-import { getJob, getJobs, updateJob } from "../lib/db/jobs";
+import { scoreJobRelevance, scoreUnscoredBacklog } from "../lib/ai/jobs/score";
+import { emptyJobCounts, getJob, getJobCounts, getJobs, updateJob } from "../lib/db/jobs";
+import type { JobCounts } from "../lib/db/jobs";
 import {
   deleteGeneratedResume,
   getActiveResume,
@@ -51,6 +52,9 @@ export type JobBusy =
   | "scan"
   | "resume"
   | "score"
+  /** The whole unscored backlog. Kept apart from "score" so a batch run does not
+   *  light up the per-job Fit card. */
+  | "score-all"
   | "resume-write"
   | "letter"
   | "description"
@@ -63,6 +67,8 @@ interface JobStore {
   sources: JobSource[];
   resume: BaseResume | null;
   busy: JobBusy;
+  /** Visible-job totals per status, plus the scoring backlog. Filter-independent. */
+  counts: JobCounts;
   /** What a running scan is doing right now, stage by stage. */
   scanProgress: JobScanProgress | null;
 
@@ -81,10 +87,12 @@ interface JobStore {
 
   addJob: (input: ManualJobInput) => Promise<void>;
   scan: () => Promise<void>;
+  /** Scores the whole unscored backlog. Manual only; a scan never calls it. */
+  scoreUnscored: () => Promise<void>;
 
   setStatus: (status: JobStatus) => Promise<void>;
   saveDescription: (description: string) => Promise<void>;
-  /** Reads the listing's own page for a description, then scores the job. */
+  /** Reads the listing's own page for a description. Scoring stays manual. */
   fetchDescription: () => Promise<void>;
   rescore: () => Promise<void>;
 
@@ -114,6 +122,7 @@ export const useJobs = create<JobStore>((set, get) => ({
   sources: [],
   resume: null,
   busy: null,
+  counts: emptyJobCounts(),
   scanProgress: null,
 
   selectedJobId: null,
@@ -122,17 +131,18 @@ export const useJobs = create<JobStore>((set, get) => ({
   letters: [],
 
   init: async () => {
-    const [jobs, sources, resume] = await Promise.all([
+    const [jobs, counts, sources, resume] = await Promise.all([
       getJobs(get().filter),
+      getJobCounts(),
       getJobSources(),
       getActiveResume(),
     ]);
-    set({ jobs, sources, resume, ready: true });
+    set({ jobs, counts, sources, resume, ready: true });
   },
 
   refresh: async () => {
-    const jobs = await getJobs(get().filter);
-    set({ jobs });
+    const [jobs, counts] = await Promise.all([getJobs(get().filter), getJobCounts()]);
+    set({ jobs, counts });
   },
 
   setFilter: async (patch) => {
@@ -169,7 +179,6 @@ export const useJobs = create<JobStore>((set, get) => ({
       await get().refresh();
       const parts = [`${report.found} found`];
       if (report.described > 0) parts.push(`${report.described} described`);
-      if (report.scored > 0) parts.push(`${report.scored} scored`);
       const detail = parts.join(", ");
       if (report.errors.length > 0) {
         toast.error(`Scan finished with ${report.errors.length} problem(s)`, `${detail}. ${report.errors[0]}`);
@@ -178,6 +187,34 @@ export const useJobs = create<JobStore>((set, get) => ({
       }
     } catch (error) {
       toast.error("Scan failed", message(error));
+    } finally {
+      set({ busy: null, scanProgress: null });
+    }
+  },
+
+  scoreUnscored: async () => {
+    set({ busy: "score-all", scanProgress: null });
+    try {
+      const result = await scoreUnscoredBacklog((progress) => set({ scanProgress: progress }));
+      await get().refresh();
+
+      if (result.scored === 0 && result.failed === 0) {
+        toast.info(
+          "Nothing to score",
+          get().resume
+            ? "Every job with a description already has a score."
+            : "Upload a base resume first — scoring reads each description against it."
+        );
+      } else if (result.failed > 0) {
+        toast.error(
+          `Scored ${result.scored}, ${result.failed} failed`,
+          "The failures are on the Logs page."
+        );
+      } else {
+        toast.success(`Scored ${result.scored} job${result.scored === 1 ? "" : "s"}`);
+      }
+    } catch (error) {
+      toast.error("Scoring failed", message(error));
     } finally {
       set({ busy: null, scanProgress: null });
     }
@@ -216,10 +253,6 @@ export const useJobs = create<JobStore>((set, get) => ({
         "Description fetched",
         result.engine ? `${result.description.length.toLocaleString()} characters via ${result.engine}` : undefined
       );
-
-      // Now that there is something to read, score it.
-      const score = await scoreJobRelevance(job.id);
-      if (score.scored) set({ job: await getJob(job.id) });
     } catch (error) {
       toast.error("Could not fetch the description", message(error));
     } finally {

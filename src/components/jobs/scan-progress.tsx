@@ -13,17 +13,20 @@ const STAGE_LABELS: Record<JobScanProgress["stage"], string> = {
 };
 
 /**
- * Live scan progress.
+ * Live progress.
  *
  * The board scanner reports each entry as it finishes (via a Tauri event), and
  * the description and scoring passes report per job, so this names what is
- * actually happening rather than spinning anonymously.
+ * actually happening rather than spinning anonymously. Shown for a scan and for
+ * a manual scoring run ("score-all"); a single-job rescore keeps its own button
+ * spinner.
  */
 export function ScanProgress() {
   const progress = useJobs((state) => state.scanProgress);
   const busy = useJobs((state) => state.busy);
 
-  if (busy !== "scan" || !progress) return null;
+  const running = busy === "scan" || busy === "score-all";
+  if (!running || !progress) return null;
 
   const percent = progress.total > 0 ? Math.round((progress.index / progress.total) * 100) : 0;
 

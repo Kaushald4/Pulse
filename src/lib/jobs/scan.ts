@@ -1,12 +1,11 @@
 /**
- * One job scan: every enabled board, plus LinkedIn, then score what arrived
- * without a score.
+ * One job scan: every enabled board, plus LinkedIn, then descriptions for the
+ * newest listings that arrived without one.
  *
- * Board listings and LinkedIn listings are stored unscored, so `scoreUnscoredJobs`
- * is what catches them up - bounded per run, so a large backlog just continues
- * on the next scan.
+ * A scan only collects. Board and LinkedIn listings are stored unscored, and
+ * scoring is a separate, deliberate action from the jobs screen
+ * (`scoreUnscoredBacklog`), so a routine refresh never spends model calls.
  */
-import { scoreUnscoredJobs } from "../ai/jobs/score";
 import { scanJobBoards } from "./boards";
 import { fillMissingDescriptions } from "./description";
 import { fetchLinkedInJobs } from "./linkedin";
@@ -16,7 +15,6 @@ export interface JobScanReport {
   boards: number;
   found: number;
   described: number;
-  scored: number;
   errors: string[];
 }
 
@@ -52,10 +50,9 @@ export async function scanJobs(
     errors.push(`LinkedIn: ${error instanceof Error ? error.message : String(error)}`);
   }
 
-  // Descriptions first: a listing that just gained one can be scored in the
-  // same pass. Both are bounded, so a scan stays a scan.
+  // Descriptions are page fetches, not model calls, so they stay part of a scan.
+  // Bounded, so a scan stays a scan.
   const described = await fillMissingDescriptions(undefined, onProgress);
-  const scored = await scoreUnscoredJobs(undefined, onProgress);
 
-  return { boards, found, described, scored: scored.scored, errors };
+  return { boards, found, described, errors };
 }
