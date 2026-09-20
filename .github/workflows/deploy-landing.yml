@@ -1,0 +1,55 @@
+name: Deploy landing page
+
+# Manual only. Nothing here runs on push: trigger it from the Actions tab
+# ("Run workflow") after changing anything under landing/.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race for the same Pages environment.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build landing/dist and publish it
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Writes landing/dist: the page, the compiled Tailwind stylesheet, the
+      # assets, and a .nojekyll. Everything uses relative URLs, so it works at
+      # the project path (kaushald4.github.io/Pulse/) with no basePath.
+      - name: Build the landing page
+        run: pnpm --filter pulse-landing build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: landing/dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

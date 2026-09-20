@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en" class="js dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pulse - your real-time pulse on the tech world</title>
+    <meta
+      name="description"
+      content="Pulse pulls the sources you already follow into one queue, scores every item against what you care about, and writes a daily briefing. Your job search lives in the same window. Open source and local-first."
+    />
+    <meta name="theme-color" content="#f7f7f9" />
+    <link rel="icon" href="./assets/app-icon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pulse — your real-time pulse on the tech world" />
+    <meta
+      property="og:description"
+      content="One queue for every source you follow, scored against your interests, with a daily briefing and your job search in the same window."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/Kaushald4/Pulse/main/screenshots/cover-pulse_.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+
+    <script>
+      // Runs before the body is parsed, so the correct theme is applied before
+      // the first paint and there is no flash of the wrong one.
+      (function () {
+        var root = document.documentElement;
+        var stored = null;
+        try {
+          stored = localStorage.getItem("pulse-theme");
+        } catch (error) {
+          /* private mode - fall back to the system preference */
+        }
+        var dark = stored
+          ? stored === "dark"
+          : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (dark) root.classList.add("dark");
+
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", dark ? "#000000" : "#f7f7f9");
+
+        // Enables the reveal animation only when JS is present.
+        root.classList.add("js");
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+      >Skip to content</a
+    >
+
+    <!-- =========================================================== nav -->
+    <header
+      class="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur-md"
+    >
+      <nav class="shell flex h-16 items-center justify-between gap-6" aria-label="Main">
+        <a href="#" class="flex items-center gap-2.5">
+          <img src="./assets/app-icon.svg" alt="" width="28" height="28" class="rounded-[8px]" />
+          <span class="text-[15px] font-semibold tracking-tight text-ink">Pulse</span>
+        </a>
+
+        <div class="hidden items-center gap-8 text-[14px] text-body md:flex">
+          <a href="#features" class="transition-colors hover:text-ink">Features</a>
+          <a href="#how" class="transition-colors hover:text-ink">How it works</a>
+          <a href="#jobs" class="transition-colors hover:text-ink">Jobs</a>
+          <a href="#download" class="transition-colors hover:text-ink">Download</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="https://github.com/Kaushald4/Pulse"
+            class="hidden text-[14px] text-body transition-colors hover:text-ink sm:block"
+            >GitHub</a
+          >
+          <!-- <button
+            type="button"
+            id="theme-toggle"
+            class="flex size-9 items-center justify-center rounded-md border border-line text-body transition-colors hover:border-line-strong hover:text-ink"
+            aria-label="Switch to dark theme"
+            title="Switch theme"
+          >
+            <svg viewBox="0 0 24 24" class="theme-moon size-4" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden>
+              <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke-linejoin="round" />
+            </svg>
+            <svg viewBox="0 0 24 24" class="theme-sun size-4" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden>
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" stroke-linecap="round" />
+            </svg>
+          </button> -->
+          <a href="#download" class="btn-primary h-9 px-4 text-[13px]">Download</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ========================================================= hero -->
+      <section class="wash relative overflow-hidden pt-14 pb-20 md:pt-20">
+        <div class="shell relative">
+          <div class="reveal mx-auto max-w-3xl text-center">
+            <h1 class="display-xxl">Your real-time pulse on<br class="hidden sm:block" /> the tech world.</h1>
+
+            <p class="lede mx-auto mt-6 max-w-2xl">
+              Every source you follow in one queue, scored against what you actually care about,
+              with a daily briefing each morning. Your job search lives in the same window.
+            </p>
+
+            <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <a href="#download" class="btn-primary">
+                <svg viewBox="0 0 16 16" class="size-4" fill="currentColor" aria-hidden>
+                  <path d="M8.7 11.7 8 12.4l-.7-.7-3-3 1.4-1.4L7 8.6V1h2v7.6l1.3-1.3 1.4 1.4-3 3Z" />
+                  <path d="M2 12h2v2h8v-2h2v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3Z" />
+                </svg>
+                Download for macOS
+              </a>
+              <a href="https://github.com/Kaushald4/Pulse" class="btn-secondary">
+                <svg viewBox="0 0 16 16" class="size-4" fill="currentColor" aria-hidden>
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+                </svg>
+                View on GitHub
+              </a>
+            </div>
+
+            <p class="mt-4 text-[13px] text-mute">Windows and Linux are on the way.</p>
+          </div>
+
+          <!-- ------------------------------------------------ app window -->
+          <div class="reveal mt-16">
+            <div class="window">
+              <div class="window-bar">
+                <span class="dot bg-[#ff5f57]"></span>
+                <span class="dot bg-[#febc2e]"></span>
+                <span class="dot bg-[#28c840]"></span>
+                <span class="ml-3 font-mono text-[11px] text-faint">Pulse</span>
+              </div>
+
+              <div class="flex bg-surface">
+                <!-- sidebar, mirroring the real navigation -->
+                <aside
+                  class="hidden w-[208px] shrink-0 flex-col border-r border-line bg-sunken/60 p-3 lg:flex"
+                >
+                  <div class="flex items-center gap-2.5 px-1 pb-3">
+                    <img
+                      src="./assets/app-icon.svg"
+                      alt=""
+                      width="22"
+                      height="22"
+                      class="rounded-[6px]"
+                    />
+                    <div class="leading-tight">
+                      <div class="text-[12.5px] font-semibold text-ink">Pulse</div>
+                      <div class="text-[10.5px] text-faint">Tech tracker</div>
+                    </div>
+                  </div>
+
+                  <p class="nav-group px-2 pb-1 pt-2">Overview</p>
+                  <div class="space-y-0.5">
+                    <div class="nav-row nav-row-active">
+                      <span class="flex items-center gap-2">
+                        <span class="size-1.5 rounded-full bg-brand"></span>Today
+                      </span>
+                    </div>
+                    <div class="nav-row"><span class="pl-3.5">Feed</span><span class="text-[11px] text-faint">128</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Resources</span><span class="text-[11px] text-faint">42</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Sources</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Logs</span></div>
+                  </div>
+
+                  <p class="nav-group px-2 pb-1 pt-3">Work</p>
+                  <div class="nav-row"><span class="pl-3.5">Jobs</span><span class="text-[11px] text-faint">18</span></div>
+
+                  <p class="nav-group px-2 pb-1 pt-3">Triage</p>
+                  <div class="space-y-0.5">
+                    <div class="nav-row"><span class="pl-3.5">Inbox</span><span class="text-[11px] text-faint">12</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Reading queue</span><span class="text-[11px] text-faint">8</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Important</span><span class="text-[11px] text-faint">3</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Archive</span></div>
+                  </div>
+
+                  <p class="nav-group px-2 pb-1 pt-3">Streams</p>
+                  <div class="space-y-0.5">
+                    <div class="nav-row"><span class="pl-3.5">Repositories</span><span class="text-[11px] text-faint">24</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Papers</span><span class="text-[11px] text-faint">9</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Products &amp; Docs</span><span class="text-[11px] text-faint">15</span></div>
+                    <div class="nav-row"><span class="pl-3.5">Discussions</span><span class="text-[11px] text-faint">31</span></div>
+                  </div>
+
+                  <div class="mt-auto flex items-center justify-between border-t border-line px-2 pt-3 text-[10.5px] text-faint">
+                    <span>pulse.db</span>
+                    <span class="font-medium text-success">desktop</span>
+                  </div>
+                </aside>
+
+                <!-- Today view -->
+                <div class="min-w-0 flex-1 p-5 sm:p-7">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 class="text-[17px] font-semibold tracking-tight text-ink">Today</h2>
+                      <p class="mt-1 text-[12.5px] text-mute">
+                        What happened today, and what Pulse found for you.
+                      </p>
+                    </div>
+                    <span class="pill">Sync now</span>
+                  </div>
+
+                  <!-- briefing -->
+                  <div class="mt-5 rounded-lg border border-line bg-surface p-5">
+                    <div class="flex items-center justify-between">
+                      <p class="text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-ink">
+                        Daily briefing
+                      </p>
+                      <span class="text-[11px] text-faint">16 items · 6 sources</span>
+                    </div>
+                    <p class="mt-3 text-[14px] leading-relaxed text-body">
+                      A quiet day for models, a loud one for tooling. Two browser-automation
+                      releases landed, and the long-running local-first sync thread finally produced
+                      a working reference implementation.
+                    </p>
+                    <ul class="mt-4 space-y-2 border-t border-line pt-4 text-[13px] text-body">
+                      <li class="flex gap-2.5">
+                        <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand"></span>
+                        Playwright ships a hardened tracing mode · GitHub
+                      </li>
+                      <li class="flex gap-2.5">
+                        <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand"></span>
+                        Local-first sync: the reference implementation · Hacker News
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- items -->
+                  <div class="mt-4 space-y-2">
+                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3.5">
+                      <span class="score bg-brand-soft text-brand-ink">92</span>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-[13px] font-medium text-ink">
+                          Postgres 18 ships asynchronous I/O
+                        </p>
+                        <p class="mt-0.5 text-[11.5px] text-mute">Hacker News · 2h ago</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3.5">
+                      <span class="score bg-sunken text-body">78</span>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-[13px] font-medium text-ink">
+                          A visual guide to CRDTs
+                        </p>
+                        <p class="mt-0.5 text-[11.5px] text-mute">RSS · 4h ago</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3 rounded-lg border border-line bg-surface p-3.5">
+                      <span class="score bg-sunken text-body">64</span>
+                      <div class="min-w-0 flex-1">
+                        <p class="truncate text-[13px] font-medium text-ink">
+                          Why we moved off Kubernetes
+                        </p>
+                        <p class="mt-0.5 text-[11.5px] text-mute">Reddit · 6h ago</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= how it works -->
+      <section id="how" class="band border-t border-line bg-surface">
+        <div class="shell">
+          <div class="reveal mx-auto max-w-2xl text-center">
+            <p class="eyebrow">How it works</p>
+            <h2 class="display-xl mt-4">Every source flows into one desk.</h2>
+            <p class="lede mt-6">
+              Pulse reads every source you point it at, classifies each item and scores it against
+              your interests. What comes out is a briefing, a ranked queue, and a shortlist of jobs
+              worth your evening.
+            </p>
+          </div>
+
+          <!-- Sources → the desk → output. One SVG so it scales as a single piece. -->
+          <div class="reveal mt-14 hidden lg:block">
+            <svg
+              viewBox="0 0 1180 520"
+              class="w-full font-sans"
+              role="img"
+              aria-label="Items arriving from GitHub, Hacker News, Reddit, RSS and Atom, LinkedIn, product catalogs and career pages feed into Pulse, which classifies, scores and briefs. The output is a daily briefing, signal scores and job fit scores."
+            >
+              <defs>
+                <radialGradient id="coreGlow">
+                  <stop offset="0%" stop-color="#e11d48" stop-opacity="0.16" />
+                  <stop offset="70%" stop-color="#e11d48" stop-opacity="0" />
+                </radialGradient>
+
+                <!-- inbound, one per arriving item -->
+                <path id="in1" d="M 298 79  C 380 79,  430 265, 518 265" />
+                <path id="in2" d="M 298 141 C 380 141, 440 265, 518 265" />
+                <path id="in3" d="M 298 203 C 380 203, 450 265, 518 265" />
+                <path id="in4" d="M 298 265 C 380 265, 450 265, 518 265" />
+                <path id="in5" d="M 298 327 C 380 327, 450 265, 518 265" />
+                <path id="in6" d="M 298 389 C 380 389, 440 265, 518 265" />
+                <path id="in7" d="M 298 451 C 380 451, 430 265, 518 265" />
+
+                <!-- outbound, one per output -->
+                <path id="out1" d="M 662 265 C 760 265, 800 137, 906 137" />
+                <path id="out2" d="M 662 265 C 760 265, 820 265, 906 265" />
+                <path id="out3" d="M 662 265 C 760 265, 800 393, 906 393" />
+              </defs>
+
+              <circle cx="590" cy="265" r="180" fill="url(#coreGlow)" />
+
+              <text x="30" y="20" font-size="11" font-weight="500" letter-spacing="1.4" fill="currentColor" class="text-faint">WHAT FLOWS IN</text>
+              <text x="590" y="20" font-size="11" font-weight="500" letter-spacing="1.4" fill="currentColor" class="text-faint" text-anchor="middle">THE DESK</text>
+              <text x="1150" y="20" font-size="11" font-weight="500" letter-spacing="1.4" fill="currentColor" class="text-faint" text-anchor="end">WHAT YOU GET</text>
+
+              <!-- connectors: a hairline with dashes flowing along it -->
+              <use href="#in1" class="flow-line" /><use href="#in1" class="flow-dash flow-d1" />
+              <use href="#in2" class="flow-line" /><use href="#in2" class="flow-dash flow-d2" />
+              <use href="#in3" class="flow-line" /><use href="#in3" class="flow-dash flow-d3" />
+              <use href="#in4" class="flow-line" /><use href="#in4" class="flow-dash" />
+              <use href="#in5" class="flow-line" /><use href="#in5" class="flow-dash flow-d2" />
+              <use href="#in6" class="flow-line" /><use href="#in6" class="flow-dash flow-d4" />
+              <use href="#in7" class="flow-line" /><use href="#in7" class="flow-dash flow-d1" />
+
+              <use href="#out1" class="flow-line" /><use href="#out1" class="flow-dash flow-d2" />
+              <use href="#out2" class="flow-line" /><use href="#out2" class="flow-dash" />
+              <use href="#out3" class="flow-line" /><use href="#out3" class="flow-dash flow-d3" />
+
+              <!-- what flows in: one arriving item per source -->
+              <rect x="30" y="52" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/github.svg" x="42" y="68" width="22" height="22" />
+              <text x="72" y="76" font-size="12" font-weight="500" fill="currentColor" class="text-ink">Rust 1.90 release notes</text>
+              <text x="72" y="92" font-size="10.5" fill="currentColor" class="text-mute">Repositories · 2h ago</text>
+              <rect x="250" y="71" width="32" height="16" rx="8" class="pill-soft" />
+              <text x="266" y="83" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">94</text>
+
+              <rect x="30" y="114" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/hackernews.svg" x="42" y="130" width="22" height="22" />
+              <text x="72" y="138" font-size="12" font-weight="500" fill="currentColor" class="text-ink">Postgres 18 async I/O</text>
+              <text x="72" y="154" font-size="10.5" fill="currentColor" class="text-mute">Discussions · 3h ago</text>
+              <rect x="250" y="133" width="32" height="16" rx="8" class="pill-soft" />
+              <text x="266" y="145" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">92</text>
+
+              <rect x="30" y="176" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/reddit-color.svg" x="42" y="192" width="22" height="22" />
+              <text x="72" y="200" font-size="12" font-weight="500" fill="currentColor" class="text-ink">Moving off Kubernetes</text>
+              <text x="72" y="216" font-size="10.5" fill="currentColor" class="text-mute">Discussions · 6h ago</text>
+              <rect x="250" y="195" width="32" height="16" rx="8" class="pill-quiet" />
+              <text x="266" y="207" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-body">64</text>
+
+              <rect x="30" y="238" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/rss-color.svg" x="42" y="254" width="22" height="22" />
+              <text x="72" y="262" font-size="12" font-weight="500" fill="currentColor" class="text-ink">A visual guide to CRDTs</text>
+              <text x="72" y="278" font-size="10.5" fill="currentColor" class="text-mute">Papers · 4h ago</text>
+              <rect x="250" y="257" width="32" height="16" rx="8" class="pill-quiet" />
+              <text x="266" y="269" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-body">78</text>
+
+              <rect x="30" y="300" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/linkedin-color.svg" x="42" y="316" width="22" height="22" />
+              <text x="72" y="324" font-size="12" font-weight="500" fill="currentColor" class="text-ink">Platform Engineer role</text>
+              <text x="72" y="340" font-size="10.5" fill="currentColor" class="text-mute">Jobs · 1d ago</text>
+              <rect x="250" y="319" width="32" height="16" rx="8" class="pill-soft" />
+              <text x="266" y="331" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">81</text>
+
+              <rect x="30" y="362" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/product-catalog.svg" x="42" y="378" width="22" height="22" />
+              <text x="72" y="386" font-size="12" font-weight="500" fill="currentColor" class="text-ink">A local-first database</text>
+              <text x="72" y="402" font-size="10.5" fill="currentColor" class="text-mute">Products &amp; Docs · 2d ago</text>
+              <rect x="250" y="381" width="32" height="16" rx="8" class="pill-quiet" />
+              <text x="266" y="393" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-body">71</text>
+
+              <rect x="30" y="424" width="268" height="54" rx="10" class="mock-card" />
+              <image href="./assets/career-pages.png" x="42" y="440" width="22" height="22" />
+              <text x="72" y="448" font-size="12" font-weight="500" fill="currentColor" class="text-ink">Senior Platform Engineer</text>
+              <text x="72" y="464" font-size="10.5" fill="currentColor" class="text-mute">Jobs · 2d ago</text>
+              <rect x="250" y="443" width="32" height="16" rx="8" class="pill-soft" />
+              <text x="266" y="455" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">88</text>
+
+              <!-- the desk -->
+              <circle cx="590" cy="265" r="72" class="core-ring-stroke core-ring" stroke-opacity="0.25" />
+              <circle cx="590" cy="265" r="52" class="core-circle" />
+              <image href="./assets/app-icon.svg" x="562" y="237" width="56" height="56" />
+
+              <text x="590" y="381" text-anchor="middle" font-size="15" font-weight="600" fill="currentColor" class="text-ink">Pulse</text>
+              <text x="590" y="403" text-anchor="middle" font-size="11.5" fill="currentColor" class="text-mute">Classifies · scores · briefs</text>
+
+              <!-- output previews -->
+              <rect x="906" y="91" width="234" height="92" rx="10" class="mock-card" />
+              <text x="922" y="115" font-size="12.5" font-weight="600" fill="currentColor" class="text-ink">Daily briefing</text>
+              <rect x="922" y="125" width="170" height="5" rx="2.5" class="bar-line-strong" />
+              <rect x="922" y="137" width="128" height="5" rx="2.5" class="bar-line" />
+              <text x="922" y="163" font-size="10.5" fill="currentColor" class="text-mute">16 items · 6 sources</text>
+
+              <rect x="906" y="219" width="234" height="92" rx="10" class="mock-card" />
+              <text x="922" y="240" font-size="12.5" font-weight="600" fill="currentColor" class="text-ink">Signal scores</text>
+
+              <rect x="922" y="249" width="36" height="16" rx="8" class="pill-soft" />
+              <text x="940" y="261" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">92</text>
+              <rect x="966" y="254.5" width="110" height="5" rx="2.5" class="bar-line-strong" />
+
+              <rect x="922" y="269" width="36" height="16" rx="8" class="pill-soft" />
+              <text x="940" y="281" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">78</text>
+              <rect x="966" y="274.5" width="88" height="5" rx="2.5" class="bar-line" />
+
+              <rect x="922" y="289" width="36" height="16" rx="8" class="pill-quiet" />
+              <text x="940" y="301" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-body">64</text>
+              <rect x="966" y="294.5" width="66" height="5" rx="2.5" class="bar-line" />
+
+              <rect x="906" y="347" width="234" height="92" rx="10" class="mock-card" />
+              <text x="922" y="371" font-size="12.5" font-weight="600" fill="currentColor" class="text-ink">Senior Platform Engineer</text>
+              <text x="922" y="387" font-size="10.5" fill="currentColor" class="text-mute">Northwind Labs · Remote</text>
+              <rect x="922" y="397" width="36" height="16" rx="8" class="pill-soft" />
+              <text x="940" y="409" text-anchor="middle" font-size="10.5" font-weight="500" fill="currentColor" class="text-brand-ink">92</text>
+              <text x="966" y="409" font-size="10.5" fill="currentColor" class="text-mute">fit</text>
+            </svg>
+          </div>
+
+          <!-- Stacked version for narrow screens. -->
+          <div class="reveal mt-12 lg:hidden">
+            <p class="nav-group">What flows in</p>
+            <div class="mt-4 space-y-2.5">
+              <div class="flex items-center gap-3">
+                <img src="./assets/github.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">Rust 1.90 release notes</p>
+                  <p class="text-[11px] text-mute">Repositories · 2h ago</p>
+                </div>
+                <span class="score bg-brand-soft text-brand-ink">94</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/hackernews.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">Postgres 18 async I/O</p>
+                  <p class="text-[11px] text-mute">Discussions · 3h ago</p>
+                </div>
+                <span class="score bg-brand-soft text-brand-ink">92</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/reddit-color.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">Moving off Kubernetes</p>
+                  <p class="text-[11px] text-mute">Discussions · 6h ago</p>
+                </div>
+                <span class="score bg-sunken text-body">64</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/rss-color.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">A visual guide to CRDTs</p>
+                  <p class="text-[11px] text-mute">Papers · 4h ago</p>
+                </div>
+                <span class="score bg-sunken text-body">78</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/linkedin-color.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">Platform Engineer role</p>
+                  <p class="text-[11px] text-mute">Jobs · 1d ago</p>
+                </div>
+                <span class="score bg-brand-soft text-brand-ink">81</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/product-catalog.svg" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">A local-first database</p>
+                  <p class="text-[11px] text-mute">Products &amp; Docs · 2d ago</p>
+                </div>
+                <span class="score bg-sunken text-body">71</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <img src="./assets/career-pages.png" alt="" width="22" height="22" class="shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-[12.5px] text-ink">Senior Platform Engineer</p>
+                  <p class="text-[11px] text-mute">Jobs · 2d ago</p>
+                </div>
+                <span class="score bg-brand-soft text-brand-ink">88</span>
+              </div>
+            </div>
+
+            <div class="my-7 flex justify-center text-brand">
+              <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden>
+                <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <img src="./assets/app-icon.svg" alt="" width="56" height="56" class="rounded-[14px]" />
+              <p class="mt-3 text-[15px] font-semibold text-ink">Pulse</p>
+              <p class="text-[12px] text-mute">Classifies · scores · briefs</p>
+            </div>
+
+            <div class="my-7 flex justify-center text-brand">
+              <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden>
+                <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+
+            <p class="nav-group">What you get</p>
+            <div class="mt-3 grid gap-2">
+              <div class="card !p-4">
+                <p class="text-[13.5px] font-medium text-ink">Daily briefing</p>
+                <p class="mt-1 text-[12px] text-mute">16 items across 6 sources, summarised.</p>
+              </div>
+              <div class="card !p-4">
+                <p class="text-[13.5px] font-medium text-ink">Signal scores</p>
+                <div class="mt-2 flex gap-1.5">
+                  <span class="score bg-brand-soft text-brand-ink">92</span>
+                  <span class="score bg-brand-soft text-brand-ink">78</span>
+                  <span class="score bg-sunken text-body">64</span>
+                </div>
+              </div>
+              <div class="card !p-4">
+                <p class="text-[13.5px] font-medium text-ink">Job fit scores</p>
+                <p class="mt-1 text-[12px] text-mute">
+                  Senior Platform Engineer ·
+                  <span class="font-medium text-brand-ink">92 fit</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= scored -->
+      <section class="band border-t border-line bg-surface">
+        <div class="shell grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
+          <div class="reveal">
+            <p class="eyebrow">Scored, not sorted by time</p>
+            <h2 class="display-xl mt-4">The queue opens on what matters.</h2>
+            <p class="lede mt-6">
+              Every item is classified and given a signal score against your interests, watchlists
+              and projects. Move things through triage as you read and the scoring gets sharper.
+            </p>
+
+            <dl class="mt-9 grid grid-cols-2 gap-x-8 gap-y-6">
+              <div>
+                <dt class="text-[13px] font-medium text-ink">Signal scoring</dt>
+                <dd class="mt-1.5 text-[13px] text-body">
+                  Ranked against what you actually read, not engagement.
+                </dd>
+              </div>
+              <div>
+                <dt class="text-[13px] font-medium text-ink">Four triage states</dt>
+                <dd class="mt-1.5 text-[13px] text-body">
+                  Inbox, reading queue, important, archive.
+                </dd>
+              </div>
+              <div>
+                <dt class="text-[13px] font-medium text-ink">Four streams</dt>
+                <dd class="mt-1.5 text-[13px] text-body">
+                  Repositories, papers, products &amp; docs, discussions.
+                </dd>
+              </div>
+              <div>
+                <dt class="text-[13px] font-medium text-ink">Watchlists &amp; projects</dt>
+                <dd class="mt-1.5 text-[13px] text-body">
+                  Follow a topic or a thread across every source.
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="reveal">
+            <div class="window">
+              <div class="window-bar justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="dot bg-[#ff5f57]"></span>
+                  <span class="dot bg-[#febc2e]"></span>
+                  <span class="dot bg-[#28c840]"></span>
+                </div>
+                <span class="text-[11px] text-faint">Feed · Inbox</span>
+              </div>
+
+              <div class="bg-surface p-4">
+                <div class="mb-3 flex flex-wrap gap-2">
+                  <span class="pill !bg-brand !text-white !border-transparent">Inbox</span>
+                  <span class="pill">Reading queue</span>
+                  <span class="pill">Important</span>
+                  <span class="pill">All sources</span>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-center gap-2">
+                      <span class="score bg-brand-soft text-brand-ink">94</span>
+                      <span class="text-[11px] text-faint">GitHub · Repositories</span>
+                    </div>
+                    <p class="mt-2 text-[13px] font-medium text-ink">
+                      Rust 1.90 release notes
+                    </p>
+                    <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-body">
+                      Faster incremental builds, a new borrow-checker diagnostic, and stabilised
+                      async closures.
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-center gap-2">
+                      <span class="score bg-brand-soft text-brand-ink">88</span>
+                      <span class="text-[11px] text-faint">arXiv · Papers</span>
+                    </div>
+                    <p class="mt-2 text-[13px] font-medium text-ink">
+                      Speculative decoding, revisited
+                    </p>
+                    <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-body">
+                      A cheaper draft model and a tighter accept rule, measured across three
+                      instruction-tuned model families.
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-center gap-2">
+                      <span class="score bg-sunken text-body">71</span>
+                      <span class="text-[11px] text-faint">Products &amp; Docs</span>
+                    </div>
+                    <p class="mt-2 text-[13px] font-medium text-ink">A new local-first database</p>
+                    <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-body">
+                      Embedded, sync-capable, and written for the edge.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= jobs -->
+      <section id="jobs" class="band border-t border-line">
+        <div class="shell grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
+          <div class="reveal lg:order-2">
+            <p class="eyebrow">Work jobs</p>
+            <h2 class="display-xl mt-4">Treat the search like a queue.</h2>
+            <p class="lede mt-6">
+              Listings arrive from the same sources as everything else. Scan boards and the career
+              pages you track, fetch the real description when a feed ships without one, then score
+              each listing against your base resume.
+            </p>
+
+            <ul class="mt-9 space-y-4">
+              <li class="flex gap-3">
+                <span class="mt-0.5 text-brand" aria-hidden>-</span>
+                <p class="text-[14px] text-body">
+                  <span class="font-medium text-ink">Fit scores with reasoning.</span> See why a
+                  listing matches before you spend an evening on the application.
+                </p>
+              </li>
+              <li class="flex gap-3">
+                <span class="mt-0.5 text-brand" aria-hidden>-</span>
+                <p class="text-[14px] text-body">
+                  <span class="font-medium text-ink">A tailored resume and cover letter</span>
+                  per job, kept as history so nothing is overwritten.
+                </p>
+              </li>
+              <li class="flex gap-3">
+                <span class="mt-0.5 text-brand" aria-hidden>-</span>
+                <p class="text-[14px] text-body">
+                  <span class="font-medium text-ink">Scoring stays manual.</span> A scan collects
+                  listings; it never spends a model call until you ask it to.
+                </p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="reveal lg:order-1">
+            <div class="window">
+              <div class="window-bar justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="dot bg-[#ff5f57]"></span>
+                  <span class="dot bg-[#febc2e]"></span>
+                  <span class="dot bg-[#28c840]"></span>
+                </div>
+                <span class="text-[11px] text-faint">Pulse · Jobs</span>
+              </div>
+
+              <div class="bg-surface p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 class="text-[15px] font-semibold tracking-tight text-ink">
+                      Work Jobs <span class="text-[13px] font-normal text-faint">18</span>
+                    </h3>
+                    <p class="mt-0.5 text-[11.5px] text-mute">
+                      Listings from every source, kept apart from your feed.
+                    </p>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="pill">Score 5</span>
+                    <span
+                      class="pill !border-transparent !bg-brand !text-white"
+                      >Scan</span
+                    >
+                  </div>
+                </div>
+
+                <div class="mt-3.5 flex flex-wrap gap-2">
+                  <span class="pill !bg-brand !text-white !border-transparent">All</span>
+                  <span class="pill">Saved</span>
+                  <span class="pill">Applied</span>
+                  <span class="pill">Shortlisted</span>
+                </div>
+
+                <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="text-[13px] font-medium text-ink">Senior Platform Engineer</p>
+                      <span class="score shrink-0 bg-brand-soft text-brand-ink">92</span>
+                    </div>
+                    <p class="mt-1.5 text-[11.5px] text-mute">Northwind Labs · Remote, EU</p>
+                    <p class="mt-2.5 border-t border-line pt-2.5 text-[11.5px] text-body">
+                      Strong match on platform and infrastructure work.
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="text-[13px] font-medium text-ink">Backend Engineer, Payments</p>
+                      <span class="score shrink-0 bg-brand-soft text-brand-ink">81</span>
+                    </div>
+                    <p class="mt-1.5 text-[11.5px] text-mute">Halden · Berlin, hybrid</p>
+                    <p class="mt-2.5 border-t border-line pt-2.5 text-[11.5px] text-body">
+                      Overlaps your Postgres and billing work.
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="text-[13px] font-medium text-ink">Infrastructure Engineer</p>
+                      <span class="score shrink-0 bg-sunken text-body">67</span>
+                    </div>
+                    <p class="mt-1.5 text-[11.5px] text-mute">Corvid · Remote</p>
+                    <p class="mt-2.5 border-t border-line pt-2.5 text-[11.5px] text-body">
+                      Heavier on Windows infrastructure than your history.
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-line p-3.5">
+                    <div class="flex items-start justify-between gap-2">
+                      <p class="text-[13px] font-medium text-ink">Developer Experience Lead</p>
+                      <span class="score shrink-0 bg-sunken text-body">74</span>
+                    </div>
+                    <p class="mt-1.5 text-[11.5px] text-mute">Fieldnote · London</p>
+                    <p class="mt-2.5 border-t border-line pt-2.5 text-[11.5px] text-body">
+                      Close, but the lead scope is a step up.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= features -->
+      <section id="features" class="band border-t border-line bg-surface">
+        <div class="shell">
+          <div class="reveal mx-auto max-w-2xl text-center">
+            <p class="eyebrow">Features</p>
+            <h2 class="display-xl mt-4">Everything the desk does.</h2>
+            <p class="lede mt-6">Six things the app does every day.</p>
+          </div>
+
+          <div class="mt-14 grid gap-4 lg:grid-cols-12">
+            <!-- Sources: the marks are the visual. -->
+            <article class="card reveal lg:col-span-7">
+              <h3 class="text-[15px] font-medium text-ink">Every source in one queue</h3>
+              <p class="mt-2 max-w-md text-[13.5px] leading-relaxed">
+                GitHub, Hacker News, Reddit, RSS and Atom, LinkedIn, product catalogs, and the
+                company career pages you track. Configured once, synced in the background.
+              </p>
+              <ul class="mt-7 flex flex-wrap gap-x-6 gap-y-3.5">
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/github.svg" alt="" width="18" height="18" />GitHub
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/hackernews.svg" alt="" width="18" height="18" />Hacker News
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/reddit-color.svg" alt="" width="18" height="18" />Reddit
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/rss-color.svg" alt="" width="18" height="18" />RSS &amp; Atom
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/linkedin-color.svg" alt="" width="18" height="18" />LinkedIn
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/product-catalog.svg" alt="" width="18" height="18" />Product
+                  catalogs
+                </li>
+                <li class="flex items-center gap-2 text-[12.5px] text-body">
+                  <img src="./assets/career-pages.png" alt="" width="18" height="18" />Career pages
+                </li>
+              </ul>
+            </article>
+
+            <!-- Keyboard -->
+            <article class="card reveal lg:col-span-5">
+              <h3 class="text-[15px] font-medium text-ink">Keyboard-first</h3>
+              <p class="mt-2 text-[13.5px] leading-relaxed">
+                Move, triage and open without the mouse, with a command palette over everything
+                else.
+              </p>
+              <div class="mt-7 flex flex-wrap gap-1.5">
+                <span class="kbd">j</span>
+                <span class="kbd">k</span>
+                <span class="kbd">↵</span>
+                <span class="kbd">s</span>
+                <span class="kbd">i</span>
+                <span class="kbd">a</span>
+                <span class="kbd">o</span>
+                <span class="kbd">⌘</span>
+                <span class="kbd">K</span>
+              </div>
+              <p class="mt-3 text-[11.5px] leading-relaxed text-faint">
+                Move · open · save · important · archive · original · palette
+              </p>
+            </article>
+
+            <!-- Briefing: a miniature of the real card. -->
+            <article class="card reveal lg:col-span-4">
+              <h3 class="text-[15px] font-medium text-ink">A briefing, not a scroll</h3>
+              <p class="mt-2 text-[13.5px] leading-relaxed">
+                One summary of what happened today, written only from today's items and the counts
+                behind them.
+              </p>
+              <div class="mt-7 rounded-lg border border-line bg-canvas p-4">
+                <p class="text-[10.5px] font-medium uppercase tracking-[0.12em] text-brand-ink">
+                  Daily briefing
+                </p>
+                <div class="mt-3 space-y-1.5">
+                  <div class="h-1.5 w-full rounded-full bg-line-strong"></div>
+                  <div class="h-1.5 w-4/5 rounded-full bg-line"></div>
+                  <div class="h-1.5 w-3/5 rounded-full bg-line"></div>
+                </div>
+                <p class="mt-3 text-[10.5px] text-faint">16 items · 6 sources</p>
+              </div>
+            </article>
+
+            <!-- Reader -->
+            <article class="card reveal lg:col-span-4">
+              <h3 class="text-[15px] font-medium text-ink">Read without leaving</h3>
+              <p class="mt-2 text-[13.5px] leading-relaxed">
+                A reader drawer pulls the full text of any link and keeps a searchable library of
+                everything you saved.
+              </p>
+              <div class="mt-7 rounded-lg border border-line bg-canvas p-4">
+                <p class="truncate text-[12.5px] font-medium text-ink">A visual guide to CRDTs</p>
+                <p class="mt-1 text-[10.5px] text-faint">arxiv.org · 4h ago</p>
+                <div class="mt-3 space-y-1.5">
+                  <div class="h-1.5 w-full rounded-full bg-line"></div>
+                  <div class="h-1.5 w-11/12 rounded-full bg-line"></div>
+                  <div class="h-1.5 w-2/3 rounded-full bg-line"></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Widget -->
+            <article class="card reveal lg:col-span-4">
+              <h3 class="text-[15px] font-medium text-ink">A widget and a tray</h3>
+              <p class="mt-2 text-[13.5px] leading-relaxed">
+                Background sync on your schedule, a menu-bar icon, and a macOS widget so today's
+                items are readable without opening anything.
+              </p>
+              <div class="mt-7 rounded-lg border border-line bg-canvas p-4">
+                <p class="text-[10.5px] font-medium uppercase tracking-[0.12em] text-faint">Today</p>
+                <div class="mt-3 space-y-2">
+                  <p class="truncate text-[11.5px] text-ink">Postgres 18 async I/O</p>
+                  <p class="truncate text-[11.5px] text-ink">A visual guide to CRDTs</p>
+                  <p class="truncate text-[11.5px] text-ink">Rust 1.90 release notes</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Local-first, as a wide closing panel. -->
+            <article class="card card-glow reveal lg:col-span-12">
+              <div class="flex flex-wrap items-start justify-between gap-8">
+                <div class="max-w-md">
+                  <h3 class="text-[15px] font-medium text-ink">Local-first, genuinely</h3>
+                  <p class="mt-2 text-[13.5px] leading-relaxed">
+                    Items live on your machine, and nothing is sent anywhere except the model calls
+                    you configure yourself.
+                  </p>
+                </div>
+                <dl class="grid gap-x-10 gap-y-4 sm:grid-cols-3">
+                  <div>
+                    <dt class="text-[12.5px] font-medium text-ink">No sign-up</dt>
+                    <dd class="mt-0.5 text-[12px] text-mute">Nothing to log into.</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[12.5px] font-medium text-ink">No telemetry</dt>
+                    <dd class="mt-0.5 text-[12px] text-mute">No analytics, no metrics.</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[12.5px] font-medium text-ink">Your files</dt>
+                    <dd class="mt-0.5 text-[12px] text-mute">pulse.db, on your disk.</dd>
+                  </div>
+                </dl>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= workflow -->
+      <section id="workflow" class="band border-t border-line">
+        <div class="shell grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
+          <div class="reveal">
+            <p class="eyebrow">Workflow</p>
+            <h2 class="display-xl mt-4">Triage the whole day in a few keys.</h2>
+            <p class="lede mt-6">
+              Move through the queue, file what matters and open what you intend to read, without
+              reaching for the mouse.
+            </p>
+          </div>
+
+          <div class="reveal">
+            <dl class="divide-y divide-line border-y border-line">
+              <div class="flex items-center justify-between gap-6 py-4">
+                <dt class="text-[14px] text-body">Move through the queue</dt>
+                <dd class="flex gap-1.5"><span class="kbd">j</span><span class="kbd">k</span></dd>
+              </div>
+              <div class="flex items-center justify-between gap-6 py-4">
+                <dt class="text-[14px] text-body">Open the reader</dt>
+                <dd><span class="kbd">↵</span></dd>
+              </div>
+              <div class="flex items-center justify-between gap-6 py-4">
+                <dt class="text-[14px] text-body">Save · important · archive</dt>
+                <dd class="flex gap-1.5"><span class="kbd">s</span><span class="kbd">i</span><span class="kbd">a</span></dd>
+              </div>
+              <div class="flex items-center justify-between gap-6 py-4">
+                <dt class="text-[14px] text-body">Open the original</dt>
+                <dd><span class="kbd">o</span></dd>
+              </div>
+              <div class="flex items-center justify-between gap-6 py-4">
+                <dt class="text-[14px] text-body">Command palette</dt>
+                <dd class="flex gap-1.5"><span class="kbd">⌘</span><span class="kbd">K</span></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= download -->
+      <section id="download" class="band border-t border-line bg-surface">
+        <div class="shell">
+          <div class="reveal mx-auto max-w-2xl text-center">
+            <p class="eyebrow">Download</p>
+            <h2 class="display-xl mt-4">Take it for a week.</h2>
+            <p class="lede mt-6">
+              Pulse is open source and free. You pay only your model provider, and only for the
+              calls you make.
+            </p>
+          </div>
+
+          <div class="mt-14 grid gap-4 md:grid-cols-3">
+            <article class="card reveal flex flex-col !bg-canvas">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-medium text-ink">macOS</h3>
+                <span class="pill !border-transparent !bg-brand-soft !text-brand-ink">Available</span>
+              </div>
+              <p class="mt-3 flex-1 text-[13.5px]">
+                Apple silicon, macOS 13 or later. Needs Node 20+ for the extraction engine.
+              </p>
+              <a
+                href="https://github.com/Kaushald4/Pulse/releases/latest"
+                class="btn-primary mt-6 w-full"
+                >Download for macOS</a
+              >
+            </article>
+
+            <article class="card reveal flex flex-col">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-medium text-ink">Windows</h3>
+                <span class="pill">Coming soon</span>
+              </div>
+              <p class="mt-3 flex-1 text-[13.5px]">
+                The app builds and runs on Windows. The first-run setup is still being finished.
+              </p>
+              <a href="https://github.com/Kaushald4/Pulse" class="btn-secondary mt-6 w-full"
+                >Follow along</a
+              >
+            </article>
+
+            <article class="card reveal flex flex-col">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-medium text-ink">Linux</h3>
+                <span class="pill">Coming soon</span>
+              </div>
+              <p class="mt-3 flex-1 text-[13.5px]">
+                The Tauri configuration is in the repository, but it has not been tested yet.
+              </p>
+              <a href="https://github.com/Kaushald4/Pulse" class="btn-secondary mt-6 w-full"
+                >Follow along</a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= faq -->
+      <section class="band border-t border-line">
+        <div class="shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          <div class="reveal">
+            <p class="eyebrow">Questions</p>
+            <h2 class="display-xl mt-4">The short answers.</h2>
+          </div>
+
+          <div class="reveal divide-y divide-line border-y border-line">
+            <details class="group py-5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-[15px] font-medium text-ink">
+                Do I need an account?
+                <span class="text-mute transition-transform group-open:rotate-45" aria-hidden>+</span>
+              </summary>
+              <p class="mt-3 max-w-2xl text-[14px] leading-relaxed">
+                No. Pulse is a local desktop app: no sign-up, no sync, no telemetry.
+              </p>
+            </details>
+
+            <details class="group py-5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-[15px] font-medium text-ink">
+                Do I need an API key?
+                <span class="text-mute transition-transform group-open:rotate-45" aria-hidden>+</span>
+              </summary>
+              <p class="mt-3 max-w-2xl text-[14px] leading-relaxed">
+                For scoring, briefings and job matching, yes. Point Pulse at Cloudflare, OpenRouter,
+                or any OpenAI-compatible endpoint. Reading and saving work without one.
+              </p>
+            </details>
+
+            <details class="group py-5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-[15px] font-medium text-ink">
+                Is there a subscription?
+                <span class="text-mute transition-transform group-open:rotate-45" aria-hidden>+</span>
+              </summary>
+              <p class="mt-3 max-w-2xl text-[14px] leading-relaxed">
+                No. Pulse is open source. Your only cost is your model provider, and you choose
+                which one.
+              </p>
+            </details>
+
+            <details class="group py-5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-[15px] font-medium text-ink">
+                Does it work on Windows or Linux?
+                <span class="text-mute transition-transform group-open:rotate-45" aria-hidden>+</span>
+              </summary>
+              <p class="mt-3 max-w-2xl text-[14px] leading-relaxed">
+                Not yet. macOS is the tested target today, and both other platforms are in progress.
+              </p>
+            </details>
+
+            <details class="group py-5">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-[15px] font-medium text-ink">
+                Where does my data live?
+                <span class="text-mute transition-transform group-open:rotate-45" aria-hidden>+</span>
+              </summary>
+              <p class="mt-3 max-w-2xl text-[14px] leading-relaxed">
+                On your machine. Items are stored locally, and keys stay in your own config file.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= closing -->
+      <section class="bg-ink-band py-20 text-center md:py-24">
+        <div class="shell">
+          <h2 class="display-xl reveal !text-white">Stop scrolling. Start reading.</h2>
+          <p class="reveal mx-auto mt-5 max-w-xl text-[15px] text-white/60">
+            One queue, scored. A briefing each morning. Your job search beside it.
+          </p>
+          <div class="reveal mt-9 flex flex-wrap justify-center gap-3">
+            <a
+              href="https://github.com/Kaushald4/Pulse/releases/latest"
+              class="btn-primary"
+              >Download for macOS</a
+            >
+            <a
+              href="https://github.com/Kaushald4/Pulse"
+              class="btn-secondary !border-white/20 !bg-white/5 !text-white hover:!border-white/40"
+              >View on GitHub</a
+            >
+          </div>
+
+          <p class="reveal mt-7 flex items-center justify-center gap-2 text-[13px] text-white/45">
+            <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden>
+              <path
+                d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8L3.5 9.7l5.9-.9L12 3.5Z"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <a href="https://github.com/Kaushald4/Pulse" class="transition-colors hover:text-white"
+              >Consider giving it a star on GitHub</a
+            >
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- =========================================================== footer -->
+    <footer class="border-t border-line bg-canvas">
+      <div class="shell grid gap-10 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <img src="./assets/app-icon.svg" alt="" width="26" height="26" class="rounded-[7px]" />
+            <span class="text-[15px] font-semibold tracking-tight text-ink">Pulse</span>
+          </div>
+          <p class="mt-4 max-w-xs text-[13px] text-mute">
+            Read less. Miss nothing. Built for people who read for a living.
+          </p>
+          <a
+            href="https://github.com/Kaushald4/Pulse/releases/latest"
+            class="btn-secondary mt-6 h-9 px-4 text-[13px]"
+            >Download for macOS</a
+          >
+        </div>
+
+        <nav aria-label="Product">
+          <h3 class="text-[12px] uppercase tracking-[0.13em] text-faint">Product</h3>
+          <ul class="mt-4 space-y-2.5 text-[13px] text-body">
+            <li><a href="#features" class="transition-colors hover:text-ink">Features</a></li>
+            <li><a href="#how" class="transition-colors hover:text-ink">How it works</a></li>
+            <li><a href="#jobs" class="transition-colors hover:text-ink">Jobs</a></li>
+            <li><a href="#workflow" class="transition-colors hover:text-ink">Workflow</a></li>
+            <li><a href="#download" class="transition-colors hover:text-ink">Download</a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="Project">
+          <h3 class="text-[12px] uppercase tracking-[0.13em] text-faint">Project</h3>
+          <ul class="mt-4 space-y-2.5 text-[13px] text-body">
+            <li><a href="https://github.com/Kaushald4/Pulse" class="transition-colors hover:text-ink">Source</a></li>
+            <li><a href="https://github.com/Kaushald4/Pulse/releases" class="transition-colors hover:text-ink">Releases</a></li>
+            <li><a href="https://github.com/Kaushald4/Pulse/issues" class="transition-colors hover:text-ink">Issues</a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="Built with">
+          <h3 class="text-[12px] uppercase tracking-[0.13em] text-faint">Built with</h3>
+          <ul class="mt-4 space-y-2.5 text-[13px] text-body">
+            <li>Tauri</li>
+            <li>Next.js</li>
+            <li>SQLite</li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="border-t border-line">
+        <div class="shell flex flex-wrap items-center justify-between gap-4 py-6">
+          <p class="text-[12px] text-faint">
+            © 2026 Pulse. Open source. Built by
+            <a
+              href="https://github.com/Kaushald4"
+              class="text-body transition-colors hover:text-ink"
+              >Kaushal</a
+            >
+            on earth.
+          </p>
+          <a
+            href="https://github.com/Kaushald4/Pulse"
+            class="flex items-center gap-2 text-[12px] text-body transition-colors hover:text-ink"
+          >
+            <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden>
+              <path
+                d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8L3.5 9.7l5.9-.9L12 3.5Z"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Star Pulse on GitHub
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var items = document.querySelectorAll(".reveal");
+        if (!("IntersectionObserver" in window)) {
+          items.forEach(function (el) {
+            el.classList.add("is-visible");
+          });
+        } else {
+          var observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              });
+            },
+            { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+          );
+          items.forEach(function (el) {
+            observer.observe(el);
+          });
+        }
+
+        var toggle = document.getElementById("theme-toggle");
+        if (!toggle) return;
+
+        toggle.addEventListener("click", function () {
+          var root = document.documentElement;
+          var dark = !root.classList.contains("dark");
+          root.classList.toggle("dark", dark);
+          toggle.setAttribute(
+            "aria-label",
+            dark ? "Switch to light theme" : "Switch to dark theme"
+          );
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", dark ? "#000000" : "#f7f7f9");
+          try {
+            localStorage.setItem("pulse-theme", dark ? "dark" : "light");
+          } catch (error) {
+            /* nothing to persist to */
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

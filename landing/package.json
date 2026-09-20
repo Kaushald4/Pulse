@@ -1,0 +1,16 @@
+{
+  "name": "pulse-landing",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Marketing site for Pulse. Static HTML + Tailwind, published to GitHub Pages.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

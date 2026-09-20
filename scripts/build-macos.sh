@@ -4,7 +4,22 @@ set -eu
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 APP="${ROOT}/src-tauri/target/release/bundle/macos/Pulse.app"
 ENTITLEMENTS="${ROOT}/src-tauri/entitlements.plist"
-DMG="${ROOT}/src-tauri/target/release/bundle/dmg/Pulse_0.1.0_aarch64.dmg"
+
+# Derived rather than hard-coded: a release must not ship a DMG named after the
+# previous version. Tauri names bundles with the Rust target arch, which is not
+# what uname reports - macOS says arm64, the triple says aarch64.
+VERSION="$(node -p "require('${ROOT}/src-tauri/tauri.conf.json').version")"
+if [ -z "${VERSION}" ]; then
+  printf 'Could not read the version from tauri.conf.json\n' >&2
+  exit 1
+fi
+
+case "$(uname -m)" in
+  arm64) ARCH="aarch64" ;;
+  *) ARCH="$(uname -m)" ;;
+esac
+
+DMG="${ROOT}/src-tauri/target/release/bundle/dmg/Pulse_${VERSION}_${ARCH}.dmg"
 STAGE="$(mktemp -d)"
 
 cleanup() {

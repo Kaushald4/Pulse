@@ -1,2 +1,7 @@
+packages:
+  - "."
+  - "landing"
+
 allowBuilds:
   canvas: false
+  "@parcel/watcher": false
