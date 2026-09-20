@@ -1,8 +1,6 @@
 # Pulse
 
-<p align="center">
-  <img src="screenshots/cover-pulse.png" alt="Pulse tech radar" width="100%" />
-</p>
+![Pulse tech radar](screenshots/cover-pulse_.png)
 
 <p align="center">
   <strong>A personal tech radar for discovering, filtering, and keeping up with what matters.</strong>
