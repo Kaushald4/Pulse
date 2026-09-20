@@ -212,8 +212,7 @@ embedded in the regular app or DMG at the moment.
 | Frontend | Next.js with Tailwind CSS v4 |
 | Desktop layer | Tauri v2 and Rust |
 | Storage | Embedded local SQLite database |
-| Sample data | Loaded only when I choose **Load sample items** |
-| Development note | Do not run `pnpm build` while `pnpm dev` is running; both use `.next` |
+
 
 Pulse is still evolving. The goal is not to collect everything. The goal is to make the signal
 worth returning to.
