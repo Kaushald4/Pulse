@@ -66,8 +66,16 @@ export function SettingsView() {
   };
 
   return (
-    <div className="space-y-5 pb-16">
-      <div>
+    /*
+     * The pane fills the shell instead of growing past it.
+     *
+     * `h-full` plus `min-h-0` on the two-pane grid is what keeps the title still
+     * and gives the section list and the panel a scroll each. Without it the
+     * whole settings page scrolled as one column, so the section list slid out of
+     * view as soon as you were a card deep.
+     */
+    <div className="flex h-full flex-col gap-4">
+      <div className="shrink-0">
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Models, providers and how Pulse collects content.
@@ -75,7 +83,7 @@ export function SettingsView() {
       </div>
 
       {!desktop && (
-        <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs leading-relaxed text-foreground">
+        <div className="flex shrink-0 items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs leading-relaxed text-foreground">
           <MonitorSmartphone className="mt-0.5 size-4 shrink-0 text-amber-500" />
           <span>
             You are in the browser preview. Syncing, model calls and article fetching only work in the desktop
@@ -84,8 +92,8 @@ export function SettingsView() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
+        <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1">
           {SECTIONS.map((section) => {
             const Icon = section.icon;
             const isActive = active === section.id;
@@ -112,7 +120,7 @@ export function SettingsView() {
           })}
         </nav>
 
-        <div className="min-w-0">
+        <div className="min-h-0 overflow-y-auto lg:pr-2">
           {active === "models" && <ModelsSection draft={draft} patch={patch} />}
           {active === "providers" && <ProvidersSection draft={draft} patch={patch} />}
           {active === "sources" && <SourcesSection draft={draft} patch={patch} desktop={desktop} />}
@@ -123,8 +131,9 @@ export function SettingsView() {
         </div>
       </div>
 
+      {/* Always visible when there is something to save: the pane no longer scrolls. */}
       {dirty && (
-        <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card/95 px-3.5 py-3 shadow-lg backdrop-blur">
+        <div className="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-3 shadow-lg">
           <span className="text-xs text-muted-foreground">You have unsaved changes.</span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => setDraft(config)} className="gap-1.5">

@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { Trash2, FlaskConical, Upload, Download } from "lucide-react";
+import { Trash2, Upload, Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Hint, SectionIntro } from "./shared";
 import { usePulse } from "../../store/pulse";
 
 export function DataSection({ desktop }: { desktop: boolean }) {
-  const loadDemo = usePulse((state) => state.loadDemo);
   const wipeData = usePulse((state) => state.wipeData);
   const exportLibrary = usePulse((state) => state.exportLibrary);
   const importLibrary = usePulse((state) => state.importLibrary);
@@ -63,22 +62,6 @@ export function DataSection({ desktop }: { desktop: boolean }) {
           <Hint>
             Changes apply immediately - this is not part of the save bar, because there is nothing to undo.
           </Hint>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Sample content</CardTitle>
-          <CardDescription>
-            Loads a small set of made-up items so you can see the interface populated. Use it only for a demo:
-            real items replace it as soon as you sync.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button variant="ghost" onClick={() => void loadDemo()} className="gap-1.5">
-            <FlaskConical className="size-3.5" />
-            Load sample items
-          </Button>
         </CardContent>
       </Card>
     </div>

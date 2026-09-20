@@ -111,9 +111,14 @@ pub fn resolve_path() -> Option<String> {
 fn build_command(binary: &str, command: &str) -> Command {
     let path = Path::new(binary);
     let mut cmd = if is_script(path) {
-        let mut node = Command::new("node");
-        node.arg(path);
-        node
+        // The managed bundle is a JS entry point, so it runs through Node. Use
+        // the resolved binary rather than the bare name: a Finder-launched app
+        // does not inherit the shell's PATH, so "node" alone would not be found
+        // even on a machine where Node is installed.
+        let node = crate::node::resolve_node().unwrap_or_else(|| PathBuf::from("node"));
+        let mut node_cmd = Command::new(node);
+        node_cmd.arg(path);
+        node_cmd
     } else {
         Command::new(path)
     };

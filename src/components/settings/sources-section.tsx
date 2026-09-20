@@ -134,8 +134,10 @@ export function SourcesSection({
             <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
               <Hint>
-                Node.js was not found on your PATH. helmsman runs through Node, so install Node.js 20 or newer
-                before syncing.
+                Node.js could not be found. helmsman runs through Node, so syncing needs Node 20 or
+                newer. Pulse searches the PATH and the usual install locations (nvm, Volta, fnm,
+                Homebrew) - if yours lives somewhere else, linking it into{" "}
+                <span className="font-mono">/usr/local/bin</span> will always be found.
               </Hint>
             </div>
           )}

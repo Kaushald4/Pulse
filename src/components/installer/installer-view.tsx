@@ -114,9 +114,18 @@ export function InstallerView({ status, onDone }: { status: SetupStatus; onDone:
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex h-dvh w-dvw items-center justify-center overflow-hidden bg-background p-6">
+    /*
+     * Scrolls rather than clips.
+     *
+     * This used to be `items-center justify-center overflow-hidden`, which
+     * silently cut the header off the top and the footer off the bottom as soon
+     * as the content was taller than the window. `overflow-y-auto` on the frame
+     * plus `min-h-full justify-center` on the column centres it when it fits and
+     * scrolls it when it does not.
+     */
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none fixed inset-0"
         style={{
           background:
             "radial-gradient(720px 420px at 50% -8%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 70%)",
@@ -124,7 +133,7 @@ export function InstallerView({ status, onDone }: { status: SetupStatus; onDone:
         aria-hidden
       />
 
-      <div className="relative flex w-full max-w-2xl flex-col gap-5">
+      <div className="relative mx-auto flex min-h-full w-full max-w-5xl flex-col justify-center gap-6 p-6 sm:p-8">
         <header className="flex flex-col items-center gap-3 text-center">
           <img
             src="/app-icon.png"
@@ -145,9 +154,11 @@ export function InstallerView({ status, onDone }: { status: SetupStatus; onDone:
           </p>
         </header>
 
-        <InstallSteps steps={status.steps} states={states} errors={errors} />
-
-        <InstallTerminal lines={lines} running={running} />
+        {/* Checklist beside the log, so the log is readable instead of a narrow strip. */}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-stretch">
+          <InstallSteps steps={status.steps} states={states} errors={errors} />
+          <InstallTerminal lines={lines} running={running} />
+        </div>
 
         <footer className="space-y-3">
           <div className="h-1 w-full overflow-hidden rounded-full bg-secondary">
