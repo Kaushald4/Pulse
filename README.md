@@ -148,7 +148,7 @@ Requirements:
 
 | Requirement | Why it is needed |
 | --- | --- |
-| Node.js 20 or newer | Runs the extraction engine |
+| Node.js 22.13 or newer | Runs the extraction engine, and pnpm 11 will not install on anything older |
 | `pnpm` | Installs dependencies and runs project scripts |
 | Chrome | Required for sources that use a browser profile |
 
