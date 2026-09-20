@@ -144,15 +144,7 @@ except Exception as exc:
 "#;
 
 fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
-    let python = {
-        let configured = config::load().extraction.python_path;
-        let trimmed = configured.trim();
-        if trimmed.is_empty() {
-            "python3".to_string()
-        } else {
-            trimmed.to_string()
-        }
-    };
+    let python = config::load().extraction.resolved_python();
 
     let output = Command::new(&python)
         .arg("-c")

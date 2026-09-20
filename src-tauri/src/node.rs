@@ -7,19 +7,13 @@
 use std::path::Path;
 use std::process::Command;
 
-use crate::proc::{run_streaming, ProcRun};
+use crate::proc::{find_executable, path_dirs, run_streaming, ProcRun};
 
 pub use crate::proc::PROGRESS_PREFIX;
 
 /// Whether `node` is reachable on the PATH.
 pub fn node_available() -> bool {
-    std::env::var_os("PATH")
-        .map(|path| {
-            std::env::split_paths(&path)
-                .map(|dir| dir.join("node"))
-                .any(|candidate| candidate.is_file())
-        })
-        .unwrap_or(false)
+    find_executable(&path_dirs(), "node").is_some()
 }
 
 /// `node --version`, or nothing when Node is missing.

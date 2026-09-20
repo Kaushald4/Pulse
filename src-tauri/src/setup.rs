@@ -100,16 +100,11 @@ fn now_seconds() -> u64 {
 /* Detecting what is already there                                             */
 /* -------------------------------------------------------------------------- */
 
-/// The interpreter Scrapling would run in - the configured one, else `python3`,
-/// matching what `extract.rs` does.
+/// The interpreter Scrapling would run in: the configured one, else the
+/// platform default. Shares `ExtractionConfig::resolved_python` with
+/// `extract.rs` so both agree on the fallback.
 fn configured_python() -> String {
-    let configured = config::load().extraction.python_path;
-    let trimmed = configured.trim();
-    if trimmed.is_empty() {
-        "python3".to_string()
-    } else {
-        trimmed.to_string()
-    }
+    config::load().extraction.resolved_python()
 }
 
 /// The private environment the installer creates when the system Python will not

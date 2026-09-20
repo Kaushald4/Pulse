@@ -6,13 +6,57 @@
 //! when the command fails. That all lives here.
 
 use std::io::{BufRead, BufReader, Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 /// Lines a script prefixes with this are progress, not logging.
 pub const PROGRESS_PREFIX: &str = "@@progress ";
 
 const STDERR_TAIL_LINES: usize = 40;
+
+/* -------------------------------------------------------------------------- */
+/* Finding an executable                                                       */
+/* -------------------------------------------------------------------------- */
+
+/// Every file name one command can have on this platform.
+///
+/// Windows appends an extension, so a bare `node` never matches there: the file
+/// is `node.exe`. Looking for the bare name made Node read as missing on
+/// Windows, and because Node is a required component, first-run setup could
+/// never complete - it stayed "blocked" and the wizard returned every launch.
+pub fn executable_names(stem: &str) -> Vec<String> {
+    if cfg!(windows) {
+        vec![
+            format!("{stem}.exe"),
+            format!("{stem}.cmd"),
+            format!("{stem}.bat"),
+        ]
+    } else {
+        vec![stem.to_string()]
+    }
+}
+
+/// The first existing file named after `stem` across the given directories.
+pub fn find_executable(dirs: &[PathBuf], stem: &str) -> Option<PathBuf> {
+    let names = executable_names(stem);
+    dirs.iter()
+        .flat_map(|dir| names.iter().map(move |name| dir.join(name)))
+        .find(|candidate| candidate.is_file())
+}
+
+/// `PATH`, split into directories.
+pub fn path_dirs() -> Vec<PathBuf> {
+    std::env::var_os("PATH")
+        .map(|path| std::env::split_paths(&path).collect())
+        .unwrap_or_default()
+}
+
+/// An environment variable as a directory, when set.
+pub fn env_dir(key: &str) -> Option<PathBuf> {
+    std::env::var_os(key)
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+}
 
 pub struct ProcRun {
     pub success: bool,
@@ -103,4 +147,33 @@ pub fn parse_json_lenient(raw: &str, source: &str) -> Result<serde_json::Value, 
 
     serde_json::from_str(&raw[start..=end])
         .map_err(|error| format!("{source} returned invalid JSON: {error}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Windows needs the extension: looking for a bare `node` there made Node
+    /// read as missing and blocked first-run setup.
+    #[test]
+    fn executable_names_follow_the_platform_suffix_rule() {
+        let names = executable_names("node");
+        assert!(!names.is_empty());
+        if cfg!(windows) {
+            assert!(names.contains(&"node.exe".to_string()));
+        } else {
+            assert_eq!(names, vec!["node".to_string()]);
+        }
+    }
+
+    #[test]
+    fn finds_a_real_file_and_ignores_a_missing_one() {
+        let dir = std::env::temp_dir().join("pulse-proc-find-executable");
+        std::fs::create_dir_all(&dir).expect("could not create the probe directory");
+        let probe = dir.join(&executable_names("probe")[0]);
+        std::fs::write(&probe, b"").expect("could not write the probe file");
+
+        assert_eq!(find_executable(&[dir.clone()], "probe"), Some(probe));
+        assert_eq!(find_executable(&[dir], "definitely-not-installed"), None);
+    }
 }

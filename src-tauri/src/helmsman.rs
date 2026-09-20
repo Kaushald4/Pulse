@@ -1,5 +1,6 @@
 use crate::node::node_available;
 use crate::proc::parse_json_lenient;
+use crate::proc::{env_dir, find_executable, path_dirs};
 use flate2::read::GzDecoder;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
@@ -28,24 +29,32 @@ pub fn managed_entry() -> Option<PathBuf> {
     managed_dir().map(|dir| dir.join("dist").join("cli.js"))
 }
 
-fn candidate_paths() -> Vec<PathBuf> {
-    let mut candidates = Vec::new();
+/// Directories a global install commonly lands in.
+///
+/// Split by platform: the Unix list is meaningless on Windows, where global npm
+/// binaries live under `%APPDATA%\npm`.
+fn candidate_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
     if let Some(home) = dirs::home_dir() {
-        candidates.push(home.join(".local").join("bin").join("helmsman"));
-        candidates.push(home.join(".bun").join("bin").join("helmsman"));
-        candidates.push(home.join(".cargo").join("bin").join("helmsman"));
-        candidates.push(home.join("bin").join("helmsman"));
+        dirs.push(home.join(".local").join("bin"));
+        dirs.push(home.join(".bun").join("bin"));
+        dirs.push(home.join(".cargo").join("bin"));
+        dirs.push(home.join("bin"));
     }
-    candidates.push(PathBuf::from("/opt/homebrew/bin/helmsman"));
-    candidates.push(PathBuf::from("/usr/local/bin/helmsman"));
-    candidates
-}
 
-fn find_on_path() -> Option<PathBuf> {
-    let path = std::env::var_os("PATH")?;
-    std::env::split_paths(&path)
-        .map(|dir| dir.join("helmsman"))
-        .find(|candidate| candidate.is_file())
+    if cfg!(windows) {
+        if let Some(appdata) = env_dir("APPDATA") {
+            dirs.push(appdata.join("npm"));
+        }
+        if let Some(local) = env_dir("LOCALAPPDATA") {
+            dirs.push(local.join("Programs").join("helmsman"));
+        }
+    } else {
+        dirs.push(PathBuf::from("/opt/homebrew/bin"));
+        dirs.push(PathBuf::from("/usr/local/bin"));
+    }
+
+    dirs
 }
 
 pub const SOURCE_MANAGED: &str = "managed";
@@ -81,11 +90,11 @@ pub fn resolve() -> Resolution {
         return Resolution { path: Some(entry), source: SOURCE_MANAGED };
     }
 
-    if let Some(found) = candidate_paths().into_iter().find(|p| p.is_file()) {
+    if let Some(found) = find_executable(&candidate_dirs(), "helmsman") {
         return Resolution { path: Some(found), source: SOURCE_PATH };
     }
 
-    if let Some(found) = find_on_path() {
+    if let Some(found) = find_executable(&path_dirs(), "helmsman") {
         return Resolution { path: Some(found), source: SOURCE_PATH };
     }
 
@@ -363,6 +372,26 @@ pub fn check_profile_status(profile: String) -> bool {
 
 fn chrome_candidates() -> Vec<PathBuf> {
     let mut candidates = Vec::new();
+
+    if cfg!(windows) {
+        if let Some(local) = env_dir("LOCALAPPDATA") {
+            candidates.push(
+                local
+                    .join("Google")
+                    .join("Chrome")
+                    .join("Application")
+                    .join("chrome.exe"),
+            );
+        }
+        candidates.push(PathBuf::from(
+            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        ));
+        candidates.push(PathBuf::from(
+            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        ));
+        return candidates;
+    }
+
     if let Some(home) = dirs::home_dir() {
         candidates.push(
             home.join("Applications")
