@@ -1,7 +1,7 @@
 # Pulse
 
 <p align="center">
-  <img src="screenshots/cover-pulse.png" alt="Pulse tech radar" width="100%" />
+  <img src="screenshots/cover-pulse_.png" alt="Pulse tech radar" width="100%" />
 </p>
 
 <p align="center">
