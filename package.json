@@ -9,7 +9,7 @@
     "build:widget": "xcodebuild -project native/macos/PulseWidget.xcodeproj -scheme PulseWidgetExtension -sdk macosx -derivedDataPath native/macos/.build build CODE_SIGNING_ALLOWED=NO",
     "start": "next start",
     "lint": "next lint",
-    "tauri": "sh scripts/tauri.sh"
+    "tauri": "node scripts/tauri.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.23",
