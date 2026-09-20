@@ -1,3 +1,5 @@
+use crate::node::node_available;
+use crate::proc::parse_json_lenient;
 use flate2::read::GzDecoder;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
@@ -73,7 +75,7 @@ pub fn version_for(entry: &Path) -> Option<String> {
 }
 
 /// Resolves the CLI: the managed install, then a system install, then PATH.
-/// There is no user-facing path setting — installing is the only way in.
+/// There is no user-facing path setting - installing is the only way in.
 pub fn resolve() -> Resolution {
     if let Some(entry) = managed_entry().filter(|entry| entry.is_file()) {
         return Resolution { path: Some(entry), source: SOURCE_MANAGED };
@@ -97,16 +99,6 @@ pub fn resolve_path() -> Option<String> {
         .map(|path| path.to_string_lossy().to_string())
 }
 
-fn node_available() -> bool {
-    std::env::var_os("PATH")
-        .map(|path| {
-            std::env::split_paths(&path)
-                .map(|dir| dir.join("node"))
-                .any(|candidate| candidate.is_file())
-        })
-        .unwrap_or(false)
-}
-
 fn build_command(binary: &str, command: &str) -> Command {
     let path = Path::new(binary);
     let mut cmd = if is_script(path) {
@@ -120,29 +112,10 @@ fn build_command(binary: &str, command: &str) -> Command {
     cmd
 }
 
-/// Parses CLI stdout, tolerating stray leading/trailing non-JSON lines.
-fn parse_json_lenient(raw: &str) -> Result<serde_json::Value, String> {
-    if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw.trim()) {
-        return Ok(value);
-    }
-
-    let start = raw
-        .find(['{', '['])
-        .ok_or_else(|| "helmsman returned no JSON output".to_string())?;
-    let end = raw
-        .rfind(['}', ']'])
-        .ok_or_else(|| "helmsman returned malformed JSON".to_string())?;
-    if end < start {
-        return Err("helmsman returned malformed JSON".to_string());
-    }
-
-    serde_json::from_str(&raw[start..=end]).map_err(|e| format!("helmsman returned invalid JSON: {e}"))
-}
-
 /// Runs a helmsman capability and returns its parsed JSON output.
 ///
 /// This is `async` on purpose: Tauri executes non-async commands on the main
-/// thread, and `Command::output()` waits for a full browser launch — which
+/// thread, and `Command::output()` waits for a full browser launch - which
 /// froze the whole UI. The blocking call runs on the blocking pool instead.
 #[tauri::command]
 pub async fn run_helmsman_extract(
@@ -172,7 +145,7 @@ pub async fn run_helmsman_extract(
             ));
         }
 
-        parse_json_lenient(&String::from_utf8_lossy(&output.stdout))
+        parse_json_lenient(&String::from_utf8_lossy(&output.stdout), "helmsman")
     })
     .await
     .map_err(|e| format!("helmsman task failed: {e}"))?
@@ -231,8 +204,13 @@ fn extract_tar_gz(archive: &Path, destination: &Path) -> Result<(), String> {
 
 /// Downloads the latest `helmsman-cli-*.tar.gz` release asset and installs it to
 /// `~/.pulse/helmsman`, replacing any previous managed install.
-#[tauri::command]
-pub async fn install_helmsman() -> Result<serde_json::Value, String> {
+///
+/// Each stage is reported to `on_line`, so the first-run installer can show the
+/// download and the extraction as they happen instead of a spinner.
+pub async fn install_with_progress(
+    on_line: &(dyn Fn(&str) + Send + Sync),
+) -> Result<serde_json::Value, String> {
+    on_line("Looking up the latest release on GitHub…");
     let home = dirs::home_dir().ok_or_else(|| "Could not locate home directory".to_string())?;
     let client = reqwest::Client::builder()
         .user_agent("pulse-desktop")
@@ -293,6 +271,12 @@ pub async fn install_helmsman() -> Result<serde_json::Value, String> {
         if size > MAX_ARCHIVE_BYTES {
             return Err(format!("Release asset is unexpectedly large ({size} bytes)."));
         }
+        on_line(&format!(
+            "Downloading {asset_name} ({:.1} MB)…",
+            size as f64 / 1_048_576.0
+        ));
+    } else {
+        on_line(&format!("Downloading {asset_name}…"));
     }
 
     let work = home.join(".pulse").join("tmp");
@@ -313,9 +297,11 @@ pub async fn install_helmsman() -> Result<serde_json::Value, String> {
         .await
         .map_err(|e| format!("Could not read download: {e}"))?;
     fs::write(&archive_path, &bytes).map_err(|e| format!("Could not save archive: {e}"))?;
+    on_line(&format!("Downloaded {asset_name} ({tag})"));
 
     let _ = fs::remove_dir_all(&extract_dir);
     fs::create_dir_all(&extract_dir).map_err(|e| format!("Could not prepare extract dir: {e}"))?;
+    on_line("Extracting…");
 
     let staged_root = extract_dir.join("helmsman");
     let entry = staged_root.join("dist").join("cli.js");
@@ -345,12 +331,27 @@ pub async fn install_helmsman() -> Result<serde_json::Value, String> {
         .to_string_lossy()
         .to_string();
 
+    let version = version_for(Path::new(&installed));
+    on_line(&format!(
+        "Installed to {installed}{}",
+        version
+            .as_deref()
+            .map(|version| format!(" (helmsman {version})"))
+            .unwrap_or_default()
+    ));
+
     Ok(serde_json::json!({
         "path": installed,
-        "version": version_for(Path::new(&installed)),
+        "version": version,
         "asset": asset_name,
         "node": node_available(),
     }))
+}
+
+/// The Settings button: the same install, with nothing listening to it.
+#[tauri::command]
+pub async fn install_helmsman() -> Result<serde_json::Value, String> {
+    install_with_progress(&|_| {}).await
 }
 
 #[tauri::command]
@@ -412,7 +413,7 @@ pub fn launch_auth_login(profile: String, site: String) -> Result<String, String
     Err("Could not find Google Chrome or the helmsman CLI to launch login.".to_string())
 }
 
-/// Removes a saved browser profile — this is what actually signs a source out.
+/// Removes a saved browser profile - this is what actually signs a source out.
 ///
 /// helmsman stores each profile as a directory under `~/.helmsman/profiles`, so
 /// deleting it discards the cookies and local storage. `helmsman auth close`

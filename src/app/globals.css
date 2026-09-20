@@ -11,7 +11,7 @@
  *
  * Crimson carries the brand: primary actions, the active nav item, focus rings.
  * Everything else stays neutral, and the only other saturated values are
- * semantic (success / warning / destructive) — so colour always means something.
+ * semantic (success / warning / destructive) - so colour always means something.
  */
 @layer base {
   :root {
@@ -88,7 +88,7 @@
 }
 
 /* Map the runtime variables onto Tailwind's theme so utilities reference them
-   live — that is what lets next-themes swap light/dark without a rebuild. */
+   live - that is what lets next-themes swap light/dark without a rebuild. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -120,7 +120,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* Soft, low-alpha elevation. Surfaces already separate by contrast and
-     borders, so a shadow is only a faint lift — never a dark smear. */
+     borders, so a shadow is only a faint lift - never a dark smear. */
   --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05);
@@ -151,7 +151,7 @@
     font-size: 14px;
   }
 
-  /* Headings are tight and never heavier than semibold — restraint reads as
+  /* Headings are tight and never heavier than semibold - restraint reads as
      confidence; 700+ reads as shouting. */
   h1,
   h2,

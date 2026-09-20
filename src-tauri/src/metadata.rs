@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Semaphore;
 
-/// Don't pull down whole pages — we only need the document head.
+/// Don't pull down whole pages - we only need the document head.
 const MAX_BYTES: usize = 512 * 1024;
 const TIMEOUT_SECS: u64 = 10;
 
@@ -34,7 +34,7 @@ fn failure(url: String, message: String) -> LinkMetadata {
 }
 
 /// Decodes the named entities we care about, then numeric character references
-/// (`&#8217;`, `&#x2019;`) — real pages and feeds use smart quotes and ellipses
+/// (`&#8217;`, `&#x2019;`) - real pages and feeds use smart quotes and ellipses
 /// this way, and leaving them raw leaks "&#8217;" into descriptions.
 pub(crate) fn decode_entities(value: &str) -> String {
     let named = value
@@ -146,7 +146,7 @@ fn absolute_url(base: &str, candidate: &str) -> Option<String> {
 }
 
 async fn fetch_one(client: &reqwest::Client, url: String) -> LinkMetadata {
-    // Only http(s) — never read local files or hit loopback on a page's behalf.
+    // Only http(s) - never read local files or hit loopback on a page's behalf.
     let parsed = match url::Url::parse(&url) {
         Ok(parsed) if parsed.scheme() == "http" || parsed.scheme() == "https" => parsed,
         Ok(_) => return failure(url, "unsupported scheme".to_string()),

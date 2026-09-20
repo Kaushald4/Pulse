@@ -132,7 +132,7 @@ function finalize(
     classifierModel: model,
     classifierConfidence: typeof raw.confidence === "number" ? clamp01(raw.confidence) : null,
     contentHash,
-    // Resource URLs are parsed deterministically — that is URL structure, not semantics.
+    // Resource URLs are parsed deterministically - that is URL structure, not semantics.
     extractedResources: heuristic.extractedResources,
     tags: Array.from(new Set([topic, ...heuristic.tags])).slice(0, 6),
   };
@@ -191,7 +191,7 @@ function buildJevQuestions(): Record<string, JevQuestion> {
     primary: {
       type: "noul",
       instructions:
-        "Is this a primary technical source — an original repository, paper, official release, or first-hand engineering write-up — rather than commentary, a listicle, or promotion?",
+        "Is this a primary technical source - an original repository, paper, official release, or first-hand engineering write-up - rather than commentary, a listicle, or promotion?",
       criteria: {
         true: "Original artifact or first-hand technical account",
         false: "Commentary, aggregation, listicle, or promotion",
@@ -315,7 +315,7 @@ const LLM_CHUNK_SIZE = 8;
 const LLM_SYSTEM = [
   "You classify technical content for a personal reading tracker.",
   "Use only the allowed values given in the prompt. Never invent facts.",
-  "Reply with JSON only — no prose, no markdown fences.",
+  "Reply with JSON only - no prose, no markdown fences.",
 ].join(" ");
 
 function buildLlmPrompt(items: PulseItem[]): string {

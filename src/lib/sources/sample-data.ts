@@ -2,7 +2,7 @@ import type { PulseItem, SourceConnection } from "../types";
 
 /**
  * Demo content, loaded only when the user explicitly asks for it from Settings.
- * Pulse never seeds these automatically — an empty library stays empty until a
+ * Pulse never seeds these automatically - an empty library stays empty until a
  * real sync succeeds.
  */
 export const INITIAL_SAMPLE_ITEMS: PulseItem[] = [
@@ -478,7 +478,7 @@ export const DEFAULT_SOURCES: SourceConnection[] = [
     enabled: false,
   },
 
-  // News and blog feeds (RSS/Atom) — fetched directly in Rust, no browser.
+  // News and blog feeds (RSS/Atom) - fetched directly in Rust, no browser.
   ...[
     { id: "techcrunch", name: "TechCrunch", feedUrl: "https://techcrunch.com/feed/" },
     { id: "theverge", name: "The Verge", feedUrl: "https://www.theverge.com/rss/index.xml" },

@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-      {/* Search is a single control that opens the command palette — one place
+      {/* Search is a single control that opens the command palette - one place
           to look, and the same surface as the keyboard shortcut. */}
       <Button
         variant="outline"

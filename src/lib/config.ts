@@ -19,6 +19,9 @@ export const EMPTY_CONFIG: AppConfig = {
     tinyfishApiKey: "",
     pythonPath: "",
   },
+  // Jobs default to the free built-in engine, so scanning listings never spends
+  // the article reader's TinyFish allowance.
+  jobsExtraction: { engine: "builtin" },
   githubToken: "",
 };
 

@@ -36,6 +36,9 @@
       "icons/128x128@2x.png"
     ],
     "targets": "all",
+    "resources": {
+      "../jobs": "jobs"
+    },
     "macOS": {
       "entitlements": "entitlements.plist"
     }

@@ -28,7 +28,7 @@ export function AboutSection() {
           <CardTitle>This installation</CardTitle>
         </CardHeader>
         <CardContent className="divide-y divide-border">
-          <DetailRow label="Pulse">{version ?? "—"}</DetailRow>
+          <DetailRow label="Pulse">{version ?? "-"}</DetailRow>
           <DetailRow label="Running as">{desktop ? "Desktop app" : "Browser preview"}</DetailRow>
           <DetailRow label="Settings file">~/.pulse/config.json</DetailRow>
           <DetailRow label="Library">pulse.db</DetailRow>

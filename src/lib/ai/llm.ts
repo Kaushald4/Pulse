@@ -4,7 +4,7 @@ import { parseJsonLoose } from "../utils";
 import { WHY_LABELS } from "./classify";
 import { readUsage, type RawUsage } from "./usage";
 
-interface LlmResult {
+export interface LlmResult {
   text: string;
   model?: string;
   usage?: RawUsage;
@@ -25,13 +25,28 @@ export function usageOf(result: LlmResult | null): TokenUse {
   };
 }
 
+/**
+ * The same generation call, but it reports failure instead of returning null.
+ *
+ * Callers that already have a sensible fallback (the briefing, "why it
+ * matters") use `callLlm`; the jobs pipeline needs to tell "the request
+ * failed" apart from "the model said nothing", so it uses this.
+ */
+export async function callLlmStrict(
+  system: string,
+  prompt: string,
+  json: boolean
+): Promise<LlmResult> {
+  if (!isTauriEnv()) throw new Error("AI calls need the desktop app.");
+  const { invoke } = await import("@tauri-apps/api/core");
+  return invoke<LlmResult>("ai_chat", {
+    call: { task: "generation", system, prompt, json },
+  });
+}
+
 async function callLlm(system: string, prompt: string, json: boolean): Promise<LlmResult | null> {
-  if (!isTauriEnv()) return null;
   try {
-    const { invoke } = await import("@tauri-apps/api/core");
-    return await invoke<LlmResult>("ai_chat", {
-      call: { task: "generation", system, prompt, json },
-    });
+    return await callLlmStrict(system, prompt, json);
   } catch (err) {
     console.warn("[Pulse] Generation call failed:", err);
     return null;
@@ -100,7 +115,7 @@ interface BriefingPayload {
 /**
  * Writes the daily briefing from a structured payload the app already computed
  * (top items by Jev signal, grouped by topic). The model narrates; it does not
- * choose what is important — that came from Jev scores and real counts.
+ * choose what is important - that came from Jev scores and real counts.
  */
 export async function generateBriefing(input: {
   date: string;

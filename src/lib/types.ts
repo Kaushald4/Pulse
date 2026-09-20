@@ -41,7 +41,7 @@ export interface ResourceEntry {
   mentions: number;
   /** Most recent item that references this resource. Absent for curated links. */
   item?: PulseItem;
-  /** A built-in link from the starter catalog — not derived from collected content. */
+  /** A built-in link from the starter catalog - not derived from collected content. */
   curated?: boolean;
   /** Rich link preview: og:image / og:description / og:title, when captured. */
   preview?: ResourcePreview;
@@ -218,7 +218,7 @@ export interface TopicVelocity {
   previous: number;
   /** 0..1 relative to the busiest topic, for the bar. */
   momentum: number;
-  /** "new" | "+40%" | "0%" — null when there is no prior window to compare. */
+  /** "new" | "+40%" | "0%" - null when there is no prior window to compare. */
   delta: string | null;
   rising: boolean;
 }
@@ -241,7 +241,7 @@ export interface DailyBriefing {
   summary: string;
   keyHappenings: string[];
   sourcesUsed: string[];
-  /** Ids of the items this briefing was written from — a saved briefing is
+  /** Ids of the items this briefing was written from - a saved briefing is
    *  reused only while they still match today's items. */
   itemIds?: string[];
   model?: string | null;
@@ -282,6 +282,14 @@ export interface AppConfig {
     engine: ExtractionEngine;
     tinyfishApiKey: string;
     pythonPath: string;
+  };
+  /**
+   * Job pages have their own engine on purpose: a scan touches hundreds of
+   * listings, and the article reader's TinyFish allowance (1,000 pages/day)
+   * shouldn't be spent on them. Shares the key and interpreter above.
+   */
+  jobsExtraction: {
+    engine: ExtractionEngine;
   };
   githubToken: string;
 }

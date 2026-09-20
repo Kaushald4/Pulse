@@ -88,7 +88,7 @@ export function ModelsSection({
 
     if (result.error) {
       setProbes({
-        classification: { ok: false, provider: "—", model: "—", error: result.error },
+        classification: { ok: false, provider: "-", model: "-", error: result.error },
         generation: null,
       });
       return;

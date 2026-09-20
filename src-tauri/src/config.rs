@@ -81,6 +81,24 @@ impl Default for TaskConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
+pub struct JobsExtractionConfig {
+    /// Which engine reads job pages. Kept separate from `extraction` so a scan
+    /// that touches hundreds of listings can't spend the article reader's
+    /// TinyFish quota. Shares the key and interpreter above - only the choice
+    /// is independent.
+    pub engine: String,
+}
+
+impl Default for JobsExtractionConfig {
+    fn default() -> Self {
+        Self {
+            engine: EXTRACTOR_BUILTIN.to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
 pub struct PulseConfig {
     pub cloudflare: CloudflareConfig,
     pub openrouter: OpenRouterConfig,
@@ -88,6 +106,7 @@ pub struct PulseConfig {
     pub classification: TaskConfig,
     pub generation: TaskConfig,
     pub extraction: ExtractionConfig,
+    pub jobs_extraction: JobsExtractionConfig,
     pub github_token: String,
 }
 
@@ -104,6 +123,7 @@ impl Default for PulseConfig {
                 engine: String::new(),
             },
             extraction: ExtractionConfig::default(),
+            jobs_extraction: JobsExtractionConfig::default(),
             github_token: String::new(),
         }
     }
@@ -226,7 +246,7 @@ fn migrate(value: serde_json::Value) -> PulseConfig {
     config
 }
 
-/// Returns what is stored on disk — not the env-merged view. Settings must not
+/// Returns what is stored on disk - not the env-merged view. Settings must not
 /// present an exported variable as a saved value, or saving would copy the
 /// environment into the config file. Env vars still apply at call time.
 #[tauri::command]

@@ -34,7 +34,7 @@ export function formatRelativeTime(dateStr: string | Date | null | undefined): s
 
 /**
  * Local calendar-day key (YYYY-MM-DD). Deliberately built from the local clock
- * rather than `toISOString()` — a UTC date rolls over at the wrong moment for
+ * rather than `toISOString()` - a UTC date rolls over at the wrong moment for
  * anyone east or west of Greenwich, which is what put yesterday's items in
  * "Today" after midnight.
  */
@@ -46,7 +46,7 @@ export function localDateKey(value: string | Date = new Date()): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-/** ISO instant of local midnight — the start of today on the user's clock. */
+/** ISO instant of local midnight - the start of today on the user's clock. */
 export function startOfToday(): string {
   const date = new Date();
   date.setHours(0, 0, 0, 0);

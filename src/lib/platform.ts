@@ -14,7 +14,7 @@ export function isMac(): boolean {
  * The platform's modifier-key label, resolved after mount.
  *
  * Static export prerenders without a `navigator`, so the first paint uses the
- * non-mac value and the effect corrects it — consumers should mark the label
+ * non-mac value and the effect corrects it - consumers should mark the label
  * with `suppressHydrationWarning`.
  */
 export function useModKey(): string {

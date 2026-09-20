@@ -1,20 +1,17 @@
 import type { DailyBriefing, ItemState, PulseItem, Project, PulseSchedule, SignalPreference, SourceConnection, Watchlist } from "./types";
+import { getAllBriefings, saveBriefing } from "./db/briefings";
+import { queryItems, upsertItems } from "./db/items";
 import {
-  getAllBriefings,
-  getSources,
   getProjects,
   getSchedule,
   getSignalPreferences,
   getWatchlists,
-  queryItems,
-  saveBriefing,
-  saveSources,
   saveProject,
   saveSchedule,
   saveSignalPreferences,
   saveWatchlist,
-  upsertItems,
-} from "./db/sqlite";
+} from "./db/personal";
+import { getSources, saveSources } from "./db/sources";
 import { isTauriEnv } from "./config";
 
 export const LIBRARY_FORMAT = "pulse-library";

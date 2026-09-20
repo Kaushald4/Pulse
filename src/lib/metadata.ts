@@ -7,7 +7,7 @@ import {
   getItemsNeedingMetadata,
   getLinkPreviews,
   type LinkPreviewUpdate,
-} from "./db/sqlite";
+} from "./db/link-previews";
 
 interface LinkMetadata {
   url: string;
@@ -28,8 +28,8 @@ export interface PreviewReport {
  * Fetches Open Graph previews for items that have never been checked.
  *
  * The renderer cannot read another site's HTML (CORS), so the fetch happens in
- * the Rust backend. Every attempted item is recorded as checked — including
- * failures — so a dead link is not retried on every sync.
+ * the Rust backend. Every attempted item is recorded as checked - including
+ * failures - so a dead link is not retried on every sync.
  */
 export async function fetchLinkPreviews(limit = 40): Promise<PreviewReport> {
   const pending = await getItemsNeedingMetadata(limit);
@@ -77,7 +77,7 @@ const PREVIEW_BATCH = 50;
  *
  * These links have no item row, so results are stored in `link_previews` keyed
  * by URL. Already-checked links are skipped, making this a one-time cost per
- * link — enough for the default catalog to render as rich cards.
+ * link - enough for the default catalog to render as rich cards.
  */
 export async function fetchCuratedPreviews(): Promise<PreviewReport> {
   if (!isTauriEnv()) return { enriched: 0, errors: [] };

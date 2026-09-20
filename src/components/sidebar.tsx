@@ -17,9 +17,11 @@ import {
   Database,
   Settings,
   Activity,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { usePulse, type NavigationTab } from "../store/pulse";
+import { useJobs } from "../store/jobs";
 import type { ContentField, ItemCategory, ItemState } from "../lib/types";
 
 interface NavEntry {
@@ -94,6 +96,22 @@ export function Sidebar() {
         { key: "resources", label: "Resources", icon: Package, count: resources.length, active: view === "resources", onClick: () => goToTab("resources") },
         { key: "sources", label: "Sources", icon: Share2, active: view === "sources", onClick: () => goToTab("sources") },
         { key: "logs", label: "Logs", icon: Activity, active: view === "logs", onClick: () => goToTab("logs") },
+      ],
+    },
+    {
+      label: "Work",
+      entries: [
+        {
+          key: "jobs",
+          label: "Jobs",
+          icon: BriefcaseBusiness,
+          active: view === "jobs",
+          // Leaving the detail page behind: clicking Jobs always lands on the list.
+          onClick: () => {
+            useJobs.getState().closeJob();
+            goToTab("jobs");
+          },
+        },
       ],
     },
     {

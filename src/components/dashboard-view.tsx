@@ -33,7 +33,7 @@ export function DashboardView() {
   const stats = usePulse((state) => state.stats);
   const config = usePulse((state) => state.config);
 
-  // "Today" is the local calendar day — it resets at local midnight, not after
+  // "Today" is the local calendar day - it resets at local midnight, not after
   // a rolling 24 hours, so nothing from yesterday lingers once the clock rolls.
   const [basis, setBasis] = React.useState<Basis>("published");
   const [field, setField] = React.useState<ContentField>("all");
@@ -292,7 +292,7 @@ export function DashboardView() {
                 <p className="text-[11px] leading-4 text-muted-foreground">
                   {topicSummary?.hasBaseline
                     ? "Last 7 days vs the prior 7"
-                    : "Last 7 days — no prior week to compare yet"}
+                    : "Last 7 days - no prior week to compare yet"}
                 </p>
               </CardHeader>
               <CardContent className="space-y-0.5">

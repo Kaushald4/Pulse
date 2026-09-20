@@ -1,6 +1,6 @@
 import type { ContentField, ItemCategory, ItemState, PulseItem } from "./types";
 
-/** How a badge should read. Deliberately tiny — colour only carries meaning. */
+/** How a badge should read. Deliberately tiny - colour only carries meaning. */
 export type Tone = "neutral" | "success" | "warning" | "danger";
 
 export const CATEGORY_LABELS: Record<ItemCategory, string> = {

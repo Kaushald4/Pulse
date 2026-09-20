@@ -25,32 +25,26 @@ import {
   publishWidgetSnapshot,
   saveConfig as persistConfig,
 } from "../lib/config";
+import { getAllResources } from "../lib/db/resources";
+import { getRuns, type RunRecord } from "../lib/db/runs";
+import { getSources, saveSources } from "../lib/db/sources";
+import { getPulseStats, getTopicSummary } from "../lib/db/stats";
+import { queryItems, updateItemNotes, updateItemState } from "../lib/db/items";
+import { clearAllData, loadDemoData } from "../lib/db/maintenance";
 import {
-  clearAllData,
-  getAllResources,
-  getPulseStats,
-  getRuns,
-  getSources,
-  getTopicSummary,
+  createProject,
+  createWatchlist,
+  deleteProject,
+  deleteWatchlist,
   getProjects,
   getSchedule,
   getSignalPreferences,
   getWatchlists,
-  loadDemoData,
-  queryItems,
-  saveSources,
+  recordSignalFeedback,
   saveProject,
   saveSchedule,
   saveWatchlist,
-  deleteProject,
-  deleteWatchlist,
-  recordSignalFeedback,
-  createProject,
-  createWatchlist,
-  updateItemState,
-  updateItemNotes,
-  type RunRecord,
-} from "../lib/db/sqlite";
+} from "../lib/db/personal";
 import { ensureBriefing, syncSources, type SyncProgress } from "../lib/pipeline";
 import { fetchAndSummarize } from "../lib/content";
 import { fetchCuratedPreviews } from "../lib/metadata";
@@ -61,10 +55,20 @@ import {
   pickLibraryFile,
   saveLibraryFile,
 } from "../lib/library";
-import { describeOptions, disconnectProfile, launchAuthLogin, profileExists, requiresProfile } from "../lib/sources/fetcher";
+import { describeOptions } from "../lib/sources/describe";
+import { disconnectProfile, launchAuthLogin, profileExists } from "../lib/sources/helmsman";
+import { requiresProfile } from "../lib/sources/registry";
 import { toast } from "../lib/toast";
 
-export type NavigationTab = "today" | "feed" | "resources" | "projects" | "sources" | "logs" | "settings";
+export type NavigationTab =
+  | "today"
+  | "feed"
+  | "resources"
+  | "projects"
+  | "jobs"
+  | "sources"
+  | "logs"
+  | "settings";
 
 const EMPTY_STATS: PulseStats = {
   total: 0,
@@ -88,7 +92,7 @@ const EMPTY_STATS: PulseStats = {
 interface Filters {
   category: ItemCategory;
   field: ContentField;
-  /** "all" means no triage filter — otherwise a category and a state would
+  /** "all" means no triage filter - otherwise a category and a state would
    *  silently intersect and hide items the sidebar count promised. */
   state: ItemState | "all";
   source?: string;
@@ -124,7 +128,7 @@ interface PulseStore {
   config: AppConfig;
 
   items: PulseItem[];
-  /** Items published today on the local clock — resets at local midnight. */
+  /** Items published today on the local clock - resets at local midnight. */
   todayItems: PulseItem[];
   /** Items *collected* today (first seen), whenever they were published. */
   newItems: PulseItem[];
@@ -158,7 +162,7 @@ interface PulseStore {
 
   init: () => Promise<void>;
   refresh: () => Promise<void>;
-  /** Re-queries only the item list — for filter changes, which change nothing else. */
+  /** Re-queries only the item list - for filter changes, which change nothing else. */
   refreshItems: () => Promise<void>;
   refreshSources: () => Promise<void>;
   refreshRuns: () => Promise<void>;
@@ -178,7 +182,7 @@ interface PulseStore {
   toggleState: (id: string, state: ItemState) => Promise<void>;
   syncAll: () => Promise<void>;
   syncOne: (source: string) => Promise<void>;
-  /** Syncs a specific set of sources — used by a domain group ("Sync all 3"). */
+  /** Syncs a specific set of sources - used by a domain group ("Sync all 3"). */
   syncGroup: (sourceIds: string[]) => Promise<void>;
   connectSource: (source: SourceConnection) => Promise<void>;
   disconnectSource: (source: SourceConnection) => Promise<void>;
@@ -261,7 +265,7 @@ async function runSync(
 
     await get().refreshSources();
     await get().refresh();
-    // The run log is its own table — it must be re-read or it keeps showing
+    // The run log is its own table - it must be re-read or it keeps showing
     // whatever it held when the app started.
     await get().refreshRuns();
   } catch (err) {
@@ -327,7 +331,7 @@ export const usePulse = create<PulseStore>((set, get) => ({
     set({ ready: true });
 
     // Rich previews for the curated catalog are fetched once and persisted, so
-    // they are not awaited — the UI is usable while they stream in.
+    // they are not awaited - the UI is usable while they stream in.
     void get().refreshPreviews();
   },
 
@@ -341,7 +345,7 @@ export const usePulse = create<PulseStore>((set, get) => ({
       getAllResources(),
       ensureBriefing(),
       // Published today ("what happened today") and collected today ("what
-      // Pulse found today") are deliberately separate — a big sync of older
+      // Pulse found today") are deliberately separate - a big sync of older
       // stories must not inflate "Today".
       queryItems({ sortBy: "recent", publishedSince: since }),
       queryItems({ sortBy: "recent", collectedSince: since }),
@@ -385,7 +389,7 @@ export const usePulse = create<PulseStore>((set, get) => ({
     const updated = await Promise.all(
       sources.map(async (source) => {
         if (source.authType !== "browser_profile" || !source.profileName) return source;
-        // Directory existence only tells us Chrome ran once — it is not proof of
+        // Directory existence only tells us Chrome ran once - it is not proof of
         // a login, so it never sets isConnected.
         const exists = await profileExists(source.profileName);
         return { ...source, profileExists: exists };
@@ -642,7 +646,7 @@ export const usePulse = create<PulseStore>((set, get) => ({
       if (result.summary) {
         toast.success("Fetched and summarized", detail);
       } else {
-        toast.info("Content captured", `${detail} — summarization was unavailable.`);
+        toast.info("Content captured", `${detail} - summarization was unavailable.`);
       }
     } catch (err) {
       toast.error("Could not fetch content", err instanceof Error ? err.message : String(err));

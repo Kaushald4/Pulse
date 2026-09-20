@@ -61,7 +61,7 @@ export function DataSection({ desktop }: { desktop: boolean }) {
             Erase everything
           </Button>
           <Hint>
-            Changes apply immediately — this is not part of the save bar, because there is nothing to undo.
+            Changes apply immediately - this is not part of the save bar, because there is nothing to undo.
           </Hint>
         </CardContent>
       </Card>

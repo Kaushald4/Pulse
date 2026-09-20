@@ -15,7 +15,7 @@ import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
 import { usePulse } from "../store/pulse";
 import { cn, formatRelativeTime } from "../lib/utils";
-import type { RunCategory, RunStatus } from "../lib/db/sqlite";
+import type { RunCategory, RunStatus } from "../lib/db/runs";
 
 const RANGES = [
   { id: "today", label: "Today", tileLabel: "today" },
@@ -31,6 +31,7 @@ const CATEGORIES: Array<{ id: RunCategory | "all"; label: string }> = [
   { id: "classify", label: "Classify" },
   { id: "briefing", label: "Briefing" },
   { id: "content", label: "Article" },
+  { id: "jobs", label: "Jobs" },
 ];
 
 const STATUSES: Array<{ id: RunStatus | "all"; label: string }> = [
@@ -45,6 +46,7 @@ const CATEGORY_LABELS: Record<RunCategory, string> = {
   classify: "Classify",
   briefing: "Briefing",
   content: "Article",
+  jobs: "Jobs",
 };
 
 /** Start-of-day for "Today", otherwise a rolling window; "all" has no cutoff. */
@@ -61,7 +63,7 @@ function cutoffFor(range: RangeId): number {
 }
 
 /**
- * A running row must read as live — a spinner and its own neutral fill — while
+ * A running row must read as live - a spinner and its own neutral fill - while
  * success and failure borrow the semantic tones, so red always means failure.
  */
 function StatusBadge({ status }: { status: RunStatus }) {
@@ -143,7 +145,7 @@ export function LogsView() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Logs</h1>
           <p className="mt-1 max-w-[60ch] text-[13px] text-muted-foreground">
-            Every sync, classification, briefing, and article fetch — what happened, when, and
+            Every sync, classification, briefing, and article fetch - what happened, when, and
             whether it is still running.
           </p>
         </div>
@@ -161,7 +163,7 @@ export function LogsView() {
         <StatTile value={running} label="Running now" icon={Loader2} />
         <StatTile value={failures} label={`Failures ${rangeLabel}`} icon={AlertTriangle} />
         <StatTile
-          value={successRate === null ? "—" : `${successRate}%`}
+          value={successRate === null ? "-" : `${successRate}%`}
           label={`Success rate ${rangeLabel}`}
           icon={TrendingUp}
         />
@@ -203,7 +205,7 @@ export function LogsView() {
         <EmptyState
           icon={ListChecks}
           title="No runs here yet"
-          description="Sync a source, write a briefing, or fetch an article — every operation is recorded here with its result and token usage."
+          description="Sync a source, write a briefing, or fetch an article - every operation is recorded here with its result and token usage."
         />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -222,7 +224,7 @@ export function LogsView() {
               {visible.map((run) => {
                 const runTokens = run.inputTokens + run.outputTokens;
                 const result =
-                  run.status === "running" ? "—" : run.status === "failed" ? run.error : run.summary;
+                  run.status === "running" ? "-" : run.status === "failed" ? run.error : run.summary;
                 return (
                   <TableRow key={run.id}>
                     <TableCell
@@ -245,10 +247,10 @@ export function LogsView() {
                       className="whitespace-normal text-muted-foreground"
                       title={run.error ?? run.summary ?? undefined}
                     >
-                      {result ?? "—"}
+                      {result ?? "-"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {runTokens > 0 ? runTokens.toLocaleString("en-US") : "—"}
+                      {runTokens > 0 ? runTokens.toLocaleString("en-US") : "-"}
                     </TableCell>
                   </TableRow>
                 );

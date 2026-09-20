@@ -178,10 +178,18 @@ fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
         serde_json::from_str(line).map_err(|e| format!("scrapling returned invalid JSON: {e}"))?;
 
     if parsed.get("ok").and_then(|v| v.as_bool()) != Some(true) {
-        return Err(format!(
-            "scrapling failed: {}",
-            text_of(&parsed, "/error").unwrap_or_else(|| "unknown error".to_string())
-        ));
+        let detail = text_of(&parsed, "/error").unwrap_or_else(|| "unknown error".to_string());
+
+        // The common case by far is "the library isn't installed", which the raw
+        // `No module named 'scrapling'` says nothing useful about.
+        if detail.contains("No module named") {
+            return Err(format!(
+                "Scrapling isn't installed for {python}. Run `{python} -m pip install \"scrapling[rag]\"`, \
+                 or switch the engine back to Built-in in Settings."
+            ));
+        }
+
+        return Err(format!("scrapling failed: {detail}"));
     }
 
     let text = text_of(&parsed, "/text").unwrap_or_default();
@@ -303,11 +311,28 @@ fn strip_html(html: &str) -> String {
 /* Command                                                                    */
 /* -------------------------------------------------------------------------- */
 
-/// Fetches and cleans a page's content with the configured engine.
+/// Fetches and cleans a page's content.
+///
+/// `engine` overrides the configured one for this call - job pages pass their
+/// own so scanning listings never spends the article reader's TinyFish quota.
+/// Blank or absent means "whatever Settings says for article reading".
 #[tauri::command]
-pub async fn extract_content(url: String) -> Result<ExtractedContent, String> {
+pub async fn extract_content(
+    url: String,
+    engine: Option<String>,
+) -> Result<ExtractedContent, String> {
     let config = config::load();
-    let engine = config.resolved_extraction_engine();
+    let engine = engine
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(|value| match value {
+            config::EXTRACTOR_TINYFISH => config::EXTRACTOR_TINYFISH,
+            config::EXTRACTOR_SCRAPLING => config::EXTRACTOR_SCRAPLING,
+            _ => config::EXTRACTOR_BUILTIN,
+        })
+        .map(str::to_string)
+        .unwrap_or_else(|| config.resolved_extraction_engine());
 
     match engine.as_str() {
         "tinyfish" => extract_tinyfish(&url, &config.extraction.tinyfish_api_key).await,

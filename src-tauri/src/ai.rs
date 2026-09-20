@@ -166,7 +166,7 @@ async fn chat_completion(
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatCall {
-    /// `classification` or `generation` — selects which TaskConfig to use.
+    /// `classification` or `generation` - selects which TaskConfig to use.
     pub task: String,
     pub system: Option<String>,
     pub prompt: String,

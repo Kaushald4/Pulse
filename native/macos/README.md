@@ -31,7 +31,7 @@ notarization are the polished public-distribution path, not a runtime
 requirement for the local app itself.
 
 `scripts/build-macos.sh` deliberately leaves the extension out of the app and DMG it
-builds — embedding the `.appex` in a distributable bundle needs a paid Apple Developer
+builds - embedding the `.appex` in a distributable bundle needs a paid Apple Developer
 account. To embed it into an already-built `Pulse.app`, run:
 
 ```sh

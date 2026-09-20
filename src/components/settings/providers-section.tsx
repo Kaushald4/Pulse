@@ -33,7 +33,7 @@ export function ProvidersSection({
     <div className="space-y-5">
       <SectionIntro title="Providers">
         Access keys for whichever providers you selected on the Models pane. You only need the ones you
-        actually use — the rest can stay empty.
+        actually use - the rest can stay empty.
       </SectionIntro>
 
       <Card>
@@ -139,7 +139,7 @@ export function ProvidersSection({
 
       <Hint>
         Keys are stored in <span className="font-mono">~/.pulse/config.json</span> on this machine and are used
-        by the app&rsquo;s backend when it makes a request — they are never built into the app.
+        by the app&rsquo;s backend when it makes a request - they are never built into the app.
       </Hint>
     </div>
   );

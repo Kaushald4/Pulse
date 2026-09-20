@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Download,
   Loader2,
+  PackageCheck,
   Sparkles,
   FileText,
 } from "lucide-react";
@@ -19,6 +20,8 @@ import {
   installHelmsman,
   type HelmsmanStatus,
 } from "../../lib/config";
+import { getSetupStatus, type SetupStatus } from "../../lib/setup";
+import { InstallerView } from "../installer/installer-view";
 import { toast } from "../../lib/toast";
 import { Field, Hint, SectionIntro } from "./shared";
 import type { AppConfig, ExtractionEngine } from "../../lib/types";
@@ -34,6 +37,8 @@ export function SourcesSection({
 }) {
   const [helmsman, setHelmsman] = React.useState<HelmsmanStatus>(EMPTY_HELMSMAN_STATUS);
   const [installing, setInstalling] = React.useState(false);
+  /** Set while the full first-run installer is open over the settings page. */
+  const [setup, setSetup] = React.useState<SetupStatus | null>(null);
 
   React.useEffect(() => {
     void getHelmsmanStatus().then(setHelmsman);
@@ -62,6 +67,17 @@ export function SourcesSection({
 
   return (
     <div className="space-y-5">
+      {setup && (
+        <InstallerView
+          status={setup}
+          onDone={() => {
+            setSetup(null);
+            // The badge above should reflect whatever the run just installed.
+            void getHelmsmanStatus().then(setHelmsman);
+          }}
+        />
+      )}
+
       <SectionIntro title="Sources">
         Two separate jobs: pulling items out of your feeds, and reading an article&rsquo;s full text when you
         ask for it in the reader.
@@ -84,7 +100,7 @@ export function SourcesSection({
             )}
           </div>
           <CardDescription>
-            Pulse uses helmsman to read your sources. There is nothing to configure — install it once, and
+            Pulse uses helmsman to read your sources. There is nothing to configure - install it once, and
             installing again updates it.
           </CardDescription>
         </CardHeader>
@@ -98,10 +114,20 @@ export function SourcesSection({
                 {helmsman.path ?? "Installing puts it in ~/.pulse/helmsman."}
               </p>
             </div>
-            <Button onClick={() => void install()} disabled={installing} className="shrink-0 gap-1.5">
-              {installing ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
-              {installing ? "Installing…" : "Install helmsman"}
-            </Button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => void getSetupStatus().then(setSetup)}
+                className="gap-1.5"
+              >
+                <PackageCheck className="size-3.5" />
+                Run setup
+              </Button>
+              <Button onClick={() => void install()} disabled={installing} className="gap-1.5">
+                {installing ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+                {installing ? "Installing…" : "Install helmsman"}
+              </Button>
+            </div>
           </div>
 
           {helmsman.path && !helmsman.node && (
@@ -142,9 +168,9 @@ export function SourcesSection({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="builtin">Built-in — no setup</SelectItem>
-                  <SelectItem value="tinyfish">TinyFish — best quality</SelectItem>
-                  <SelectItem value="scrapling">Scrapling — local and free</SelectItem>
+                  <SelectItem value="builtin">Built-in - no setup</SelectItem>
+                  <SelectItem value="tinyfish">TinyFish - best quality</SelectItem>
+                  <SelectItem value="scrapling">Scrapling - local and free</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -175,7 +201,7 @@ export function SourcesSection({
 
           <Hint>
             {engine === "builtin" &&
-              "Works immediately with no account. It fetches the page and strips scripts, styles and tags — good enough for simple articles, weaker on sites that render with JavaScript."}
+              "Works immediately with no account. It fetches the page and strips scripts, styles and tags - good enough for simple articles, weaker on sites that render with JavaScript."}
             {engine === "tinyfish" &&
               "Returns clean Markdown with the page's title, description, images and links, and it also finds the tools and papers a page points at. Free tier is generous: up to 1,000 pages a day."}
             {engine === "scrapling" &&

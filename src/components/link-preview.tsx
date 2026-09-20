@@ -15,7 +15,7 @@ export function hostnameOf(url: string): string {
  * Favicon for an external link.
  *
  * The renderer cannot read another site's HTML (CORS), so an og:image preview
- * is not available here — a favicon service gives us a recognisable mark
+ * is not available here - a favicon service gives us a recognisable mark
  * without a backend round trip. It self-hides if the lookup fails so a missing
  * icon never leaves a broken image in the layout.
  */

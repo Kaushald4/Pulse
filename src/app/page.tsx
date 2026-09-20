@@ -6,13 +6,18 @@ import { Header } from "../components/header";
 import { DashboardView } from "../components/dashboard-view";
 import { FeedView } from "../components/feed-view";
 import { ResourcesView } from "../components/resources-view";
+import { JobsView } from "../components/jobs/jobs-view";
+import { JobDetailView } from "../components/jobs/job-detail-view";
 import { SourcesView } from "../components/sources-view";
 import { LogsView } from "../components/logs-view";
 import { SettingsView } from "../components/settings-view";
 import { ReaderDrawer } from "../components/reader-drawer";
 import { CommandPalette } from "../components/command-palette";
+import { InstallerView } from "../components/installer/installer-view";
 import { usePulse } from "../store/pulse";
+import { useJobs } from "../store/jobs";
 import { openExternal } from "../lib/config";
+import { getSetupStatus, type SetupStatus } from "../lib/setup";
 
 export default function PulseApp() {
   const ready = usePulse((state) => state.ready);
@@ -27,11 +32,21 @@ export default function PulseApp() {
   const setPaletteOpen = usePulse((state) => state.setPaletteOpen);
   const paletteOpen = usePulse((state) => state.paletteOpen);
   const toggleState = usePulse((state) => state.toggleState);
+  const selectedJobId = useJobs((state) => state.selectedJobId);
+
+  /** Null while the app is still asking; the installer runs before anything else. */
+  const [setup, setSetup] = React.useState<SetupStatus | null>(null);
 
   React.useEffect(() => {
+    void getSetupStatus().then(setSetup);
+  }, []);
+
+  React.useEffect(() => {
+    // Nothing loads until setup is out of the way - that is the point of it.
+    if (!setup?.complete) return;
     void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setup?.complete]);
 
   React.useEffect(() => {
     if (!ready || !('__TAURI_INTERNALS__' in window)) return;
@@ -119,6 +134,12 @@ export default function PulseApp() {
     toggleState,
   ]);
 
+  if (setup && !setup.complete) {
+    return (
+      <InstallerView status={setup} onDone={() => setSetup({ ...setup, complete: true })} />
+    );
+  }
+
   return (
     <div className="flex h-dvh w-dvw gap-2 overflow-hidden bg-background p-2">
       <Sidebar />
@@ -138,6 +159,7 @@ export default function PulseApp() {
                 {view === "today" && <DashboardView />}
                 {view === "feed" && <FeedView />}
                 {view === "resources" && <ResourcesView />}
+                {view === "jobs" && (selectedJobId ? <JobDetailView /> : <JobsView />)}
                 {view === "sources" && <SourcesView />}
                 {view === "logs" && <LogsView />}
                 {view === "settings" && <SettingsView />}

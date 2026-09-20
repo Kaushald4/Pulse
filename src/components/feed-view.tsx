@@ -74,7 +74,7 @@ export function FeedView() {
             </Badge>
           </div>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            {desktop ? "Everything collected from your sources." : "Browser preview — sync is disabled here."}
+            {desktop ? "Everything collected from your sources." : "Browser preview - sync is disabled here."}
           </p>
         </div>
 

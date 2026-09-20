@@ -101,7 +101,7 @@ fn blocks(xml: &str, tag: &str) -> Vec<String> {
         .collect()
 }
 
-/// Normalizes RSS 2.0 (`<item>`) and Atom (`<entry>`) into one shape — both
+/// Normalizes RSS 2.0 (`<item>`) and Atom (`<entry>`) into one shape - both
 /// dialects appear across the default feeds.
 pub fn parse_feed(xml: &str) -> Vec<FeedItem> {
     let rss = blocks(xml, "item");

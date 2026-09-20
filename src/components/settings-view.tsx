@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Loader2,
   MonitorSmartphone,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { cn } from "../lib/utils";
@@ -21,9 +22,10 @@ import { SourcesSection } from "./settings/sources-section";
 import { DataSection } from "./settings/data-section";
 import { AboutSection } from "./settings/about-section";
 import { PersonalSection } from "./settings/personal-section";
+import { JobBoardsSection } from "./settings/job-boards-section";
 import type { AppConfig } from "../lib/types";
 
-type SectionId = "models" | "providers" | "sources" | "personal" | "data" | "about";
+type SectionId = "models" | "providers" | "sources" | "boards" | "personal" | "data" | "about";
 
 const SECTIONS: Array<{
   id: SectionId;
@@ -34,6 +36,7 @@ const SECTIONS: Array<{
   { id: "models", label: "Models", blurb: "Sorting and writing", icon: Sparkles },
   { id: "providers", label: "Providers", blurb: "Keys and endpoints", icon: KeyRound },
   { id: "sources", label: "Sources", blurb: "Collection and reading", icon: Radio },
+  { id: "boards", label: "Job boards", blurb: "Where jobs come from", icon: BriefcaseBusiness },
   { id: "personal", label: "Personal", blurb: "Signal and schedule", icon: Sparkles },
   { id: "data", label: "Data", blurb: "Backup and reset", icon: Database },
   { id: "about", label: "About", blurb: "Version and paths", icon: Info },
@@ -113,6 +116,7 @@ export function SettingsView() {
           {active === "models" && <ModelsSection draft={draft} patch={patch} />}
           {active === "providers" && <ProvidersSection draft={draft} patch={patch} />}
           {active === "sources" && <SourcesSection draft={draft} patch={patch} desktop={desktop} />}
+          {active === "boards" && <JobBoardsSection draft={draft} patch={patch} />}
           {active === "personal" && <PersonalSection />}
           {active === "data" && <DataSection desktop={desktop} />}
           {active === "about" && <AboutSection />}

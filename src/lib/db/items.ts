@@ -1,0 +1,184 @@
+/**
+ * Content items: writing them, querying them, and the per-item edits the UI makes.
+ */
+import type { ItemState, PulseFilter, PulseItem, SortKey } from "../types";
+import { getDatabase, readLocal, writeLocal } from "./client";
+import { LS_ITEMS } from "./local-keys";
+import { rowToItem } from "./rows";
+
+export async function upsertItems(items: PulseItem[]): Promise<void> {
+  if (items.length === 0) return;
+  const db = await getDatabase();
+
+  if (db) {
+    for (const item of items) {
+      await db.execute(
+        `INSERT INTO items (
+           id, source, source_type, category, field, title, url, body, author, author_url,
+           score, comments_count, published_at, state, tags_json, resources_json, created_at,
+           topic, signal, primary_source, why_key, why, jev_model, jev_confidence, jev_at, content_hash,
+           image_url, site_name, link_description, link_checked_at
+         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
+         ON CONFLICT(id) DO UPDATE SET
+           score = excluded.score,
+           comments_count = excluded.comments_count,
+           published_at = excluded.published_at,
+           image_url = COALESCE(excluded.image_url, items.image_url),
+           site_name = COALESCE(excluded.site_name, items.site_name),
+           link_description = COALESCE(excluded.link_description, items.link_description),
+           field = COALESCE(excluded.field, items.field),
+           category = COALESCE(excluded.category, items.category);`,
+        [
+          item.id,
+          item.source,
+          item.sourceType,
+          item.category,
+          item.field,
+          item.title,
+          item.url,
+          item.body,
+          item.author,
+          item.authorUrl,
+          item.score,
+          item.commentsCount,
+          item.publishedAt,
+          item.state,
+          JSON.stringify(item.tags ?? []),
+          JSON.stringify(item.extractedResources ?? []),
+          item.createdAt,
+          item.topic ?? null,
+          item.signal ?? null,
+          item.primarySource === null || item.primarySource === undefined ? null : item.primarySource ? 1 : 0,
+          item.whyKey ?? null,
+          item.why ?? null,
+          item.classifierModel ?? null,
+          item.classifierConfidence ?? null,
+          item.classifiedAt ?? null,
+          item.contentHash ?? null,
+          item.imageUrl ?? null,
+          item.siteName ?? null,
+          item.linkDescription ?? null,
+          item.linkCheckedAt ?? null,
+        ]
+      );
+    }
+    return;
+  }
+
+  const store = readLocal<PulseItem[]>(LS_ITEMS, []);
+  const map = new Map(store.map((item) => [item.id, item]));
+  for (const item of items) {
+    const existing = map.get(item.id);
+    map.set(item.id, existing ? { ...item, state: existing.state } : item);
+  }
+  writeLocal(LS_ITEMS, Array.from(map.values()));
+}
+
+export async function queryItems(filter: PulseFilter = {}): Promise<PulseItem[]> {
+  const db = await getDatabase();
+
+  if (db) {
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+
+    const add = (clause: string, value: unknown) => {
+      params.push(value);
+      conditions.push(clause.replace("?", `$${params.length}`));
+    };
+
+    if (filter.category && filter.category !== "all") add("category = ?", filter.category);
+    if (filter.field && filter.field !== "all") add("field = ?", filter.field);
+    if (filter.state) add("state = ?", filter.state);
+    if (filter.source) add("source = ?", filter.source);
+    if (filter.query?.trim()) {
+      params.push(`%${filter.query.trim()}%`);
+      const p = `$${params.length}`;
+      conditions.push(`(title LIKE ${p} OR body LIKE ${p} OR author LIKE ${p})`);
+    }
+    if (filter.tag) add("tags_json LIKE ?", `%${filter.tag}%`);
+    if (filter.publishedSince) add("published_at >= ?", filter.publishedSince);
+    if (filter.collectedSince) add("created_at >= ?", filter.collectedSince);
+
+    const orderBy = {
+      recent: "published_at DESC",
+      score: "score DESC, published_at DESC",
+      comments: "comments_count DESC, published_at DESC",
+    }[filter.sortBy ?? "recent"];
+
+    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const rows = (await db.select(
+      `SELECT * FROM items ${where} ORDER BY ${orderBy} LIMIT 200;`,
+      params
+    )) as any[];
+    return rows.map(rowToItem);
+  }
+
+  let list = readLocal<PulseItem[]>(LS_ITEMS, []);
+  if (filter.category && filter.category !== "all") list = list.filter((i) => i.category === filter.category);
+  if (filter.field && filter.field !== "all") list = list.filter((i) => i.field === filter.field);
+  if (filter.state) list = list.filter((i) => i.state === filter.state);
+  if (filter.source) list = list.filter((i) => i.source === filter.source);
+  if (filter.query?.trim()) {
+    const q = filter.query.toLowerCase();
+    list = list.filter(
+      (i) =>
+        i.title.toLowerCase().includes(q) ||
+        (i.body ?? "").toLowerCase().includes(q) ||
+        (i.author ?? "").toLowerCase().includes(q)
+    );
+  }
+  if (filter.tag) list = list.filter((i) => i.tags.includes(filter.tag!));
+  if (filter.publishedSince) {
+    const since = filter.publishedSince;
+    list = list.filter((i) => (i.publishedAt ?? "") >= since);
+  }
+  if (filter.collectedSince) {
+    const since = filter.collectedSince;
+    list = list.filter((i) => (i.createdAt ?? "") >= since);
+  }
+
+  return sortItems(list, filter.sortBy ?? "recent");
+}
+
+function sortItems(list: PulseItem[], sortBy: SortKey): PulseItem[] {
+  const copy = [...list];
+  if (sortBy === "score") {
+    copy.sort((a, b) => b.score - a.score || time(b) - time(a));
+  } else if (sortBy === "comments") {
+    copy.sort((a, b) => b.commentsCount - a.commentsCount || time(b) - time(a));
+  } else {
+    copy.sort((a, b) => time(b) - time(a));
+  }
+  return copy;
+}
+
+const time = (item: PulseItem): number => new Date(item.publishedAt).getTime() || 0;
+
+export async function updateItemState(id: string, state: ItemState): Promise<void> {
+  const db = await getDatabase();
+  if (db) {
+    await db.execute(`UPDATE items SET state = $1 WHERE id = $2;`, [state, id]);
+    return;
+  }
+  const store = readLocal<PulseItem[]>(LS_ITEMS, []);
+  const index = store.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    store[index] = { ...store[index], state };
+    writeLocal(LS_ITEMS, store);
+  }
+}
+
+export async function updateItemNotes(id: string, notes: string): Promise<void> {
+  const db = await getDatabase();
+  const value = notes.trim() || null;
+  if (db) {
+    await db.execute(`UPDATE items SET notes = $1 WHERE id = $2;`, [value, id]);
+    return;
+  }
+  const store = readLocal<PulseItem[]>(LS_ITEMS, []);
+  const item = store.find((entry) => entry.id === id);
+  if (item) {
+    item.notes = value;
+    writeLocal(LS_ITEMS, store);
+  }
+}

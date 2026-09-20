@@ -8,7 +8,7 @@ import type { ExtractedResource } from "./types";
  * independently of what has been synced, and carry no source item, mention
  * count, or timestamp. Each URL is classified with the same `classifyUrl` used
  * for detected links, so a GitHub repo becomes a `repo` named `owner/name` and
- * everything else becomes a `site` — nothing is hand-typed.
+ * everything else becomes a `site` - nothing is hand-typed.
  */
 const CURATED_URLS = [
   "https://build.nvidia.com",

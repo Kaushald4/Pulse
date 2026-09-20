@@ -4,18 +4,15 @@ import { generateBriefing, generateReasons } from "./ai/llm";
 import {
   applyClassifications,
   applyReasons,
-  getBriefing,
-  getBriefingCandidates,
-  getTopicSummary,
   getUnclassifiedItems,
-  recordSyncResult,
-  saveBriefing,
-  startRun,
-  finishRun,
-  upsertItems,
   type ClassificationUpdate,
-} from "./db/sqlite";
-import { fetchSource } from "./sources/fetcher";
+} from "./db/classification";
+import { getBriefing, getBriefingCandidates, saveBriefing } from "./db/briefings";
+import { upsertItems } from "./db/items";
+import { finishRun, startRun } from "./db/runs";
+import { recordSyncResult } from "./db/sources";
+import { getTopicSummary } from "./db/stats";
+import { fetchSource } from "./sources/registry";
 import { fetchLinkPreviews } from "./metadata";
 
 /** Local-time YYYY-MM-DD, so "today" matches the user's calendar. */
@@ -32,7 +29,7 @@ export interface SyncReport {
 }
 
 export interface SyncProgress {
-  /** The source row id — unique, unlike `source` which repeats per domain. */
+  /** The source row id - unique, unlike `source` which repeats per domain. */
   id: string;
   label: string;
   index: number;

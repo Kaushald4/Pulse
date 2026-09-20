@@ -1,13 +1,13 @@
 /**
- * Deterministic, no-LLM resource detection — a port of journal's
+ * Deterministic, no-LLM resource detection - a port of journal's
  * `sync/src/resource-detection.ts` so Pulse catalogs resources the same way.
  *
  * Two kinds of input:
- *   `primaryUrl` — the item's own outbound link, promoted **only** when it is a
+ *   `primaryUrl` - the item's own outbound link, promoted **only** when it is a
  *     genuinely named tool (repo/product/paper/model). A news or blog item's own
  *     permalink is already fully represented by the item itself, so promoting it
  *     would flood Resources with article hosts.
- *   `text` — scanned for any additional URLs mentioned in the title/body. This is
+ *   `text` - scanned for any additional URLs mentioned in the title/body. This is
  *     unrestricted: an article that mentions a GitHub repo still surfaces that
  *     repo, and an unknown link still becomes "other" rather than vanishing.
  */
@@ -30,7 +30,7 @@ const HF_MODEL_RE =
   /^https?:\/\/(?:www\.)?huggingface\.co\/(?!papers\/|datasets\/|spaces\/|docs\/|blog\/)([\w.-]+)\/([\w.-]+)/i;
 
 /**
- * Hosts that are never a resource in their own right — the platforms Pulse
+ * Hosts that are never a resource in their own right - the platforms Pulse
  * extracts *from*, not something an item is telling you about.
  */
 const EXCLUDED_HOSTS = new Set([
@@ -142,7 +142,7 @@ export const RESOURCE_FILTERS: Array<{ id: ResourceFilter; label: string }> = [
  *
  * Stricter than `detectResources`: a page's link list is mostly navigation,
  * share buttons and CDN assets, so only genuinely named tools are kept when
- * scanning whole-page text and link lists — "other" is dropped rather than
+ * scanning whole-page text and link lists - "other" is dropped rather than
  * flooding the library with a site's own internal links.
  */
 export function detectPageResources(text: string, links: string[]): DetectedResource[] {

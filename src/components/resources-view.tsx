@@ -97,7 +97,7 @@ export function ResourcesView() {
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.slice(0, visibleCount).map(({ resource, mentions, item, curated, preview }) => {
-            // Repo stats only belong to the repo itself — a post that merely
+            // Repo stats only belong to the repo itself - a post that merely
             // mentions it would otherwise show the post's points as stars.
             const isSelf = item?.url === resource.url;
             const hasStats = resource.type === "repo" && isSelf && (item?.score ?? 0) > 0;

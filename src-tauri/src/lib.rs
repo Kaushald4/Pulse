@@ -5,20 +5,26 @@ mod extract;
 mod feed;
 mod github;
 mod helmsman;
+mod jobs;
 mod library;
 mod metadata;
+mod node;
+mod proc;
+mod setup;
 
 use ai::{ai_chat, ai_jev, test_connection};
 use config::{get_config, set_config};
 use extract::extract_content;
 use feed::fetch_feed;
 use github::github_trending;
+use jobs::{pick_resume_file, save_job_file, scan_job_providers};
 use helmsman::{
     check_profile_status, disconnect_profile, helmsman_status, install_helmsman, launch_auth_login,
     run_helmsman_extract,
 };
 use library::{export_library, import_library};
 use metadata::fetch_link_metadata;
+use setup::{dismiss_setup, run_setup, setup_status};
 use tauri::{Emitter, Manager};
 use tauri::menu::MenuBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -150,7 +156,13 @@ pub fn run() {
             publish_widget_snapshot,
             send_notification,
             export_library,
-            import_library
+            import_library,
+            pick_resume_file,
+            save_job_file,
+            scan_job_providers,
+            setup_status,
+            run_setup,
+            dismiss_setup
         ])
         .run(tauri::generate_context!())
         .expect("error while running pulse desktop application");
