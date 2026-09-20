@@ -1,0 +1,37 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/
+native/macos/.build/
+
+# SQLite databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Environment variables & local configs
+.env*.local
+.env
+*.local
+
+# System & Editor files
+.DS_Store
+*.pem
+Thumbs.db
+.vscode/
+.idea/

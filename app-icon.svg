@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="crimsonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" />
+      <stop offset="50%" stop-color="#e11d48" />
+      <stop offset="100%" stop-color="#9f1239" />
+    </linearGradient>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="30" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1024" height="1024" rx="224" fill="url(#bgGrad)" />
+  <rect width="1020" height="1020" x="2" y="2" rx="222" fill="none" stroke="#1e293b" stroke-width="4" />
+
+  <!-- Outer Sky Radar Pulse Ring -->
+  <circle cx="512" cy="512" r="340" fill="none" stroke="url(#skyGrad)" stroke-width="12" stroke-dasharray="24 16" opacity="0.4" />
+  <circle cx="512" cy="512" r="260" fill="none" stroke="#0ea5e9" stroke-width="6" opacity="0.6" />
+
+  <!-- Crimson Pulse Waveform / Heartbeat -->
+  <path d="M 220 512 L 360 512 L 430 320 L 512 700 L 594 380 L 664 512 L 804 512" 
+        fill="none" 
+        stroke="url(#crimsonGrad)" 
+        stroke-width="36" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        filter="url(#glow)" />
+
+  <!-- Center Active Spark Dot -->
+  <circle cx="512" cy="512" r="28" fill="#38bdf8" filter="url(#glow)" />
+  <circle cx="512" cy="512" r="14" fill="#ffffff" />
+</svg>
