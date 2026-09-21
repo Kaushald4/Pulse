@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag, e.g. v0.1.1. Leave blank to use the version in tauri.conf.json."
+        description: "Leave blank to tag v<version> from tauri.conf.json. Set this only to override it."
         required: false
         type: string
       draft:
