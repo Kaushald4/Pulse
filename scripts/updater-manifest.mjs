@@ -26,8 +26,11 @@ const PLATFORMS = [
   },
   {
     key: "windows-x86_64",
-    // NSIS is the Windows updater target; the .zip wraps the installer.
-    matches: (name) => name.endsWith(".nsis.zip"),
+    // The signed NSIS installer is the Windows updater artifact, which the plugin
+    // runs directly. This looked for a `.nsis.zip` wrapper, which is not what the
+    // bundler produces: the real output is `Pulse_0.1.2_x64-setup.exe` beside its
+    // `.sig`, so the manifest had no Windows entry and the publish job failed.
+    matches: (name) => name.endsWith("-setup.exe"),
   },
 ];
 

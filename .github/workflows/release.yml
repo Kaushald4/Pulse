@@ -1,7 +1,6 @@
 name: Release
 
 # Manual only
-# ("Run workflow") to create a release.
 on:
   workflow_dispatch:
     inputs:
@@ -19,18 +18,12 @@ permissions:
   contents: write
 
 jobs:
-  # Both platforms build first and hand their installers over as workflow
-  # artifacts. A single publish job then attaches them to one release.
-  #
-  # That split is deliberate: if each build job created the release itself, the
-  # two would race to create the same tag, and whichever lost would fail. It also
-  # means neither platform can publish a release that is missing the other.
+  # One publish job rather than one per platform: two would race for the same tag,
+  # and either could publish a release missing the other platform.
   build-macos:
     name: Build macOS
     runs-on: macos-latest
 
-    # Signs the updater archive. The key is a repo secret, and the repo config
-    # leaves createUpdaterArtifacts off so local builds need no key.
     env:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -38,8 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # pnpm 11 needs Node >= 22.13 (it uses the node:sqlite builtin). The pnpm
-      # version is pinned to the one that generated pnpm-lock.yaml.
+      # pnpm 11 needs Node >= 22.13; the pnpm version matches pnpm-lock.yaml.
       - uses: pnpm/action-setup@v4
         with:
           version: 11.5.1
@@ -58,21 +50,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # The `tauri` script routes `build` to scripts/build-macos.sh on macOS,
-      # which runs `tauri build --bundles app`, ad-hoc signs it, and assembles
-      # the DMG. `beforeBuildCommand` runs the Next export either way.
-      #
-      # `updater.conf.json` turns on the updater archive (.app.tar.gz plus its
-      # .sig) for CI only, so a local build needs no signing key. It is a file
-      # rather than inline JSON because PowerShell re-quotes arguments to native
-      # commands and strips the quotes out of a JSON string, which failed the
-      # Windows job with "key must be a string at line 1 column 2".
+      # updater.conf.json enables the updater archive and its .sig for CI only, so
+      # a local build needs no key. It is a file because PowerShell strips the
+      # quotes out of inline JSON.
       - name: Build the app, the DMG and the updater archive
         run: pnpm tauri build --config src-tauri/updater.conf.json
 
       - name: Show what was produced
         run: find src-tauri/target/release/bundle -maxdepth 3 -print
 
+      # The .app.tar.gz and its .sig are what the updater installs from.
       - uses: actions/upload-artifact@v4
         with:
           name: macos
@@ -111,27 +98,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # On Windows the `tauri` script is a plain `tauri build`, so this produces
-      # the MSI and NSIS installers under bundle/msi and bundle/nsis. Tauri
-      # fetches WiX and NSIS itself; neither needs installing here.
-      #
-      # The NSIS .zip plus its .sig is what the updater installs from, so both
-      # are built and signed alongside the installer the user downloads first.
-      # Same override file as macOS; see the note there for why it is not inline.
+      # The NSIS `-setup.exe` and its .sig are the Windows updater artifact, run
+      # directly by the plugin. Tauri fetches WiX and NSIS itself.
       - name: Build the installers and the updater archive
         run: pnpm tauri build --config src-tauri/updater.conf.json
 
       - name: Show what was produced
         run: Get-ChildItem -Recurse -Path src-tauri/target/release/bundle | Select-Object FullName
 
+      # The .sig files are read by the manifest step, so they must be uploaded too.
       - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
             src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/msi/*.sig
             src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/nsis/*.nsis.zip
-            src-tauri/target/release/bundle/nsis/*.nsis.zip.sig
+            src-tauri/target/release/bundle/nsis/*.sig
           if-no-files-found: error
 
   publish:
@@ -159,10 +142,8 @@ jobs:
             echo "tag=v$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
           fi
 
-      # The published app polls latest.json from releases/latest, so it has to
-      # exist as an asset before the release goes live. It asserts that both
-      # platforms are present and signed rather than publishing a manifest that
-      # would strand one of them.
+      # The installed app polls latest.json from releases/latest, so it has to be
+      # an asset. The script fails if a platform is missing or unsigned.
       - name: Build the updater manifest
         run: |
           node scripts/updater-manifest.mjs \
@@ -180,19 +161,16 @@ jobs:
           name: Pulse ${{ steps.release.outputs.tag }}
           draft: ${{ inputs.draft }}
           generate_release_notes: true
-          # `**` because upload-artifact stores files relative to the least common
-          # ancestor of the paths it was handed. The single macOS pattern keeps
-          # that flat; the two Windows patterns share `bundle/`, so its installers
-          # arrive nested under msi/ and nsis/.
-          #
-          # Failing on an unmatched pattern is deliberate: a release that quietly
-          # ships one platform is worse than a red run.
+          # A release that quietly ships one platform is worse than a red run.
           fail_on_unmatched_files: true
+          # `**` because upload-artifact nests the Windows files under msi/ and
+          # nsis/. The updater archives and their .sig files are required too.
           files: |
             artifacts/**/*.dmg
+            artifacts/**/*.app.tar.gz
             artifacts/**/*.msi
             artifacts/**/*.exe
-            artifacts/**/*.nsis.zip
+            artifacts/**/*.sig
             latest.json
           body: |
             ## Pulse ${{ steps.release.outputs.tag }}
