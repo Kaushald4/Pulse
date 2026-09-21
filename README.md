@@ -217,6 +217,29 @@ src-tauri/target/release/bundle/
 The macOS WidgetKit source is kept under `native/macos/PulseWidget` for future work. It is not
 embedded in the regular app or DMG at the moment.
 
+## Contributing
+
+Contributions are welcome: bug reports, new job providers, and pull requests. If something is
+broken or missing, open an [issue](https://github.com/Kaushald4/Pulse/issues) and I will take a
+look.
+
+The job sources are the easiest place to help, since coverage there is the most obviously
+incomplete. Adding a board is one self-contained module under
+[`jobs/providers`](jobs/providers), following the contract documented in `_types.js`; it needs no
+login, no API key, and no model call.
+
+Before opening a pull request, run what the release workflow runs:
+
+```bash
+pnpm install
+pnpm build
+cd src-tauri && cargo test
+```
+
+`pnpm build` typechecks the frontend and writes the static export, and `cargo test` covers the Rust
+side. There is no ESLint setup in the repository yet, so `pnpm lint` will offer to scaffold one
+rather than run.
+
 ## Project notes
 
 | Layer | Choice |

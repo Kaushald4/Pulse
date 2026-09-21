@@ -193,6 +193,13 @@ fn extract_tar_gz(archive: &Path, destination: &Path) -> Result<(), String> {
     let file = fs::File::open(archive).map_err(|e| format!("Could not open archive: {e}"))?;
     let mut tar = tar::Archive::new(GzDecoder::new(file));
 
+    // `Entry::unpack_in` will not create the destination, and its containment
+    // check rejects creating it as part of an entry's path, so extracting into a
+    // directory that does not exist yet fails with a misleading "failed to create
+    // <the entry's parent>". `Archive::unpack` creates it for exactly this reason.
+    fs::create_dir_all(destination)
+        .map_err(|e| format!("Could not create {}: {e}", destination.display()))?;
+
     let entries = tar
         .entries()
         .map_err(|e| format!("Could not read archive: {e}"))?;
