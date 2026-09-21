@@ -31,7 +31,7 @@ import {
 import { saveResumeAsDocx } from "../lib/jobs/download";
 import { fetchJobDescription } from "../lib/jobs/description";
 import { addManualJob, type ManualJobInput, type ManualJobResult } from "../lib/jobs/manual";
-import { scanJobs } from "../lib/jobs/scan";
+import { markScanStopped, scanJobs } from "../lib/jobs/scan";
 import { uploadBaseResume } from "../lib/jobs/resume/upload";
 import { DEFAULT_JOB_FILTER } from "../lib/jobs/types";
 import type {
@@ -71,6 +71,8 @@ interface JobStore {
   counts: JobCounts;
   /** What a running scan is doing right now, stage by stage. */
   scanProgress: JobScanProgress | null;
+  /** True between asking to stop a scan and the scan actually ending. */
+  stopping: boolean;
 
   /** Null shows the list; set shows the job's full page. */
   selectedJobId: string | null;
@@ -87,6 +89,7 @@ interface JobStore {
 
   addJob: (input: ManualJobInput) => Promise<void>;
   scan: () => Promise<void>;
+  cancelScan: () => Promise<void>;
   /** Scores the whole unscored backlog. Manual only; a scan never calls it. */
   scoreUnscored: () => Promise<void>;
 
@@ -124,6 +127,7 @@ export const useJobs = create<JobStore>((set, get) => ({
   busy: null,
   counts: emptyJobCounts(),
   scanProgress: null,
+  stopping: false,
 
   selectedJobId: null,
   job: null,
@@ -173,9 +177,13 @@ export const useJobs = create<JobStore>((set, get) => ({
   },
 
   scan: async () => {
-    set({ busy: "scan", scanProgress: null });
+    set({ busy: "scan", scanProgress: null, stopping: false });
     try {
       const report = await scanJobs((progress) => set({ scanProgress: progress }));
+      if (report.stopped) {
+        toast.info("Scan stopped", `${report.found} listing(s) found before you stopped it`);
+        return;
+      }
       await get().refresh();
       const parts = [`${report.found} found`];
       if (report.described > 0) parts.push(`${report.described} described`);
@@ -186,9 +194,35 @@ export const useJobs = create<JobStore>((set, get) => ({
         toast.success("Scan complete", detail);
       }
     } catch (error) {
-      toast.error("Scan failed", message(error));
+      // A stop kills the scanner, which surfaces as a rejection. That is the
+      // user's own action, so it is not reported as a failure.
+      if (get().stopping || message(error) === "Job scan stopped.") {
+        toast.info("Scan stopped");
+      } else {
+        toast.error("Scan failed", message(error));
+      }
     } finally {
-      set({ busy: null, scanProgress: null });
+      set({ busy: null, scanProgress: null, stopping: false });
+    }
+  },
+
+  /**
+   * Stops the running scan.
+   *
+   * Killing the scanner in Rust is the whole fix: it owns the network calls and
+   * stores nothing until it returns, so there is no partial state to unwind
+   * here. The flag is set first so the run knows why it failed.
+   */
+  cancelScan: async () => {
+    if (get().busy !== "scan" || get().stopping) return;
+    set({ stopping: true });
+    markScanStopped();
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      await invoke("cancel_job_scan");
+    } catch (error) {
+      toast.error("Could not stop the scan", message(error));
+      set({ stopping: false });
     }
   },
 

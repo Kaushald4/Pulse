@@ -32,7 +32,7 @@ use helmsman::{
     check_profile_status, disconnect_profile, helmsman_status, install_helmsman, launch_auth_login,
     run_helmsman_extract,
 };
-use jobs::{pick_resume_file, save_job_file, scan_job_providers};
+use jobs::{cancel_job_scan, pick_resume_file, save_job_file, scan_job_providers, JobScanState};
 use reading::{extract_content, fetch_feed, fetch_link_metadata, github_trending};
 use setup::{dismiss_setup, run_setup, setup_status};
 use tauri::Manager;
@@ -40,9 +40,11 @@ use tauri::Manager;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let scheduler = BackgroundScheduler::default();
+    let job_scan = JobScanState::default();
 
     tauri::Builder::default()
         .manage(scheduler.clone())
+        .manage(job_scan)
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
@@ -97,6 +99,7 @@ pub fn run() {
             pick_resume_file,
             save_job_file,
             scan_job_providers,
+            cancel_job_scan,
             setup_status,
             run_setup,
             dismiss_setup

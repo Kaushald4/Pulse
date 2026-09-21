@@ -63,6 +63,8 @@ interface ScannerProgress {
   provider: string | null;
   jobs: number;
   error: string | null;
+  /** Set on the line that announces an entry has started. */
+  started?: boolean;
 }
 
 export async function scanJobBoards(
@@ -71,17 +73,19 @@ export async function scanJobBoards(
   const targets = (await getJobSources()).filter((source) => source.enabled && isScannable(source));
   if (targets.length === 0) return { boards: 0, found: 0, errors: [] };
 
-  // The scanner reports each board as it finishes; turn that into "n of total".
+  // The scanner reports each board as it starts and as it finishes; the start
+  // line names what is being waited on, the finish line advances the count.
   let done = 0;
   let unlisten: (() => void) | undefined;
   if (onProgress && isTauriEnv()) {
     const { listen } = await import("@tauri-apps/api/event");
     unlisten = await listen<ScannerProgress>("job-scan-progress", (event) => {
-      done += 1;
+      const { entry, jobs, error, started } = event.payload;
+      if (!started) done += 1;
       onProgress({
-        entry: event.payload.entry,
-        jobs: event.payload.jobs,
-        error: event.payload.error,
+        entry,
+        jobs: jobs ?? 0,
+        error: error ?? null,
         index: done,
         total: targets.length,
       });

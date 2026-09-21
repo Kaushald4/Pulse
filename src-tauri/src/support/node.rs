@@ -12,7 +12,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::support::proc::{command, env_dir, find_executable, path_dirs, run_streaming, ProcRun};
+use crate::support::proc::{command, env_dir, find_executable, path_dirs, run_streaming_notify, ProcRun};
 
 pub use crate::support::proc::PROGRESS_PREFIX;
 
@@ -107,20 +107,24 @@ pub fn node_version() -> Option<String> {
     }
 }
 
-/// Runs a Node script, handing every stderr line to `on_line` as it arrives.
-pub fn run_node_script(
+/// Runs a Node script, handing every stderr line to `on_line` as it arrives, and
+/// reports the child's pid as soon as it exists so a caller can stop a
+/// long-running script it no longer needs.
+pub fn run_node_script_notify(
     script: &Path,
     input: &str,
     on_line: &(dyn Fn(&str) + Send + Sync),
+    on_spawn: &(dyn Fn(u32) + Send + Sync),
 ) -> Result<ProcRun, String> {
     let node = resolve_node()
         .ok_or_else(|| "Node.js was not found, so the script cannot run.".to_string())?;
 
-    run_streaming(
+    run_streaming_notify(
         &node,
         &[script.to_string_lossy().to_string()],
         Some(input),
         on_line,
+        on_spawn,
     )
 }
 

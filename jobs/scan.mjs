@@ -42,8 +42,11 @@ async function main() {
   const providers = await loadProviders(PROVIDERS_DIR);
   const results = await runEntries(entries, providers, {
     maxPages: input.maxPages ?? undefined,
-    // Progress goes to stderr (stdout stays the result), one line per finished
-    // entry, so the UI can name the board it just completed.
+    // Progress goes to stderr (stdout stays the result). A start line names the
+    // board being waited on; a finish line carries what it returned.
+    onEntryStart: (entry) => {
+      process.stderr.write(`@@progress ${JSON.stringify({ entry: entry.name, started: true })}\n`);
+    },
     onEntry: (result) => {
       process.stderr.write(
         `@@progress ${JSON.stringify({

@@ -102,6 +102,21 @@ pub fn run_streaming(
     stdin: Option<&str>,
     on_line: &(dyn Fn(&str) + Send + Sync),
 ) -> Result<ProcRun, String> {
+    run_streaming_notify(program, args, stdin, on_line, &|_| {})
+}
+
+/// Same as [`run_streaming`], and reports the child's pid the moment it exists.
+///
+/// The pid rather than the `Child` itself, because the child is owned here while
+/// its output is streamed, and something else has to be able to stop it from
+/// another thread. A callback keeps that possible without handing out the handle.
+pub fn run_streaming_notify(
+    program: &Path,
+    args: &[String],
+    stdin: Option<&str>,
+    on_line: &(dyn Fn(&str) + Send + Sync),
+    on_spawn: &(dyn Fn(u32) + Send + Sync),
+) -> Result<ProcRun, String> {
     let mut child = command(program)
         .args(args)
         .stdin(Stdio::piped())
@@ -109,6 +124,8 @@ pub fn run_streaming(
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|error| format!("Could not start {}: {error}", program.display()))?;
+
+    on_spawn(child.id());
 
     if let (Some(mut pipe), Some(input)) = (child.stdin.take(), stdin) {
         pipe.write_all(input.as_bytes())
@@ -151,6 +168,25 @@ pub fn run_streaming(
             stderr_tail: tail.join("\n"),
         })
     })
+}
+
+/// Stops a process this app started, by pid.
+///
+/// Used to abandon work the user asked for and no longer wants, so it goes
+/// through the platform's own tool rather than a signal crate: `kill` on Unix,
+/// and `taskkill /T` on Windows so anything the child started goes with it.
+/// A process that is already gone is not an error, since the caller's intent -
+/// that it stops - is satisfied either way.
+pub fn stop_process(pid: u32) -> Result<(), String> {
+    #[cfg(windows)]
+    let outcome = command(Path::new("taskkill")).args(["/F", "/T", "/PID", &pid.to_string()]).status();
+    #[cfg(not(windows))]
+    let outcome = command(Path::new("kill")).args(["-9", &pid.to_string()]).status();
+
+    match outcome {
+        Ok(_) => Ok(()),
+        Err(error) => Err(format!("Could not stop process {pid}: {error}")),
+    }
 }
 
 /// Parses a command's stdout, tolerating stray leading/trailing non-JSON lines.

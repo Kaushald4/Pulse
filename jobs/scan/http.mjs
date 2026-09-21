@@ -28,7 +28,7 @@ function randomUserAgent() {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 }
 
-async function fetchWithTimeout(url, opts, consume) {
+async function fetchWithTimeout(url, opts, consume, outerSignal) {
   const {
     timeoutMs = DEFAULT_TIMEOUT_MS,
     headers = {},
@@ -39,13 +39,16 @@ async function fetchWithTimeout(url, opts, consume) {
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  // The per-request timeout and the entry deadline both have to be able to cut
+  // this short, so the request watches whichever fires first.
+  const signal = outerSignal ? AbortSignal.any([controller.signal, outerSignal]) : controller.signal;
   try {
     const res = await fetch(url, {
       method,
       headers: { "user-agent": randomUserAgent(), ...headers },
       body,
       redirect,
-      signal: controller.signal,
+      signal,
     });
 
     if (!res.ok) {
@@ -67,10 +70,15 @@ async function fetchWithTimeout(url, opts, consume) {
   }
 }
 
-export function makeHttpContext() {
+/**
+ * `signal` is the current entry's deadline. Every request made for that entry
+ * carries it, so a board that runs out of time has its sockets closed rather
+ * than left open behind an abandoned promise.
+ */
+export function makeHttpContext(signal) {
   return {
     transport: "http",
-    fetchJson: (url, opts = {}) => fetchWithTimeout(url, opts, (res) => res.json()),
-    fetchText: (url, opts = {}) => fetchWithTimeout(url, opts, (res) => res.text()),
+    fetchJson: (url, opts = {}) => fetchWithTimeout(url, opts, (res) => res.json(), signal),
+    fetchText: (url, opts = {}) => fetchWithTimeout(url, opts, (res) => res.text(), signal),
   };
 }
