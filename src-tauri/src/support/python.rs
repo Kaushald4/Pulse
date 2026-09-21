@@ -125,11 +125,31 @@ fn candidate_paths(names: &[&str], dirs: &[PathBuf]) -> Vec<PathBuf> {
     list
 }
 
+/// The python.org launcher, which starts an interpreter rather than being one.
+fn is_launcher(program: &Path) -> bool {
+    program
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .map(|stem| stem.eq_ignore_ascii_case("py"))
+        .unwrap_or(false)
+}
+
 /// The version from a real Python 3, or nothing when the program is missing, exits
 /// non-zero, or is anything but Python 3 - which is how the Store's stub, a legacy
 /// Python 2, and a missing install are all told apart from a usable interpreter.
 fn version_of(program: &Path) -> Option<String> {
-    let output = command(program).arg("--version").output().ok()?;
+    let mut invocation = command(program);
+
+    // `py` reports whichever interpreter it is configured to default to, and on an
+    // older machine that can still be Python 2 - which would read as "no Python 3
+    // here" even though `py -3` is sitting right there. Asking for 3 explicitly is
+    // the whole point of the launcher. Every other candidate *is* the interpreter,
+    // so it is asked plainly.
+    if is_launcher(program) {
+        invocation.arg("-3");
+    }
+
+    let output = invocation.arg("--version").output().ok()?;
     if !output.status.success() {
         return None;
     }
@@ -212,6 +232,18 @@ mod tests {
     #[test]
     fn a_program_that_is_not_python_is_rejected() {
         assert!(version_of(Path::new("pulse-definitely-not-python")).is_none());
+    }
+
+    #[test]
+    fn only_the_launcher_is_asked_for_python_3() {
+        // `py -3` selects Python 3; handing `-3` to a real interpreter means
+        // something else entirely, so the flag belongs to the launcher alone.
+        assert!(is_launcher(Path::new("py.exe")));
+        assert!(is_launcher(Path::new("/usr/bin/py")));
+        assert!(is_launcher(Path::new("/usr/bin/PY")));
+        assert!(!is_launcher(Path::new("python3")));
+        assert!(!is_launcher(Path::new("/usr/bin/python")));
+        assert!(!is_launcher(Path::new("pypy3")), "a different interpreter whose name starts with py");
     }
 
     /// Guards the bug that broke the Windows install: resolution used
