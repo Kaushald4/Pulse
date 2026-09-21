@@ -116,11 +116,11 @@ fn build_command(binary: &str, command: &str) -> Command {
         // does not inherit the shell's PATH, so "node" alone would not be found
         // even on a machine where Node is installed.
         let node = crate::node::resolve_node().unwrap_or_else(|| PathBuf::from("node"));
-        let mut node_cmd = Command::new(node);
+        let mut node_cmd = crate::proc::command(node);
         node_cmd.arg(path);
         node_cmd
     } else {
-        Command::new(path)
+        crate::proc::command(path)
     };
     cmd.arg(command);
     cmd
@@ -503,7 +503,7 @@ pub fn launch_auth_login(profile: String, site: String) -> Result<String, String
     let profile_dir = home.join(".helmsman").join("profiles").join(&profile);
 
     if let Some(chrome) = chrome_candidates().into_iter().find(|p| p.exists()) {
-        Command::new(chrome)
+        crate::proc::command(chrome)
             .arg(format!("--user-data-dir={}", profile_dir.display()))
             .arg(&url)
             .spawn()

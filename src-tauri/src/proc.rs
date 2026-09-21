@@ -5,6 +5,7 @@
 //! hand each line to the caller as it arrives, and keep the tail of stderr for
 //! when the command fails. That all lives here.
 
+use std::ffi::OsStr;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -65,6 +66,26 @@ pub struct ProcRun {
     pub stderr_tail: String,
 }
 
+/// A `Command` that will not flash a console window on Windows.
+///
+/// A GUI process has no console of its own, so Windows hands each console program
+/// it spawns - node, python, the installer - a brand-new console window. That is
+/// what made syncing flicker terminals. `CREATE_NO_WINDOW` starts the child without
+/// one; the stdio pipes set up below still work exactly the same.
+pub fn command(program: impl AsRef<OsStr>) -> Command {
+    let mut cmd = Command::new(program);
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        // https://learn.microsoft.com/windows/win32/procthread/process-creation-flags
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    cmd
+}
+
 /// Runs `program` to completion, handing every stderr line to `on_line` as it
 /// arrives. `stdin` is written and then closed, which is how a script that reads
 /// until EOF learns it can stop.
@@ -78,7 +99,7 @@ pub fn run_streaming(
     stdin: Option<&str>,
     on_line: &(dyn Fn(&str) + Send + Sync),
 ) -> Result<ProcRun, String> {
-    let mut child = Command::new(program)
+    let mut child = command(program)
         .args(args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

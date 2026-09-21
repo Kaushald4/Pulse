@@ -1,6 +1,5 @@
 use crate::config;
 use serde::Serialize;
-use std::process::Command;
 use std::time::Duration;
 
 const TINYFISH_ENDPOINT: &str = "https://api.fetch.tinyfish.ai";
@@ -152,7 +151,7 @@ fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
             .to_string()
     })?;
 
-    let output = Command::new(&python)
+    let output = crate::proc::command(&python)
         .arg("-c")
         .arg(SCRAPLING_SCRIPT)
         .arg(url)

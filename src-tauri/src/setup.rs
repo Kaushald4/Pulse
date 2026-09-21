@@ -15,12 +15,11 @@
 use crate::config;
 use crate::helmsman;
 use crate::node::{self, node_available, node_version};
-use crate::proc::run_streaming;
+use crate::proc::{command, run_streaming};
 use crate::python;
 use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter};
 
@@ -133,7 +132,7 @@ fn venv_python(dir: &Path) -> PathBuf {
 }
 
 fn command_output(program: &Path, args: &[&str]) -> Option<String> {
-    let output = Command::new(program).args(args).output().ok()?;
+    let output = command(program).args(args).output().ok()?;
     if !output.status.success() {
         return None;
     }

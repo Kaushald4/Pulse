@@ -11,9 +11,8 @@
 //! resolves to a real path first, and only then runs.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
-use crate::proc::{env_dir, find_executable, path_dirs, run_streaming, ProcRun};
+use crate::proc::{command, env_dir, find_executable, path_dirs, run_streaming, ProcRun};
 
 pub use crate::proc::PROGRESS_PREFIX;
 
@@ -99,7 +98,7 @@ pub fn node_available() -> bool {
 /// `node --version`, or nothing when Node is missing.
 pub fn node_version() -> Option<String> {
     let node = resolve_node()?;
-    let output = Command::new(node).arg("--version").output().ok()?;
+    let output = command(node).arg("--version").output().ok()?;
     let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
     if version.is_empty() {
         None

@@ -16,10 +16,9 @@
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use crate::config;
-use crate::proc::{env_dir, executable_names, path_dirs};
+use crate::proc::{command, env_dir, executable_names, path_dirs};
 
 /// Interpreter names to try, best first.
 fn names() -> Vec<&'static str> {
@@ -130,7 +129,7 @@ fn candidate_paths(names: &[&str], dirs: &[PathBuf]) -> Vec<PathBuf> {
 /// non-zero, or is anything but Python 3 - which is how the Store's stub, a legacy
 /// Python 2, and a missing install are all told apart from a usable interpreter.
 fn version_of(program: &Path) -> Option<String> {
-    let output = Command::new(program).arg("--version").output().ok()?;
+    let output = command(program).arg("--version").output().ok()?;
     if !output.status.success() {
         return None;
     }
