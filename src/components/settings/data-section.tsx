@@ -43,14 +43,15 @@ export function DataSection({ desktop }: { desktop: boolean }) {
         <CardHeader>
           <CardTitle>Reset</CardTitle>
           <CardDescription>
-            Clears every collected item, source status and briefing. Your providers and model choices are kept.
+            Clears every collected item, saved job, briefing and run record. Your
+            sources, job boards, resume and model choices are kept.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button
             variant="outline"
             onClick={() => {
-              if (window.confirm("Delete all collected items, source status and briefings? This cannot be undone.")) {
+              if (window.confirm("Delete all collected items, saved jobs, briefings and run history? Your sources, job boards and resume are kept. This cannot be undone.")) {
                 void wipeData();
               }
             }}

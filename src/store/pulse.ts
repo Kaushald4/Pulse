@@ -61,6 +61,9 @@ import { describeOptions } from "../lib/sources/describe";
 import { disconnectProfile, launchAuthLogin, profileExists } from "../lib/sources/helmsman";
 import { requiresProfile } from "../lib/sources/registry";
 import { toast } from "../lib/toast";
+// The jobs store stands alone (it never imports this one), so the reset in here
+// can reach across to keep it in step.
+import { useJobs } from "./jobs";
 
 export type NavigationTab =
   | "today"
@@ -648,6 +651,12 @@ export const usePulse = create<PulseStore>((set, get) => ({
   wipeData: async () => {
     await clearAllData();
     await get().refresh();
+    // The job hunt lives in its own store, so it goes on showing listings that
+    // no longer exist until it is told to reload: a reset that leaves one
+    // screen full of ghosts is not a reset.
+    const jobs = useJobs.getState();
+    jobs.closeJob();
+    await jobs.refresh();
     toast.success("Local library cleared");
   },
 
