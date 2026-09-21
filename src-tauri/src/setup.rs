@@ -5,13 +5,18 @@
 //! than letting each of those fail later with a raw shell error, the app runs
 //! this once on first launch and installs them while showing what it is doing.
 //!
+//! On Windows Node and Python are fetched and installed silently, per-user and
+//! without elevation. The other platforms still leave them to the user (Homebrew,
+//! the distro packages), so those entries report "install it by hand".
+//!
 //! Every component is a row in [`COMPONENTS`], so adding the next dependency is
 //! a new entry plus one `install_*` arm - not another special case in the UI.
 
 use crate::config;
 use crate::helmsman;
-use crate::node::{node_available, node_version};
+use crate::node::{self, node_available, node_version};
 use crate::proc::run_streaming;
+use crate::python;
 use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -24,6 +29,16 @@ const PROGRESS_EVENT: &str = "setup-progress";
 
 /// The extras Scrapling needs for the reader path we use.
 const SCRAPLING_PACKAGE: &str = "scrapling[rag]";
+
+/// The Node release the Windows installer fetches. Node's dist publishes a
+/// standalone `node.exe` per architecture, so there is no MSI and no elevation.
+#[cfg(windows)]
+const NODE_VERSION: &str = "24.21.0";
+
+/// The Python release the Windows installer fetches. Pinned to the newest 3.12
+/// patch that still ships a Windows installer - 3.12.11 and later are source-only.
+#[cfg(windows)]
+const PYTHON_VERSION: &str = "3.12.10";
 
 #[derive(Clone, Copy)]
 struct Component {
@@ -100,13 +115,6 @@ fn now_seconds() -> u64 {
 /* Detecting what is already there                                             */
 /* -------------------------------------------------------------------------- */
 
-/// The interpreter Scrapling would run in: the configured one, else the
-/// platform default. Shares `ExtractionConfig::resolved_python` with
-/// `extract.rs` so both agree on the fallback.
-fn configured_python() -> String {
-    config::load().extraction.resolved_python()
-}
-
 /// The private environment the installer creates when the system Python will not
 /// take packages (Homebrew and Debian both refuse by default).
 fn venv_dir() -> Result<PathBuf, String> {
@@ -124,7 +132,7 @@ fn venv_python(dir: &Path) -> PathBuf {
     }
 }
 
-fn command_output(program: &str, args: &[&str]) -> Option<String> {
+fn command_output(program: &Path, args: &[&str]) -> Option<String> {
     let output = Command::new(program).args(args).output().ok()?;
     if !output.status.success() {
         return None;
@@ -137,18 +145,10 @@ fn command_output(program: &str, args: &[&str]) -> Option<String> {
     }
 }
 
-fn python_version() -> Option<String> {
-    // `python3 --version` historically wrote to stderr; both are checked inside
-    // command_output by way of the exit status.
-    command_output(&configured_python(), &["--version"])
-        .map(|raw| raw.trim_start_matches("Python ").trim().to_string())
-}
-
+/// The Scrapling version in the interpreter Pulse would actually use.
 fn scrapling_version() -> Option<String> {
-    command_output(
-        &configured_python(),
-        &["-c", "import scrapling; print(scrapling.__version__)"],
-    )
+    let python = python::resolve()?;
+    command_output(&python, &["-c", "import scrapling; print(scrapling.__version__)"])
 }
 
 fn helmsman_version() -> Option<String> {
@@ -167,7 +167,7 @@ fn inspect(id: &str) -> (bool, Option<String>) {
             (version.is_some(), version)
         }
         "python" => {
-            let version = python_version();
+            let version = python::version();
             (version.is_some(), version)
         }
         "scrapling" => {
@@ -267,6 +267,137 @@ fn run_checked(
     }
 }
 
+/// The architecture suffix Node's download URLs use (`win-x64`, `win-arm64`).
+#[cfg(windows)]
+fn node_arch() -> Result<&'static str, String> {
+    match std::env::consts::ARCH {
+        "x86_64" => Ok("x64"),
+        "aarch64" => Ok("arm64"),
+        other => Err(format!("There is no automatic Node.js install for {other}.")),
+    }
+}
+
+/// The architecture suffix Python's installer uses (`amd64`, `arm64`).
+#[cfg(windows)]
+fn python_arch() -> Result<&'static str, String> {
+    match std::env::consts::ARCH {
+        "x86_64" => Ok("amd64"),
+        "aarch64" => Ok("arm64"),
+        other => Err(format!("There is no automatic Python install for {other}.")),
+    }
+}
+
+/// Fetches a URL to `dest`, creating its parent directory.
+#[cfg(windows)]
+async fn download(url: &str, dest: &Path) -> Result<(), String> {
+    let client = reqwest::Client::builder()
+        .user_agent("pulse-desktop")
+        .build()
+        .map_err(|e| format!("Could not build HTTP client: {e}"))?;
+
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| format!("Download failed: {e}"))?;
+    if !response.status().is_success() {
+        return Err(format!("Download failed with HTTP {}", response.status()));
+    }
+
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|e| format!("Could not read download: {e}"))?;
+
+    if let Some(parent) = dest.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Could not create {}: {e}", parent.display()))?;
+    }
+    fs::write(dest, &bytes).map_err(|e| format!("Could not save {}: {e}", dest.display()))?;
+    Ok(())
+}
+
+/// Installs Node on Windows.
+///
+/// A single download into `~/.pulse/node`: Node's dist serves a standalone
+/// `node.exe` per architecture, so there is no MSI and no elevation. `node.rs`
+/// already searches that directory, so the binary is picked up at once without
+/// touching the PATH this process was started with.
+#[cfg(windows)]
+async fn install_node(on_line: &(dyn Fn(&str) + Send + Sync)) -> Result<(), String> {
+    let arch = node_arch()?;
+    let dir = node::managed_dir().ok_or_else(|| "Could not locate home directory".to_string())?;
+    let target = dir.join("node.exe");
+
+    on_line(&format!("Downloading Node.js v{NODE_VERSION} ({arch})…"));
+    download(
+        &format!("https://nodejs.org/dist/v{NODE_VERSION}/win-{arch}/node.exe"),
+        &target,
+    )
+    .await?;
+
+    if node::node_version().is_none() {
+        return Err("The downloaded Node.js binary did not run.".to_string());
+    }
+    on_line(&format!("Installed to {}", target.display()));
+    Ok(())
+}
+
+#[cfg(not(windows))]
+async fn install_node(_on_line: &(dyn Fn(&str) + Send + Sync)) -> Result<(), String> {
+    Err("Node.js has to be installed by hand.".to_string())
+}
+
+/// Installs Python on Windows.
+///
+/// The official python.org installer, run silently as a per-user install:
+/// `InstallAllUsers=0` keeps it out of Program Files and needs no elevation, and
+/// `PrependPath=1` puts it on the user's PATH for shells started later. This
+/// process does not wait for that - `python.rs` probes the install directories.
+#[cfg(windows)]
+async fn install_python(on_line: &(dyn Fn(&str) + Send + Sync)) -> Result<(), String> {
+    let arch = python_arch()?;
+    let work = dirs::home_dir()
+        .ok_or_else(|| "Could not locate home directory".to_string())?
+        .join(".pulse")
+        .join("tmp");
+    let installer = work.join(format!("python-{PYTHON_VERSION}-{arch}.exe"));
+
+    on_line(&format!("Downloading Python {PYTHON_VERSION} ({arch})…"));
+    download(
+        &format!(
+            "https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-{arch}.exe"
+        ),
+        &installer,
+    )
+    .await?;
+
+    on_line("Installing Python (per-user, no admin needed)…");
+    let outcome = run_checked(
+        on_line,
+        &installer,
+        &[
+            "/quiet".to_string(),
+            "InstallAllUsers=0".to_string(),
+            "PrependPath=1".to_string(),
+            "Include_launcher=1".to_string(),
+            "Include_test=0".to_string(),
+        ],
+    );
+    let _ = fs::remove_file(&installer);
+    outcome?;
+
+    if python::version().is_none() {
+        return Err("Python was installed but no interpreter could be found.".to_string());
+    }
+    Ok(())
+}
+
+#[cfg(not(windows))]
+async fn install_python(_on_line: &(dyn Fn(&str) + Send + Sync)) -> Result<(), String> {
+    Err("Python 3 has to be installed by hand.".to_string())
+}
+
 /// Installs Scrapling.
 ///
 /// A private venv rather than the system interpreter: Homebrew's Python and
@@ -278,13 +409,15 @@ fn install_scrapling(on_line: &(dyn Fn(&str) + Send + Sync)) -> Result<(), Strin
     let interpreter = venv_python(&dir);
 
     if !interpreter.is_file() {
+        let python = python::resolve()
+            .ok_or_else(|| "Python 3 is not installed, so Scrapling was skipped.".to_string())?;
         on_line(&format!(
             "Creating a private Python environment in {}",
             dir.display()
         ));
         run_checked(
             on_line,
-            Path::new(&configured_python()),
+            &python,
             &[
                 "-m".to_string(),
                 "venv".to_string(),
@@ -349,6 +482,21 @@ pub async fn run_setup(app: AppHandle) -> Result<Value, String> {
             continue;
         }
 
+        // Scrapling is the one component that needs another first. Without an
+        // interpreter there is nothing to install it into, and running the bare
+        // `python` name on Windows would only surface the Microsoft Store's "not
+        // found" advert as if it were Scrapling's error. Skip it instead.
+        if component.id == "scrapling" && python::resolve().is_none() {
+            emit(
+                &app,
+                "scrapling",
+                "skip",
+                "Python 3 is not installed, so Scrapling was skipped.",
+            );
+            results.push(json!({ "id": "scrapling", "status": "skipped", "required": false }));
+            continue;
+        }
+
         emit(&app, component.id, "start", &format!("Installing {}", component.title));
 
         let outcome: Result<(), String> = match component.id {
@@ -365,10 +513,8 @@ pub async fn run_setup(app: AppHandle) -> Result<Value, String> {
                 let sink = teed(&app, "scrapling");
                 install_scrapling(&sink)
             }
-            "node" | "python" => Err(format!(
-                "{} has to be installed by hand.",
-                component.title
-            )),
+            "node" => install_node(&teed(&app, "node")).await,
+            "python" => install_python(&teed(&app, "python")).await,
             other => Err(format!("No installer for {other}")),
         };
 

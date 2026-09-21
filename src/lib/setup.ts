@@ -36,7 +36,7 @@ export interface SetupResult {
   blocked: boolean;
   results: Array<{
     id: string;
-    status: "ready" | "installed" | "failed";
+    status: "ready" | "installed" | "failed" | "skipped";
     required: boolean;
     error?: string;
   }>;

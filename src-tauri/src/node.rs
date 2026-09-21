@@ -45,6 +45,11 @@ fn nvm_bin_dirs(home: &Path) -> Vec<PathBuf> {
     installed.into_iter().map(|dir| dir.join("bin")).collect()
 }
 
+/// Where `install_node` puts the standalone Windows binary it downloads.
+pub fn managed_dir() -> Option<PathBuf> {
+    dirs::home_dir().map(|home| home.join(".pulse").join("node"))
+}
+
 /// Everywhere a Node install ends up when it is not on the process PATH.
 fn candidate_dirs() -> Vec<PathBuf> {
     let mut dirs = Vec::new();
@@ -68,6 +73,11 @@ fn candidate_dirs() -> Vec<PathBuf> {
         dirs.push(PathBuf::from("/opt/homebrew/bin"));
         dirs.push(PathBuf::from("/usr/local/bin"));
         dirs.push(PathBuf::from("/usr/bin"));
+    }
+
+    // The binary Pulse installed itself, for a machine that had none otherwise.
+    if let Some(dir) = managed_dir() {
+        dirs.push(dir);
     }
 
     dirs

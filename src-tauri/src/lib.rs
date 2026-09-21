@@ -10,6 +10,7 @@ mod library;
 mod metadata;
 mod node;
 mod proc;
+mod python;
 mod setup;
 mod tray;
 

@@ -144,14 +144,20 @@ except Exception as exc:
 "#;
 
 fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
-    let python = config::load().extraction.resolved_python();
+    // Resolved, not taken verbatim: on Windows a bare `python` can be the Microsoft
+    // Store's stub, which is not an interpreter at all.
+    let python = crate::python::resolve().ok_or_else(|| {
+        "Python 3 was not found, so the Scrapling reader cannot run. Install Python, \
+         or switch the reader back to Built-in in Settings."
+            .to_string()
+    })?;
 
     let output = Command::new(&python)
         .arg("-c")
         .arg(SCRAPLING_SCRIPT)
         .arg(url)
         .output()
-        .map_err(|e| format!("Could not run {python}: {e}. Install Python and `pip install \"scrapling[rag]\"`."))?;
+        .map_err(|e| format!("Could not run {}: {e}", python.display()))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     let line = stdout
@@ -175,6 +181,7 @@ fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
         // The common case by far is "the library isn't installed", which the raw
         // `No module named 'scrapling'` says nothing useful about.
         if detail.contains("No module named") {
+            let python = python.display();
             return Err(format!(
                 "Scrapling isn't installed for {python}. Run `{python} -m pip install \"scrapling[rag]\"`, \
                  or switch the engine back to Built-in in Settings."

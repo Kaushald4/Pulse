@@ -45,8 +45,9 @@ pub struct ExtractionConfig {
     pub engine: String,
     /// TinyFish API key. Kept here, never in the frontend bundle.
     pub tinyfish_api_key: String,
-    /// Interpreter used to run scrapling; blank means the platform default
-    /// (`python3` on Unix, `python` on Windows).
+    /// Interpreter used to run scrapling. Blank means "find one": resolution lives
+    /// in [`crate::python`], which validates candidates rather than trusting a bare
+    /// `python` name (on Windows that name can be the Microsoft Store's stub).
     pub python_path: String,
 }
 
@@ -56,33 +57,6 @@ impl Default for ExtractionConfig {
             engine: EXTRACTOR_BUILTIN.to_string(),
             tinyfish_api_key: String::new(),
             python_path: String::new(),
-        }
-    }
-}
-
-/// The interpreter name to use when none is configured.
-///
-/// `python3` is the Unix name; on Windows the interpreter is `python`, so
-/// defaulting to `python3` there made Python and Scrapling read as missing
-/// forever, no matter what the user installed.
-pub fn default_python() -> String {
-    if cfg!(windows) {
-        "python".to_string()
-    } else {
-        "python3".to_string()
-    }
-}
-
-impl ExtractionConfig {
-    /// The interpreter scrapling runs in: what the user set, else the platform
-    /// default. Single source of truth for `setup.rs` and `extract.rs`, which
-    /// used to each hard-code `python3`.
-    pub fn resolved_python(&self) -> String {
-        let configured = self.python_path.trim();
-        if configured.is_empty() {
-            default_python()
-        } else {
-            configured.to_string()
         }
     }
 }
