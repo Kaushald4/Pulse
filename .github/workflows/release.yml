@@ -62,10 +62,13 @@ jobs:
       # which runs `tauri build --bundles app`, ad-hoc signs it, and assembles
       # the DMG. `beforeBuildCommand` runs the Next export either way.
       #
-      # --config turns on the updater archive (.app.tar.gz plus its .sig) for CI
-      # only, so a local build needs no signing key.
+      # `updater.conf.json` turns on the updater archive (.app.tar.gz plus its
+      # .sig) for CI only, so a local build needs no signing key. It is a file
+      # rather than inline JSON because PowerShell re-quotes arguments to native
+      # commands and strips the quotes out of a JSON string, which failed the
+      # Windows job with "key must be a string at line 1 column 2".
       - name: Build the app, the DMG and the updater archive
-        run: pnpm tauri build --config '{"bundle":{"createUpdaterArtifacts":true}}'
+        run: pnpm tauri build --config src-tauri/updater.conf.json
 
       - name: Show what was produced
         run: find src-tauri/target/release/bundle -maxdepth 3 -print
@@ -114,8 +117,9 @@ jobs:
       #
       # The NSIS .zip plus its .sig is what the updater installs from, so both
       # are built and signed alongside the installer the user downloads first.
+      # Same override file as macOS; see the note there for why it is not inline.
       - name: Build the installers and the updater archive
-        run: pnpm tauri build --config '{"bundle":{"createUpdaterArtifacts":true}}'
+        run: pnpm tauri build --config src-tauri/updater.conf.json
 
       - name: Show what was produced
         run: Get-ChildItem -Recurse -Path src-tauri/target/release/bundle | Select-Object FullName
