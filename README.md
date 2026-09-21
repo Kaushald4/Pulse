@@ -95,6 +95,18 @@ collect through a browser session than through a simple HTTP request.
 Every source has its own options. Subreddits, keywords, arXiv categories, GitHub languages, RSS
 URLs, and similar settings can be changed without affecting the rest of the library.
 
+## Job sources
+
+The job-board providers under [`jobs/providers`](jobs/providers) are adapted from
+**[career-ops](https://github.com/career-ops-hq/career-ops)**. That project maps public, no-auth job
+sources (ATS APIs, RSS/XML feeds, and server-rendered careers pages) onto a common shape, which is
+what lets Pulse scan boards without a login, an API key, or a model call. Credit to its authors:
+without it this list would be a handful of boards rather than the coverage it has now.
+
+This part is a work in progress. Coverage is partial, some providers have not been tested against
+their live boards, and more will be added over time. A source that the scanner cannot reach yet can
+still be tracked by adding the company's careers page directly under **Sources**.
+
 ## The parts I use most
 
 ### Today
