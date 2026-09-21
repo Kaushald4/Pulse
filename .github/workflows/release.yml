@@ -141,10 +141,18 @@ jobs:
           name: Pulse ${{ steps.release.outputs.tag }}
           draft: ${{ inputs.draft }}
           generate_release_notes: true
+          # `**` because upload-artifact stores files relative to the least common
+          # ancestor of the paths it was handed. The single macOS pattern keeps
+          # that flat; the two Windows patterns share `bundle/`, so its installers
+          # arrive nested under msi/ and nsis/.
+          #
+          # Failing on an unmatched pattern is deliberate: a release that quietly
+          # ships one platform is worse than a red run.
+          fail_on_unmatched_files: true
           files: |
-            artifacts/macos/*.dmg
-            artifacts/windows/*.msi
-            artifacts/windows/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.msi
+            artifacts/**/*.exe
           body: |
             ## Pulse ${{ steps.release.outputs.tag }}
 
