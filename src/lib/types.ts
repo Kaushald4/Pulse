@@ -67,11 +67,15 @@ export interface PulseItem {
   extractedResources?: ExtractedResource[];
   createdAt: string;
 
-  /** Jev-derived classification and scoring. */
+  /**
+   * Classifier output, written by whichever engine the user configured - Jev or
+   * the LLM JSON-mode classifier. Nothing here is specific to one of them, and
+   * all of it is absent until classification has run over the item.
+   */
   topic?: string | null;
   signal?: number | null;
   primarySource?: boolean | null;
-  /** Jev's reason category (e.g. "major-model-release"). */
+  /** The classifier's reason category (e.g. "major-model-release"). */
   whyKey?: string | null;
   /** One-line "why it matters" written by the LLM, or a label fallback. */
   why?: string | null;

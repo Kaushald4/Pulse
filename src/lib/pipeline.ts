@@ -7,11 +7,10 @@ import {
   getUnclassifiedItems,
   type ClassificationUpdate,
 } from "./db/classification";
-import { getBriefing, getBriefingCandidates, saveBriefing } from "./db/briefings";
+import { getBriefing, getBriefingCandidates, saveBriefing, topicsInPool } from "./db/briefings";
 import { upsertItems } from "./db/items";
 import { finishRun, startRun } from "./db/runs";
 import { recordSyncResult } from "./db/sources";
-import { getTopicSummary } from "./db/stats";
 import { fetchSource } from "./sources/registry";
 import { fetchLinkPreviews } from "./metadata";
 
@@ -213,12 +212,17 @@ export async function ensureBriefing(force = false): Promise<DailyBriefing> {
     };
   }
 
-  const topicSummary = await getTopicSummary();
+  /*
+   * Topics are counted from the same items the briefing is written from, not
+   * from the weekly "Rising topics" summary. Handing the model week-long counts
+   * next to a single day of items left it trying to reconcile two datasets, and
+   * it said as much in the briefing.
+   */
   const runId = await startRun({ category: "briefing", label: `Briefing ${date}` });
   const draft = await generateBriefing({
     date,
     items,
-    topics: topicSummary.topics.map(({ topic, count, delta }) => ({ topic, count, delta })),
+    topics: topicsInPool(items),
   });
 
   const briefing: DailyBriefing = {

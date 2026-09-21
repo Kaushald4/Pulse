@@ -113,14 +113,20 @@ interface BriefingPayload {
 }
 
 /**
- * Writes the daily briefing from a structured payload the app already computed
- * (top items by Jev signal, grouped by topic). The model narrates; it does not
- * choose what is important - that came from Jev scores and real counts.
+ * Writes the daily briefing from a structured payload the app already computed.
+ *
+ * The model narrates; it does not choose what is important. Selection happened
+ * before this point - by the classifier's signal where available, engagement
+ * where not, with a per-source cap so one feed cannot fill the list.
+ *
+ * `topics` is counted from these same items, so every count can be traced to
+ * something in `items`. It is omitted entirely when nothing has been classified,
+ * rather than sent empty for the model to comment on.
  */
 export async function generateBriefing(input: {
   date: string;
   items: PulseItem[];
-  topics: Array<{ topic: string; count: number; delta: string | null }>;
+  topics: Array<{ topic: string; count: number }>;
 }): Promise<BriefingDraft> {
   const { date, items, topics } = input;
 
@@ -133,21 +139,30 @@ export async function generateBriefing(input: {
   };
   if (items.length === 0) return fallback;
 
-  const payload = {
+  const payload: Record<string, unknown> = {
     date,
-    topics,
-    items: items.slice(0, 14).map((item) => ({
+    itemCount: items.length,
+    items: items.map((item) => ({
       title: item.title,
       source: item.source,
-      topic: item.topic ?? "other",
       category: item.category,
+      score: item.score,
+      comments: item.commentsCount,
+      topic: item.topic ?? null,
       signal: item.signal ?? null,
       why: item.why ?? null,
     })),
   };
+  if (topics.length > 0) payload.topics = topics;
 
   const result = await callLlm(
-    "You write a short daily technical briefing for a senior engineer. Ground every statement in the supplied items; never invent facts, numbers, or names. Plain prose, no marketing tone, no emoji.",
+    [
+      "You write a short daily technical briefing for a senior engineer.",
+      "Ground every statement in the supplied items; never invent facts, numbers, or names.",
+      "The items are the complete set for the day - do not speculate about what else may exist.",
+      "If the items are thin or low-value, say so plainly in one sentence rather than padding.",
+      "Plain prose, no marketing tone, no emoji.",
+    ].join(" "),
     `Write today's briefing from this data. Return JSON only: {"summary":"<2-3 sentence overview>","keyHappenings":["<4-6 concrete bullets>"]}\n\nData:\n${JSON.stringify(payload)}`,
     true
   );
@@ -172,17 +187,17 @@ export async function generateBriefing(input: {
 
 function buildTemplatedSummary(
   items: PulseItem[],
-  topics: Array<{ topic: string; count: number; delta: string | null }>
+  topics: Array<{ topic: string; count: number }>
 ): string {
   if (items.length === 0) {
-    return "No items have been collected today. Run a sync to pull fresh content, or load demo data from Settings.";
+    return "No items have been collected today. Run a sync to pull fresh content.";
   }
   const top = topics[0];
   const sources = Array.from(new Set(items.map((item) => item.source))).slice(0, 4).join(", ");
   const leader = items[0];
   return [
     `${items.length} items collected today from ${sources}.`,
-    top ? `The busiest topic is #${top.topic} (${top.count} items${top.delta ? `, ${top.delta}` : ""}).` : "",
+    top ? `The busiest topic is #${top.topic} (${top.count} items).` : "",
     leader ? `Most recent: "${leader.title}".` : "",
   ]
     .filter(Boolean)

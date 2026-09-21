@@ -18,6 +18,7 @@ import { usePulse } from "../store/pulse";
 import { useJobs } from "../store/jobs";
 import { openExternal } from "../lib/config";
 import { getSetupStatus, type SetupStatus } from "../lib/setup";
+import { setTraySyncing } from "../lib/tray";
 
 export default function PulseApp() {
   const ready = usePulse((state) => state.ready);
@@ -47,6 +48,20 @@ export default function PulseApp() {
     void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setup?.complete]);
+
+  /**
+   * Mirrors the sync state onto the tray icon.
+   *
+   * A subscription rather than a call at each sync site, so every path - "Sync
+   * all", a group, one source, or the tray's own "Sync now" - is covered,
+   * including ones added later.
+   */
+  React.useEffect(() => {
+    if (!ready) return;
+    return usePulse.subscribe((state, previous) => {
+      if (state.syncing !== previous.syncing) void setTraySyncing(state.syncing);
+    });
+  }, [ready]);
 
   React.useEffect(() => {
     if (!ready || !('__TAURI_INTERNALS__' in window)) return;

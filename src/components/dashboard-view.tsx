@@ -85,7 +85,7 @@ export function DashboardView() {
           <h1 className="text-xl font-semibold tracking-tight">Today</h1>
           <p className="mt-1 text-[13px] text-muted-foreground">
             {basis === "published"
-              ? "Items published today, your time - resets at local midnight."
+              ? "Items published today, resets at local midnight."
               : "Items Pulse collected today, whenever they were published."}
           </p>
           <Tabs value={basis} onValueChange={(value) => setBasis(value as Basis)} className="mt-2.5">

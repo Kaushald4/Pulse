@@ -82,8 +82,17 @@ const MAX_RISING_TOPICS = 6;
 const MIN_TOPIC_ITEMS = 2;
 
 /**
- * Umbrella buckets, not movers. `other` is Jev's no-match outcome, so ranking it
- * as a "rising topic" is meaningless. Mirrors journal's `rejectMegaTopics`.
+ * A percentage against a base smaller than this is noise, not movement.
+ *
+ * 1 -> 16 rendered as "+1500%" and 1 -> 4 as "+300%", which read as surges while
+ * saying nothing. Below this base a row reports no delta instead.
+ */
+const MIN_DELTA_BASE = 5;
+
+/**
+ * Umbrella buckets, not movers. `other` is the classifier's no-match outcome, so
+ * ranking it as a "rising topic" is meaningless. Mirrors journal's
+ * `rejectMegaTopics`.
  */
 const MEGA_TOPICS = new Set(["other"]);
 
@@ -92,15 +101,20 @@ const MEGA_TOPICS = new Set(["other"]);
  * journal's `getTopicVelocity` shape, computed over items rather than clustered
  * events (Pulse has no clustering layer).
  *
- * Two deliberate differences from a naive implementation:
- *  - Only Jev's assigned `topic` counts. Falling back to `tags[0]` mixed
- *    unrelated keyword tags into the same ranking.
- *  - When the prior window is empty there is no velocity to report, so `delta`
- *    is null and `hasBaseline` is false. The UI changes its heading instead of
- *    stamping every row "new".
+ * Three deliberate differences from a naive implementation:
+ *  - Only the classifier's assigned `topic` counts. Falling back to `tags[0]`
+ *    mixed unrelated keyword tags into the same ranking.
+ *  - The window is bounded by date, not by "the newest N items": querying the
+ *    newest rows first meant a busy day could fill the whole result set, leaving
+ *    no prior window to compare against.
+ *  - A percentage needs a base worth comparing to (`MIN_DELTA_BASE`), so tiny
+ *    counts no longer render as enormous swings.
  */
 export async function getTopicSummary(): Promise<TopicSummary> {
-  const items = await queryItems({});
+  // Bounded by the window we actually compare over, so the prior bucket is a
+  // real prior period rather than whatever fell inside the newest 200 rows.
+  const since = new Date(Date.now() - 2 * TOPIC_WINDOW_DAYS * DAY).toISOString();
+  const items = await queryItems({ sortBy: "recent", publishedSince: since });
   const now = Date.now();
   const current = new Map<string, number>();
   const prior = new Map<string, number>();
@@ -140,7 +154,10 @@ export async function getTopicSummary(): Promise<TopicSummary> {
   return { topics, hasBaseline, windowDays: TOPIC_WINDOW_DAYS };
 }
 
-/** Journal's `eventDelta`: "new" when there is no prior data, else a real %. */
+/**
+ * Journal's `eventDelta`: no prior data means no delta, and a prior count below
+ * `MIN_DELTA_BASE` is too small to express as a percentage honestly.
+ */
 function topicDelta(
   current: number,
   previous: number,
@@ -148,6 +165,7 @@ function topicDelta(
 ): { delta: string | null; rising: boolean } {
   if (!hasBaseline) return { delta: null, rising: false };
   if (previous === 0) return { delta: current > 0 ? "new" : null, rising: current > 0 };
+  if (previous < MIN_DELTA_BASE) return { delta: null, rising: false };
   const pct = Math.round(((current - previous) / previous) * 100);
   if (pct === 0) return { delta: "0%", rising: false };
   return { delta: `${pct > 0 ? "+" : ""}${pct}%`, rising: pct > 0 };
