@@ -73,6 +73,9 @@ pub struct ProcRun {
 /// what made syncing flicker terminals. `CREATE_NO_WINDOW` starts the child without
 /// one; the stdio pipes set up below still work exactly the same.
 pub fn command(program: impl AsRef<OsStr>) -> Command {
+    // `mut` is needed only on Windows, where the creation flag is set below.
+    // Gated rather than removed, or the Windows build loses it.
+    #[cfg_attr(not(windows), allow(unused_mut))]
     let mut cmd = Command::new(program);
 
     #[cfg(windows)]

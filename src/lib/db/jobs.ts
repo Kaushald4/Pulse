@@ -219,6 +219,55 @@ export async function upsertJobs(drafts: JobDraft[]): Promise<number> {
 }
 
 /**
+ * Writes stored jobs back exactly as they were.
+ *
+ * Only the browser-storage import uses this. `upsertJobs` is for listings a scan
+ * has just found, so it mints a new id, forces the status to "saved" and would
+ * throw away everything the user has decided about a job: applied, scored,
+ * archived, closed.
+ */
+export async function restoreJobs(jobs: Job[]): Promise<number> {
+  if (jobs.length === 0) return 0;
+  const db = await getDatabase();
+  if (!db) return 0;
+
+  for (const job of jobs) {
+    await db.execute(
+      `INSERT INTO jobs (id, source, external_id, job_url, title, company, location,
+         workplace_type, description, status, relevance_score, relevance_reasoning,
+         posted_at, created_at, status_updated_at, closed_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+       ON CONFLICT(id) DO UPDATE SET
+         status = excluded.status,
+         relevance_score = excluded.relevance_score,
+         relevance_reasoning = excluded.relevance_reasoning,
+         description = COALESCE(excluded.description, jobs.description),
+         status_updated_at = excluded.status_updated_at,
+         closed_at = excluded.closed_at;`,
+      [
+        job.id,
+        job.source,
+        job.externalId,
+        job.jobUrl,
+        job.title,
+        job.company,
+        job.location,
+        job.workplaceType,
+        job.description,
+        job.status,
+        job.relevanceScore,
+        job.relevanceReasoning,
+        job.postedAt,
+        job.createdAt,
+        job.statusUpdatedAt,
+        job.closedAt,
+      ]
+    );
+  }
+  return jobs.length;
+}
+
+/**
  * Adds a job you found yourself.
  *
  * Manual entries carry no external id, so they never collide with a source's

@@ -185,10 +185,13 @@ export interface Project {
   itemIds: string[];
 }
 
+/** The intervals the Settings picker offers. */
+export type ScheduleInterval = 1 | 30 | 60 | 180 | 360 | 720 | 1440;
+
 export interface PulseSchedule {
   id: string;
   enabled: boolean;
-  intervalMinutes: 30 | 60 | 180 | 360 | 720 | 1440;
+  intervalMinutes: ScheduleInterval;
   notify: boolean;
   lastRunAt?: string | null;
   nextRunAt?: string | null;

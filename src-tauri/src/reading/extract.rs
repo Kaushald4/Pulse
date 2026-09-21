@@ -145,13 +145,13 @@ except Exception as exc:
 fn extract_scrapling(url: &str) -> Result<ExtractedContent, String> {
     // Resolved, not taken verbatim: on Windows a bare `python` can be the Microsoft
     // Store's stub, which is not an interpreter at all.
-    let python = crate::python::resolve().ok_or_else(|| {
+    let python = crate::support::python::resolve().ok_or_else(|| {
         "Python 3 was not found, so the Scrapling reader cannot run. Install Python, \
          or switch the reader back to Built-in in Settings."
             .to_string()
     })?;
 
-    let output = crate::proc::command(&python)
+    let output = crate::support::proc::command(&python)
         .arg("-c")
         .arg(SCRAPLING_SCRIPT)
         .arg(url)
@@ -240,8 +240,8 @@ async fn extract_builtin(url: &str) -> Result<ExtractedContent, String> {
         .map_err(|e| format!("Could not read body: {e}"))?;
     let html = String::from_utf8_lossy(&bytes[..bytes.len().min(MAX_BYTES)]).to_string();
 
-    let title = crate::metadata::document_title(&html);
-    let links = crate::metadata::extract_hrefs(&html);
+    let title = crate::reading::metadata::document_title(&html);
+    let links = crate::reading::metadata::extract_hrefs(&html);
 
     Ok(ExtractedContent {
         url: url.to_string(),

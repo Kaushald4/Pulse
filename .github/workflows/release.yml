@@ -29,6 +29,12 @@ jobs:
     name: Build macOS
     runs-on: macos-latest
 
+    # Signs the updater archive. The key is a repo secret, and the repo config
+    # leaves createUpdaterArtifacts off so local builds need no key.
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -55,8 +61,11 @@ jobs:
       # The `tauri` script routes `build` to scripts/build-macos.sh on macOS,
       # which runs `tauri build --bundles app`, ad-hoc signs it, and assembles
       # the DMG. `beforeBuildCommand` runs the Next export either way.
-      - name: Build the app and the DMG
-        run: pnpm tauri build
+      #
+      # --config turns on the updater archive (.app.tar.gz plus its .sig) for CI
+      # only, so a local build needs no signing key.
+      - name: Build the app, the DMG and the updater archive
+        run: pnpm tauri build --config '{"bundle":{"createUpdaterArtifacts":true}}'
 
       - name: Show what was produced
         run: find src-tauri/target/release/bundle -maxdepth 3 -print
@@ -64,12 +73,19 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: macos
-          path: src-tauri/target/release/bundle/dmg/*.dmg
+          path: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/release/bundle/macos/*.app.tar.gz.sig
           if-no-files-found: error
 
   build-windows:
     name: Build Windows
     runs-on: windows-latest
+
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -95,8 +111,11 @@ jobs:
       # On Windows the `tauri` script is a plain `tauri build`, so this produces
       # the MSI and NSIS installers under bundle/msi and bundle/nsis. Tauri
       # fetches WiX and NSIS itself; neither needs installing here.
-      - name: Build the installers
-        run: pnpm tauri build
+      #
+      # The NSIS .zip plus its .sig is what the updater installs from, so both
+      # are built and signed alongside the installer the user downloads first.
+      - name: Build the installers and the updater archive
+        run: pnpm tauri build --config '{"bundle":{"createUpdaterArtifacts":true}}'
 
       - name: Show what was produced
         run: Get-ChildItem -Recurse -Path src-tauri/target/release/bundle | Select-Object FullName
@@ -107,6 +126,8 @@ jobs:
           path: |
             src-tauri/target/release/bundle/msi/*.msi
             src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/nsis/*.nsis.zip
+            src-tauri/target/release/bundle/nsis/*.nsis.zip.sig
           if-no-files-found: error
 
   publish:
@@ -127,12 +148,26 @@ jobs:
       - name: Resolve the release tag
         id: release
         run: |
+          echo "version=$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
           if [ -n "${{ inputs.tag }}" ]; then
             echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
           else
-            version=$(node -p "require('./src-tauri/tauri.conf.json').version")
-            echo "tag=v$version" >> "$GITHUB_OUTPUT"
+            echo "tag=v$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
           fi
+
+      # The published app polls latest.json from releases/latest, so it has to
+      # exist as an asset before the release goes live. It asserts that both
+      # platforms are present and signed rather than publishing a manifest that
+      # would strand one of them.
+      - name: Build the updater manifest
+        run: |
+          node scripts/updater-manifest.mjs \
+            artifacts \
+            "${{ steps.release.outputs.tag }}" \
+            "${{ github.repository }}" \
+            "${{ steps.release.outputs.version }}" \
+            latest.json
+          cat latest.json
 
       - name: Publish
         uses: softprops/action-gh-release@v2
@@ -153,6 +188,8 @@ jobs:
             artifacts/**/*.dmg
             artifacts/**/*.msi
             artifacts/**/*.exe
+            artifacts/**/*.nsis.zip
+            latest.json
           body: |
             ## Pulse ${{ steps.release.outputs.tag }}
 

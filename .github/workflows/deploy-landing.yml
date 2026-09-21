@@ -1,7 +1,6 @@
 name: Deploy landing page
 
-# Manual only. Nothing here runs on push: trigger it from the Actions tab
-# ("Run workflow") after changing anything under landing/.
+# Manual only.
 on:
   workflow_dispatch:
 

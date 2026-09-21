@@ -1,7 +1,7 @@
 //! Node.js helpers.
 //!
 //! Node runs helmsman and the job-board scanner. Both are plain Node programs
-//! driven over stdout, so the process plumbing lives in [`crate::proc`] and this
+//! driven over stdout, so the process plumbing lives in [`crate::support::proc`] and this
 //! module only knows about Node itself.
 //!
 //! Finding Node is the subtle part. A desktop app launched from Finder or the
@@ -12,9 +12,9 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::proc::{command, env_dir, find_executable, path_dirs, run_streaming, ProcRun};
+use crate::support::proc::{command, env_dir, find_executable, path_dirs, run_streaming, ProcRun};
 
-pub use crate::proc::PROGRESS_PREFIX;
+pub use crate::support::proc::PROGRESS_PREFIX;
 
 /// Sort key for an nvm version directory, so "v9" does not outrank "v24".
 fn version_key(dir: &Path) -> Vec<u32> {

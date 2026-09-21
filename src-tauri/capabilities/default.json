@@ -8,6 +8,9 @@
     "opener:default",
     "notification:default",
     "sql:default",
-    "dialog:default"
+    "sql:allow-execute",
+    "dialog:default",
+    "updater:default",
+    "process:default"
   ]
 }

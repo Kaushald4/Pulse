@@ -2,7 +2,7 @@ use regex::Regex;
 use serde::Serialize;
 use std::time::Duration;
 
-use crate::metadata::decode_entities;
+use crate::reading::metadata::decode_entities;
 
 /// A feed is small, but a misconfigured URL could still return something large.
 const MAX_BYTES: usize = 4 * 1024 * 1024;

@@ -27,9 +27,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# The dispatcher invokes this as `build-macos.sh build ...`, so drop its marker
+# and forward anything else (a release passes --config to turn on updater
+# artifacts, which the repo config deliberately leaves off).
+if [ "${1:-}" = "build" ]; then
+  shift
+fi
+
 # Build only the desktop app. The native widget source remains in the repo but
 # is intentionally not embedded in this local GitHub DMG.
-pnpm exec tauri build --bundles app
+pnpm exec tauri build --bundles app "$@"
 
 codesign --force --sign - --entitlements "${ENTITLEMENTS}" "${APP}"
 codesign --verify --deep --strict "${APP}"

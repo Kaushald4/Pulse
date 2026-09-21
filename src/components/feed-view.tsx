@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { FilterX, Inbox, RefreshCw } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -9,6 +8,7 @@ import { EmptyState } from "./empty-state";
 import { FeedCard } from "./feed-card";
 import { CATEGORY_LABELS, STATE_LABELS } from "../lib/taxonomy";
 import { usePulse } from "../store/pulse";
+import { useProgressiveList } from "../lib/use-progressive-list";
 import type { SortKey } from "../lib/types";
 
 const SORTS: Array<{ id: SortKey; label: string }> = [
@@ -43,25 +43,10 @@ export function FeedView() {
       ? STATE_LABELS[filters.state]
       : "Feed";
 
-  const [visibleCount, setVisibleCount] = React.useState(30);
-  const observerTarget = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    setVisibleCount(30);
-  }, [filters]);
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => prev + 30);
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
-  }, [items.length]);
+  // Another filter is another list, so the window starts over.
+  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(items.length, {
+    resetKey: filters,
+  });
 
   return (
     <div className="space-y-4">
@@ -129,8 +114,8 @@ export function FeedView() {
               onSelect={() => openDrawer(item.id)}
             />
           ))}
-          {visibleCount < items.length && (
-            <div ref={observerTarget} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
+          {hasMore && (
+            <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
               Loading more...
             </div>
           )}

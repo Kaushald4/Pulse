@@ -87,7 +87,11 @@ export function classifyUrl(rawUrl: string): DetectedResource | null {
   if (arxiv) return { type: "paper", url: `https://arxiv.org/abs/${arxiv[1]}`, name: `arXiv:${arxiv[1]}` };
 
   const hfPaper = url.match(HF_PAPER_RE);
-  if (hfPaper) return { type: "paper", url: `https://huggingface.co/papers/${hfPaper[1]}`, name: hfPaper[1] };
+  if (hfPaper) {
+    // The slug is the arXiv id, not a title, so it carries the same prefix the
+    // arXiv branch above uses. Rendered bare it reads as a broken number.
+    return { type: "paper", url: `https://huggingface.co/papers/${hfPaper[1]}`, name: `HuggingFace:${hfPaper[1]}` };
+  }
 
   const hfModel = url.match(HF_MODEL_RE);
   if (hfModel) {

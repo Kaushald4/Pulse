@@ -17,6 +17,7 @@ import {
   type ResourceFilter,
 } from "../lib/resources";
 import { openExternal } from "../lib/config";
+import { useProgressiveList } from "../lib/use-progressive-list";
 import { usePulse } from "../store/pulse";
 
 export function ResourcesView() {
@@ -42,25 +43,10 @@ export function ResourcesView() {
 
   const filtered = resources.filter((entry) => matchesResourceFilter(entry.resource.type, filter));
 
-  const [visibleCount, setVisibleCount] = React.useState(30);
-  const observerTarget = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    setVisibleCount(30);
-  }, [filter]);
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => prev + 30);
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
-  }, [resources.length]);
+  // Another tab is another list, so the window starts over.
+  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(filtered.length, {
+    resetKey: filter,
+  });
 
   return (
     <div className="space-y-5">
@@ -97,19 +83,25 @@ export function ResourcesView() {
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.slice(0, visibleCount).map(({ resource, mentions, item, curated, preview }) => {
+            // Whether the item *is* the resource rather than merely mentioning
+            // it. That distinction decides everything below: an item's own page
+            // carries the resource's real title and stats, and a link the item is
+            // has not been mentioned at all.
+            const isSelf = item?.url === resource.url;
             // Repo stats only belong to the repo itself - a post that merely
             // mentions it would otherwise show the post's points as stars.
-            const isSelf = item?.url === resource.url;
             const hasStats = resource.type === "repo" && isSelf && (item?.score ?? 0) > 0;
             const image = preview?.image ?? item?.imageUrl ?? null;
             const description =
               preview?.description ?? item?.linkDescription ?? item?.why ?? item?.body ?? null;
             // A repo is identified by owner/name; a site reads better by its own
-            // title ("Jina AI") than by its bare host.
+            // title ("Jina AI") than by its bare host. Anything else prefers a
+            // fetched preview title, then the title of the item that is the
+            // resource, and only then the identifier.
             const heading =
               resource.type === "repo"
                 ? resource.name ?? preview?.title ?? resource.url
-                : preview?.title ?? resource.name ?? resource.url;
+                : preview?.title ?? (isSelf ? item?.title : null) ?? resource.name ?? resource.url;
             // Don't repeat the host when it already is the heading.
             const showHost = heading !== hostnameOf(resource.url);
 
@@ -122,8 +114,9 @@ export function ResourcesView() {
                     <Favicon url={resource.url} />
                     <Chip label={RESOURCE_TYPE_LABELS[resource.type]} />
                   </span>
-                  {/* A curated link is never "mentioned", so no count is shown. */}
-                  {!curated && (
+                  {/* A curated link is never "mentioned", and a link the item is
+                      has not been mentioned at all, so neither shows a count. */}
+                  {!curated && !isSelf && (
                     <Badge variant="secondary" className="shrink-0 font-normal tabular-nums">
                       {mentions}×
                     </Badge>
@@ -189,8 +182,8 @@ export function ResourcesView() {
         </div>
       )}
       
-      {visibleCount < filtered.length && (
-        <div ref={observerTarget} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
+      {hasMore && (
+        <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
           Loading more...
         </div>
       )}

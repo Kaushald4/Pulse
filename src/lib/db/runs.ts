@@ -122,6 +122,51 @@ export async function finishRun(
   writeLocal(LS_RUNS, runs);
 }
 
+/**
+ * Writes recorded runs back exactly as they were.
+ *
+ * Only the browser-storage import uses this. `startRun` stamps the current time
+ * and returns a fresh id, so it cannot replay history: the Logs view would show
+ * the last sync of every past session as having happened now.
+ */
+export async function restoreRuns(runs: RunRecord[]): Promise<number> {
+  if (runs.length === 0) return 0;
+  const db = await getDatabase();
+  if (!db) return 0;
+
+  for (const run of runs) {
+    await db.execute(
+      `INSERT INTO runs (id, category, label, status, started_at, finished_at, summary, error,
+         items, model, provider, input_tokens, output_tokens)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       ON CONFLICT(id) DO UPDATE SET
+         status = excluded.status,
+         finished_at = excluded.finished_at,
+         summary = excluded.summary,
+         error = excluded.error,
+         items = excluded.items,
+         input_tokens = excluded.input_tokens,
+         output_tokens = excluded.output_tokens;`,
+      [
+        run.id,
+        run.category,
+        run.label,
+        run.status,
+        run.startedAt,
+        run.finishedAt,
+        run.summary,
+        run.error,
+        run.items,
+        run.model,
+        run.provider,
+        run.inputTokens,
+        run.outputTokens,
+      ]
+    );
+  }
+  return runs.length;
+}
+
 export async function getRuns(limit = 200): Promise<RunRecord[]> {
   const db = await getDatabase();
   if (db) {

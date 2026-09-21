@@ -47,6 +47,12 @@
   "plugins": {
     "sql": {
       "preload": ["sqlite:pulse.db"]
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVBRTAzOUI3MUMwQUIzQjIKUldTeXN3b2N0em5nNm16MHBSUUdKVEJMSXYxQjROVzBwT0VlTHZRbkxqVEIzVGFHOVZUVGVpbkIK",
+      "endpoints": [
+        "https://github.com/Kaushald4/Pulse/releases/latest/download/latest.json"
+      ]
     }
   }
 }

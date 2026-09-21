@@ -1,6 +1,6 @@
 //! Finding the Python interpreter Scrapling runs in.
 //!
-//! Python is not bundled, so this mirrors [`crate::node`]: look on the PATH, then
+//! Python is not bundled, so this mirrors [`crate::support::node`]: look on the PATH, then
 //! in the places an install usually lands, and always resolve to a real file that
 //! answers `--version`.
 //!
@@ -18,7 +18,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config;
-use crate::proc::{command, env_dir, executable_names, path_dirs};
+use crate::support::proc::{command, env_dir, executable_names, path_dirs};
 
 /// Interpreter names to try, best first.
 fn names() -> Vec<&'static str> {

@@ -19,6 +19,8 @@ import { useJobs } from "../store/jobs";
 import { openExternal } from "../lib/config";
 import { getSetupStatus, type SetupStatus } from "../lib/setup";
 import { setTraySyncing } from "../lib/tray";
+import { type ScheduleDue } from "../lib/schedule";
+import { UpdateNotice } from "../components/update-notice";
 
 export default function PulseApp() {
   const ready = usePulse((state) => state.ready);
@@ -69,10 +71,22 @@ export default function PulseApp() {
     void import("@tauri-apps/api/event").then(({ listen }) =>
       Promise.all([
         listen("tray-sync-request", () => void usePulse.getState().syncAll()),
-        listen("background-sync-due", async () => {
+        listen<ScheduleDue>("background-sync-due", async (event) => {
+          const due = event.payload;
           const current = usePulse.getState();
-          if (current.syncing || !current.schedule.enabled) return;
+          if (!current.schedule.enabled) return;
+
+          // A sync already running is already collecting the same sources, so this
+          // firing is covered by it. The timer has moved on regardless, and its
+          // next run has to be recorded either way or Settings shows a past time.
+          if (current.syncing) {
+            await current.reportScheduleRun(due, false);
+            return;
+          }
+
           await current.syncAll();
+          await usePulse.getState().reportScheduleRun(due, true);
+
           if (current.schedule.notify) {
             const { invoke } = await import("@tauri-apps/api/core");
             await invoke("send_notification", { title: "Pulse sync complete", body: "Your signal desk has fresh items to review." });
@@ -187,6 +201,9 @@ export default function PulseApp() {
       </div>
 
       <CommandPalette />
+
+      {/* Checks for a newer release once the app is up, and offers it. */}
+      <UpdateNotice ready={ready} />
     </div>
   );
 }

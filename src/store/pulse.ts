@@ -27,10 +27,12 @@ import {
 } from "../lib/config";
 import { getAllResources } from "../lib/db/resources";
 import { getRuns, type RunRecord } from "../lib/db/runs";
+import { configureSchedule, toIso, type ScheduleDue } from "../lib/schedule";
 import { getSources, saveSources } from "../lib/db/sources";
 import { getPulseStats, getTopicSummary } from "../lib/db/stats";
 import { queryItems, updateItemNotes, updateItemState } from "../lib/db/items";
 import { clearAllData, loadDemoData } from "../lib/db/maintenance";
+import { getStorageStatus } from "../lib/db/client";
 import {
   createProject,
   createWatchlist,
@@ -202,6 +204,13 @@ interface PulseStore {
   removeProject: (id: string) => Promise<void>;
   saveProject: (project: Project) => Promise<void>;
   updateSchedule: (schedule: PulseSchedule) => Promise<void>;
+  /**
+   * Records what the timer reported when it fired. `ran` is false when a sync was
+   * already in flight and this firing was covered by it: the timer has moved on
+   * either way, so its next run is always recorded, but the schedule must not
+   * claim to have run something it skipped.
+   */
+  reportScheduleRun: (due: ScheduleDue, ran: boolean) => Promise<void>;
 }
 
 function preferenceScore(item: PulseItem, preferences: SignalPreference[], watchlists: Watchlist[]): number {
@@ -311,24 +320,36 @@ export const usePulse = create<PulseStore>((set, get) => ({
     const desktop = isTauriEnv();
     set({ desktop });
 
-    const [config, sources, preferences, watchlists, projects, schedule] = await Promise.all([
+    const [config, sources, preferences, watchlists, projects, stored] = await Promise.all([
       getConfig(), getSources(), getSignalPreferences(), getWatchlists(), getProjects(), getSchedule(),
     ]);
+
+    // Arming the timer also returns when it will next run, which is the only
+    // trustworthy answer: it knows when it last fired and how long it then waited.
+    const status = await configureSchedule(stored);
+    const schedule = status ? { ...stored, nextRunAt: toIso(status.nextRunAt) } : stored;
+    if (status) await saveSchedule(schedule);
+
     set({ config, sources, preferences, watchlists, projects, schedule });
     // Establish the shared App Group file immediately. This also lets the
     // widget leave its placeholder state before the first sync finishes.
     void publishWidgetSnapshot([], config.macosWidgetEnabled);
-    if (desktop) {
-      const { invoke } = await import("@tauri-apps/api/core");
-      await invoke("configure_background_scheduler", {
-        config: { enabled: schedule.enabled, intervalMinutes: schedule.intervalMinutes },
-      });
-    }
 
     await get().refresh();
     await get().refreshSources();
     await get().refreshRuns();
     set({ ready: true });
+
+    // Falling back to browser storage is silent and fragile, and a silent fallback
+    // is how the app spent weeks running on localStorage without anyone noticing.
+    // Say it out loud instead.
+    const storage = getStorageStatus();
+    if (desktop && storage.mode === "browser") {
+      toast.error(
+        "Running on browser storage, not SQLite",
+        "Pulse could not open its database, so your library is in the browser store for now. See Settings, About.",
+      );
+    }
 
     // Rich previews for the curated catalog are fetched once and persisted, so
     // they are not awaited - the UI is usable while they stream in.
@@ -600,14 +621,22 @@ export const usePulse = create<PulseStore>((set, get) => ({
   },
 
   updateSchedule: async (schedule) => {
+    // Ask the timer what it will do, and store that. Computing the next run here
+    // is what used to leave Settings showing a time that had already passed.
+    const status = await configureSchedule(schedule);
+    const stored = status ? { ...schedule, nextRunAt: toIso(status.nextRunAt) } : schedule;
+    await saveSchedule(stored);
+    set({ schedule: stored });
+  },
+
+  reportScheduleRun: async (due, ran) => {
+    const schedule = {
+      ...get().schedule,
+      nextRunAt: toIso(due.nextRunAt),
+      ...(ran ? { lastRunAt: toIso(due.firedAt) } : {}),
+    };
     await saveSchedule(schedule);
     set({ schedule });
-    if (get().desktop) {
-      const { invoke } = await import("@tauri-apps/api/core");
-      await invoke("configure_background_scheduler", {
-        config: { enabled: schedule.enabled, intervalMinutes: schedule.intervalMinutes },
-      });
-    }
   },
 
   loadDemo: async () => {

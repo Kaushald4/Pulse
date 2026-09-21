@@ -9,8 +9,8 @@
 //! forwarded to the UI as `job-scan-progress`, so a scan shows which board it is
 //! on rather than an opaque spinner.
 
-use crate::node::{node_available, run_node_script, PROGRESS_PREFIX};
-use crate::proc::parse_json_lenient;
+use crate::support::node::{node_available, run_node_script, PROGRESS_PREFIX};
+use crate::support::proc::parse_json_lenient;
 use std::path::PathBuf;
 use tauri::{Emitter, Manager};
 

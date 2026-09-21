@@ -46,7 +46,7 @@ pub struct ExtractionConfig {
     /// TinyFish API key. Kept here, never in the frontend bundle.
     pub tinyfish_api_key: String,
     /// Interpreter used to run scrapling. Blank means "find one": resolution lives
-    /// in [`crate::python`], which validates candidates rather than trusting a bare
+    /// in [`crate::support::python`], which validates candidates rather than trusting a bare
     /// `python` name (on Windows that name can be the Microsoft Store's stub).
     pub python_path: String,
 }
