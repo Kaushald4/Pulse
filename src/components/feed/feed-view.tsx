@@ -1,12 +1,15 @@
 "use client";
 
+import React from "react";
 import { Inbox, RefreshCw } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { EmptyState } from "../empty-state";
 import { FeedCard } from "./feed-card";
 import { FeedFilterBar } from "./feed-filter-bar";
+import { FeedSectionBlock } from "./feed-section";
 import { CATEGORY_LABELS, STATE_LABELS } from "../../lib/taxonomy";
+import { buildSections } from "../../lib/feed/sections";
 import { usePulse } from "../../store/pulse";
 import { useProgressiveList } from "../../lib/use-progressive-list";
 
@@ -16,12 +19,16 @@ export function FeedView() {
   const groups = usePulse((state) => state.feedGroups);
   const facets = usePulse((state) => state.facets);
   const filters = usePulse((state) => state.filters);
+  const lastSeenAt = usePulse((state) => state.lastSeenAt);
+  const watchlists = usePulse((state) => state.watchlists);
+  const ready = usePulse((state) => state.ready);
   const selectedItemId = usePulse((state) => state.selectedItemId);
   const syncing = usePulse((state) => state.syncing);
   const desktop = usePulse((state) => state.desktop);
   const openDrawer = usePulse((state) => state.openDrawer);
   const resetFilters = usePulse((state) => state.resetFilters);
   const syncAll = usePulse((state) => state.syncAll);
+  const markFeedSeen = usePulse((state) => state.markFeedSeen);
 
   const hasFilters =
     Boolean(filters.query || filters.tag || filters.source) ||
@@ -38,10 +45,22 @@ export function FeedView() {
         ? STATE_LABELS[filters.state]
         : "Feed";
 
-  // Another filter is another list, so the window starts over.
-  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(groups.length, {
+  const sections = React.useMemo(
+    () => buildSections({ groups, lastSeenAt, watchlists }),
+    [groups, lastSeenAt, watchlists]
+  );
+  // Only the last section grows; the pulled-out ones are capped by the builder.
+  const restCount = sections.find((section) => section.id === "rest")?.groups.length ?? 0;
+  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(restCount, {
     resetKey: filters,
   });
+
+  // Opening the feed is what counts as seeing it. Recorded once, after the
+  // first load, and only the stored marker moves.
+  React.useEffect(() => {
+    if (!ready) return;
+    void markFeedSeen();
+  }, [ready, markFeedSeen]);
 
   return (
     <div className="space-y-4">
@@ -90,24 +109,37 @@ export function FeedView() {
           }
         />
       ) : (
-        <div className="space-y-2">
-          {groups.slice(0, visibleCount).map((group) => (
-            <FeedCard
-              key={group.key}
-              item={group.representative}
-              group={group}
-              isSelected={selectedItemId === group.representative.id}
-              onSelect={() => openDrawer(group.representative.id)}
+        <div className="space-y-5">
+          {sections.map((section) => (
+            <FeedSectionBlock
+              key={section.id}
+              section={{
+                ...section,
+                // The last section is the one that keeps growing, so the window
+                // applies to it and the pulled-out sections stay whole.
+                groups: section.id === "rest" ? section.groups.slice(0, visibleCount) : section.groups,
+              }}
+              renderGroup={(group) => (
+                <FeedCard
+                  key={group.key}
+                  item={group.representative}
+                  group={group}
+                  isSelected={selectedItemId === group.representative.id}
+                  onSelect={() => openDrawer(group.representative.id)}
+                />
+              )}
+              footer={
+                section.id === "rest" && hasMore ? (
+                  <div
+                    ref={sentinelRef}
+                    className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground"
+                  >
+                    Loading more...
+                  </div>
+                ) : null
+              }
             />
           ))}
-          {hasMore && (
-            <div
-              ref={sentinelRef}
-              className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground"
-            >
-              Loading more...
-            </div>
-          )}
         </div>
       )}
     </div>

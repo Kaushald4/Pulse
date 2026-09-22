@@ -207,7 +207,7 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
   // The ORDER BY here is the same rule as `pickRepresentative`.
   const rows = (await db.select(
     `WITH ranked AS (
-       SELECT id, source, score, comments_count, published_at, signal,
+       SELECT id, source, score, comments_count, published_at, signal, created_at,
               ${key} AS group_key,
               ROW_NUMBER() OVER (
                 PARTITION BY ${key}
@@ -223,7 +223,8 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
             MAX(COALESCE(score, 0)) AS top_score,
             MAX(COALESCE(comments_count, 0)) AS top_comments,
             MAX(signal) AS top_signal,
-            MAX(published_at) AS newest
+            MAX(published_at) AS newest,
+            MAX(created_at) AS newest_collected
      FROM ranked
      GROUP BY group_key
      ORDER BY ${orderBy}
@@ -251,6 +252,7 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
           .filter(Boolean),
         // Groups are ordered by this, so the card has to show it too.
         latestAt: String(row.newest ?? representative.publishedAt),
+        latestCollectedAt: String(row.newest_collected ?? representative.createdAt),
         topScore: Number(row.top_score) || 0,
         topComments: Number(row.top_comments) || 0,
       })

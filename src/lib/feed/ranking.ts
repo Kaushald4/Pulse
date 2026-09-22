@@ -106,6 +106,25 @@ export function diversify<T>(
 }
 
 /**
+ * Whether a watchlist matches an item.
+ *
+ * The one place that decides this, so the feed's section and the ranking boost
+ * cannot disagree about what a watchlist caught.
+ */
+export function matchesWatchlist(item: PulseItem, watchlist: Watchlist): boolean {
+  if (!watchlist.enabled) return false;
+  return [item.title, item.body ?? "", item.topic ?? "", ...item.tags]
+    .join(" ")
+    .toLowerCase()
+    .includes(watchlist.query.toLowerCase());
+}
+
+/** The watchlists an item matches. */
+export function matchedWatchlists(item: PulseItem, watchlists: Watchlist[]): Watchlist[] {
+  return watchlists.filter((watchlist) => matchesWatchlist(item, watchlist));
+}
+
+/**
  * How much the reader's own signals favour this item.
  *
  * Preferences match on topic, source or field; watchlists add a smaller boost
@@ -122,14 +141,8 @@ export function preferenceScore(
       (preference.kind === "source" && preference.value.toLowerCase() === item.source.toLowerCase()) ||
       (preference.kind === "field" && preference.value === item.field)
   );
-  const watchBoost = watchlists.filter(
-    (watchlist) =>
-      watchlist.enabled &&
-      [item.title, item.body ?? "", item.topic ?? "", ...item.tags]
-        .join(" ")
-        .toLowerCase()
-        .includes(watchlist.query.toLowerCase())
-  ).length;
+  // Through the shared matcher, so the boost and the watchlist section agree.
+  const watchBoost = matchedWatchlists(item, watchlists).length;
   return matches.reduce((total, preference) => total + preference.weight, 0) + watchBoost * 0.3;
 }
 

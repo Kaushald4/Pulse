@@ -29,6 +29,14 @@ export interface FeedGroup {
    * the top of a recent-sorted feed claiming to be hours old.
    */
   latestAt: string;
+  /**
+   * The newest member's collection time.
+   *
+   * Distinct from `latestAt`, which is when the story was published. This one is
+   * when it arrived in the library, which is what "new since you last looked"
+   * means to a reader.
+   */
+  latestCollectedAt: string;
   /** The group's best numbers, so the card carries the story's engagement. */
   topScore: number;
   topComments: number;
@@ -77,14 +85,20 @@ export function toGroup(key: string, members: PulseItem[]): FeedGroup {
     representative: pickRepresentative(members),
     members: members.length,
     sources,
-    latestAt: members.reduce(
-      (newest, member) =>
-        new Date(member.publishedAt).getTime() > new Date(newest).getTime() ? member.publishedAt : newest,
-      members[0].publishedAt
-    ),
+    latestAt: newestOf(members, (member) => member.publishedAt),
+    latestCollectedAt: newestOf(members, (member) => member.createdAt),
     topScore: members.reduce((best, member) => Math.max(best, member.score ?? 0), 0),
     topComments: members.reduce((best, member) => Math.max(best, member.commentsCount ?? 0), 0),
   });
+}
+
+/** The latest of a timestamp across members, falling back to the first. */
+function newestOf(members: PulseItem[], read: (member: PulseItem) => string): string {
+  const first = read(members[0]) ?? "";
+  return members.reduce((latest, member) => {
+    const value = read(member) ?? "";
+    return new Date(value).getTime() > new Date(latest).getTime() ? value : latest;
+  }, first);
 }
 
 /**
@@ -99,6 +113,7 @@ export function groupFromAggregates(input: {
   members: number;
   sources: string[];
   latestAt: string;
+  latestCollectedAt: string;
   topScore: number;
   topComments: number;
 }): FeedGroup {
@@ -108,6 +123,7 @@ export function groupFromAggregates(input: {
     members: input.members,
     sources: input.sources,
     latestAt: input.latestAt,
+    latestCollectedAt: input.latestCollectedAt,
     topScore: input.topScore,
     topComments: input.topComments,
   };

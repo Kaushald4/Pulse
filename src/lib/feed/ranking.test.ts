@@ -10,6 +10,7 @@ const group = (key: string, source: string): FeedGroup => ({
   members: 1,
   sources: [source],
   latestAt: "2026-01-01T00:00:00.000Z",
+  latestCollectedAt: "2026-01-01T00:00:00.000Z",
   topScore: 0,
   topComments: 0,
 });

@@ -11,6 +11,7 @@ import { ensureBriefing } from "../../lib/pipeline";
 import { fetchAndSummarize } from "../../lib/content";
 import { fetchCuratedPreviews } from "../../lib/metadata";
 import { getFeedFacets } from "../../lib/db/feed-facets";
+import { FEED_SEEN_AT, readMarker, writeMarker } from "../../lib/db/markers";
 import { diversifyHead, personalize } from "../../lib/feed/ranking";
 import { getSignalPreferences, getWatchlists, recordSignalFeedback } from "../../lib/db/personal";
 import { startOfToday } from "../../lib/utils";
@@ -32,6 +33,7 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
   items: [],
   feedGroups: [],
   facets: null,
+  lastSeenAt: null,
   todayItems: [],
   newItems: [],
   stats: EMPTY_STATS,
@@ -106,6 +108,12 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
       })),
       get().config.macosWidgetEnabled
     );
+  },
+
+  markFeedSeen: async () => {
+    // Only the stored marker moves. The value from this launch stays as it was,
+    // so the "new since" section does not empty out under the reader.
+    await writeMarker(FEED_SEEN_AT, new Date().toISOString());
   },
 
   refreshItems: async () => {

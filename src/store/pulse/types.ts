@@ -87,6 +87,14 @@ export interface ItemsSlice {
    * a number always equals what clicking it returns. Null until first loaded.
    */
   facets: FeedFacets | null;
+  /**
+   * When the feed was last opened, as of this launch.
+   *
+   * Read once at startup and deliberately not refreshed: opening the feed
+   * records the new time, and re-reading it would empty the "new since" section
+   * while the reader is looking at it.
+   */
+  lastSeenAt: string | null;
   /** Items published today on the local clock - resets at local midnight. */
   todayItems: PulseItem[];
   /** Items *collected* today (first seen), whenever they were published. */
@@ -99,6 +107,8 @@ export interface ItemsSlice {
   contentLoadingId: string | null;
 
   refresh: () => Promise<void>;
+  /** Records that the feed has been looked at, for the next visit. */
+  markFeedSeen: () => Promise<void>;
   /** Re-queries only the item list - for filter changes, which change nothing else. */
   refreshItems: () => Promise<void>;
   /** Fetches Open Graph previews for links that don't have them yet. */
