@@ -1,15 +1,15 @@
 "use client";
 
 import { FilterX, Inbox, RefreshCw } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { EmptyState } from "./empty-state";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { EmptyState } from "../empty-state";
 import { FeedCard } from "./feed-card";
-import { CATEGORY_LABELS, STATE_LABELS } from "../lib/taxonomy";
-import { usePulse } from "../store/pulse";
-import { useProgressiveList } from "../lib/use-progressive-list";
-import type { SortKey } from "../lib/types";
+import { CATEGORY_LABELS, STATE_LABELS } from "../../lib/taxonomy";
+import { usePulse } from "../../store/pulse";
+import { useProgressiveList } from "../../lib/use-progressive-list";
+import type { SortKey } from "../../lib/types";
 
 const SORTS: Array<{ id: SortKey; label: string }> = [
   { id: "recent", label: "Recent" },
@@ -18,7 +18,9 @@ const SORTS: Array<{ id: SortKey; label: string }> = [
 ];
 
 export function FeedView() {
-  const items = usePulse((state) => state.items);
+  // One entry per story rather than per item: several sources carrying the same
+  // link collapse into a single card, and the count is stories, not rows.
+  const groups = usePulse((state) => state.feedGroups);
   const filters = usePulse((state) => state.filters);
   const selectedItemId = usePulse((state) => state.selectedItemId);
   const syncing = usePulse((state) => state.syncing);
@@ -43,7 +45,7 @@ export function FeedView() {
         : "Feed";
 
   // Another filter is another list, so the window starts over.
-  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(items.length, {
+  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(groups.length, {
     resetKey: filters,
   });
 
@@ -54,7 +56,7 @@ export function FeedView() {
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold tracking-tight">{heading}</h1>
             <Badge variant="secondary" className="font-normal tabular-nums">
-              {items.length}
+              {groups.length}
             </Badge>
           </div>
           <p className="mt-1 text-[13px] text-muted-foreground">
@@ -81,7 +83,7 @@ export function FeedView() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {groups.length === 0 ? (
         <EmptyState
           icon={Inbox}
           title={hasFilters ? "No items match these filters" : "Your library is empty"}
@@ -110,12 +112,13 @@ export function FeedView() {
         />
       ) : (
         <div className="space-y-2">
-          {items.slice(0, visibleCount).map((item) => (
+          {groups.slice(0, visibleCount).map((group) => (
             <FeedCard
-              key={item.id}
-              item={item}
-              isSelected={selectedItemId === item.id}
-              onSelect={() => openDrawer(item.id)}
+              key={group.key}
+              item={group.representative}
+              group={group}
+              isSelected={selectedItemId === group.representative.id}
+              onSelect={() => openDrawer(group.representative.id)}
             />
           ))}
           {hasMore && (

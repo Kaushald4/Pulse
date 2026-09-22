@@ -4,7 +4,7 @@ import React from "react";
 import { Sidebar } from "../components/sidebar";
 import { Header } from "../components/header";
 import { DashboardView } from "../components/dashboard-view";
-import { FeedView } from "../components/feed-view";
+import { FeedView } from "../components/feed/feed-view";
 import { ResourcesView } from "../components/resources-view";
 import { JobsView } from "../components/jobs/jobs-view";
 import { JobDetailView } from "../components/jobs/job-detail-view";

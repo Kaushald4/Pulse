@@ -6,9 +6,10 @@
  * opened.
  */
 import { LEGACY_DEMO_ITEM_IDS } from "../sources/sample-data";
+import { groupKeyFor } from "../feed/canonical";
 import { ensureJobSchema } from "./jobs-schema";
 
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 
 /* -------------------------------------------------------------------------- */
 /* SQLite setup + migrations                                                   */
@@ -49,6 +50,7 @@ const ITEM_COLUMNS: Array<[string, string]> = [
   ["content_engine", "TEXT"],
   ["content_fetched_at", "TEXT"],
   ["notes", "TEXT"],
+  ["canonical_url", "TEXT"],
 ];
 
 export async function ensureSchema(db: any): Promise<void> {
@@ -88,7 +90,8 @@ export async function ensureSchema(db: any): Promise<void> {
       content_summary TEXT,
       content_engine TEXT,
       content_fetched_at TEXT,
-      notes TEXT
+      notes TEXT,
+      canonical_url TEXT
     );
   `);
 
@@ -106,6 +109,7 @@ export async function ensureSchema(db: any): Promise<void> {
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_items_source ON items(source);`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_items_published ON items(published_at);`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_items_signal ON items(signal);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_items_canonical ON items(canonical_url);`);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS signal_preferences (
@@ -253,5 +257,33 @@ async function migrate(db: any): Promise<void> {
     await db.execute(`DELETE FROM items WHERE id IN (${placeholders});`, LEGACY_DEMO_ITEM_IDS);
   }
 
+  await backfillCanonicalUrls(db);
+
   await setMeta(db, "schema_version", String(CURRENT_SCHEMA_VERSION));
+}
+
+/**
+ * Gives every existing item its grouping key.
+ *
+ * Not gated on the schema version, because it is the only thing that fills the
+ * column for rows written before it existed, and an interrupted run should
+ * resume rather than leave a half-filled table. Cheap when there is nothing to
+ * do: one count, then one update per row that needs it.
+ */
+export async function backfillCanonicalUrls(db: any): Promise<number> {
+  const pending = (await db.select(`SELECT id, url FROM items WHERE canonical_url IS NULL;`)) as Array<{
+    id: string;
+    url: string;
+  }>;
+
+  for (const row of pending) {
+    // The same key the ingest path writes, so a row's group cannot depend on
+    // when it happened to be grouped.
+    await db.execute(`UPDATE items SET canonical_url = $1 WHERE id = $2;`, [
+      groupKeyFor({ id: row.id, url: row.url ?? "" }),
+      row.id,
+    ]);
+  }
+
+  return pending.length;
 }

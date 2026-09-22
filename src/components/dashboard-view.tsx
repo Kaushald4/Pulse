@@ -21,7 +21,7 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { Chip } from "./chip";
 import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
-import { FeedCard } from "./feed-card";
+import { FeedCard } from "./feed/feed-card";
 import { usePulse } from "../store/pulse";
 import { formatRelativeTime } from "../lib/utils";
 import type { ContentField } from "../lib/types";

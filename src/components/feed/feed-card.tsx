@@ -2,23 +2,33 @@
 
 import React from "react";
 import { Bookmark, Star, Archive, ExternalLink, MessageSquare } from "lucide-react";
-import type { PulseItem } from "../lib/types";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
-import { Chip, SourceChip } from "./chip";
-import { Favicon, HostLabel, LinkThumb } from "./link-preview";
-import { formatNumber, formatRelativeTime, cn } from "../lib/utils";
-import { openExternal } from "../lib/config";
-import { categoryLabel, fieldLabel, stateLabel } from "../lib/taxonomy";
-import { usePulse } from "../store/pulse";
+import type { PulseItem } from "../../lib/types";
+import type { FeedGroup } from "../../lib/feed/grouping";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Button } from "../ui/button";
+import { Chip, SourceChip } from "../chip";
+import { Favicon, HostLabel, LinkThumb } from "../link-preview";
+import { formatNumber, formatRelativeTime, cn } from "../../lib/utils";
+import { openExternal } from "../../lib/config";
+import { categoryLabel, stateLabel } from "../../lib/taxonomy";
+import { usePulse } from "../../store/pulse";
 
 interface FeedCardProps {
   item: PulseItem;
+  /**
+   * The story this item stands for. Present on the feed, where several sources
+   * carrying the same link collapse into one card; absent in Today, which lists
+   * individual items.
+   */
+  group?: FeedGroup;
   isSelected?: boolean;
   onSelect: () => void;
 }
 
-export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
+/** At most this many source chips before the rest become a count. */
+const SOURCE_CHIPS = 3;
+
+export function FeedCard({ item, group, isSelected, onSelect }: FeedCardProps) {
   const toggleState = usePulse((state) => state.toggleState);
   const setFilter = usePulse((state) => state.setFilter);
   const setView = usePulse((state) => state.setView);
@@ -27,6 +37,11 @@ export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
   const isImportant = item.state === "important";
   const isArchived = item.state === "archived";
   const excerpt = item.why || item.linkDescription || item.body;
+  // The group carries the story's best numbers, so a card does not look quiet
+  // when a livelier copy of the same link exists.
+  const score = group ? group.topScore : item.score;
+  const comments = group ? group.topComments : item.commentsCount;
+  const sources = group?.sources ?? [item.source];
 
   const stop = (event: React.MouseEvent) => event.stopPropagation();
 
@@ -85,7 +100,19 @@ export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-            <SourceChip source={item.source} />
+            {sources.slice(0, SOURCE_CHIPS).map((source) => (
+              <SourceChip key={source} source={source} />
+            ))}
+            {sources.length > SOURCE_CHIPS && (
+              <span className="shrink-0">+{sources.length - SOURCE_CHIPS}</span>
+            )}
+            {group && group.members > 1 && (
+              <Chip
+                label={`${group.members} items`}
+                tone="neutral"
+                title={`The same story arrived from ${sources.join(", ")}`}
+              />
+            )}
             <Chip label={categoryLabel(item.category)} />
             {typeof item.signal === "number" && item.signal >= 0.8 && (
               <Chip label="High signal" tone="success" />
@@ -106,17 +133,15 @@ export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
 
         <div className="flex w-full shrink-0 items-start justify-between gap-3 sm:w-auto sm:justify-start">
           <div className="text-xs tabular-nums text-muted-foreground sm:text-right">
-            {item.score > 0 && (
+            {score > 0 && (
               <div>
-                {item.category === "repo"
-                  ? `${formatNumber(item.score)} stars`
-                  : `${formatNumber(item.score)} pts`}
+                {item.category === "repo" ? `${formatNumber(score)} stars` : `${formatNumber(score)} pts`}
               </div>
             )}
-            {item.commentsCount > 0 && (
+            {comments > 0 && (
               <div className="inline-flex items-center gap-1">
                 <MessageSquare className="size-3 sm:hidden" />
-                {formatNumber(item.commentsCount)} comments
+                {formatNumber(comments)} comments
               </div>
             )}
           </div>

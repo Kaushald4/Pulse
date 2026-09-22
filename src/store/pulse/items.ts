@@ -1,0 +1,188 @@
+/**
+ * The library: what has been collected, and everything done to an item.
+ */
+import type { StateCreator } from "zustand";
+import { publishWidgetSnapshot } from "../../lib/config";
+import { queryFeedGroups, queryItems, updateItemNotes, updateItemState } from "../../lib/db/items";
+import { EMPTY_STATS } from "../../lib/db/rows";
+import { getAllResources } from "../../lib/db/resources";
+import { getPulseStats, getTopicSummary } from "../../lib/db/stats";
+import { ensureBriefing } from "../../lib/pipeline";
+import { fetchAndSummarize } from "../../lib/content";
+import { fetchCuratedPreviews } from "../../lib/metadata";
+import { personalize } from "../../lib/feed/ranking";
+import { getSignalPreferences, getWatchlists, recordSignalFeedback } from "../../lib/db/personal";
+import { startOfToday } from "../../lib/utils";
+import { toast } from "../../lib/toast";
+import type { SignalPreference } from "../../lib/types";
+import { toQuery, type ItemsSlice, type PulseStore } from "./types";
+
+export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (set, get) => ({
+  items: [],
+  feedGroups: [],
+  todayItems: [],
+  newItems: [],
+  stats: EMPTY_STATS,
+  topicSummary: null,
+  resources: [],
+  briefing: null,
+  briefingLoading: false,
+  contentLoadingId: null,
+
+  refresh: async () => {
+    const { filters } = get();
+    const since = startOfToday();
+    const [
+      rawItems,
+      feedGroups,
+      stats,
+      topicSummary,
+      resources,
+      briefing,
+      todayItems,
+      newItems,
+      preferences,
+      watchlists,
+    ] = await Promise.all([
+      queryItems(toQuery(filters)),
+      // One row per story, so the feed does not show the same link three times.
+      queryFeedGroups(toQuery(filters)),
+      getPulseStats(),
+      getTopicSummary(),
+      getAllResources(),
+      ensureBriefing(),
+      // Published today ("what happened today") and collected today ("Pulse
+      // found today") are deliberately separate - a big sync of older stories
+      // must not inflate "Today".
+      queryItems({ sortBy: "recent", publishedSince: since }),
+      queryItems({ sortBy: "recent", collectedSince: since }),
+      getSignalPreferences(),
+      getWatchlists(),
+    ]);
+
+    const items = personalize(rawItems, preferences, watchlists);
+    const personalizedToday = personalize(todayItems, preferences, watchlists);
+    const personalizedNewItems = personalize(newItems, preferences, watchlists);
+    set({
+      items,
+      feedGroups,
+      stats,
+      topicSummary,
+      resources,
+      briefing,
+      todayItems: personalizedToday,
+      newItems: personalizedNewItems,
+      preferences,
+      watchlists,
+    });
+
+    // A sync can collect an item whose publication date predates today. Keep
+    // those newly collected items visible in the widget without changing the
+    // meaning of the in-app Today view.
+    const widgetItems = Array.from(
+      new Map([...personalizedToday, ...personalizedNewItems].map((item) => [item.id, item])).values()
+    );
+    void publishWidgetSnapshot(
+      widgetItems.slice(0, 8).map((item) => ({
+        title: item.title,
+        source: item.source,
+        url: item.url,
+        publishedAt: item.publishedAt,
+      })),
+      get().config.macosWidgetEnabled
+    );
+  },
+
+  refreshItems: async () => {
+    const [items, feedGroups, preferences, watchlists] = await Promise.all([
+      queryItems(toQuery(get().filters)),
+      queryFeedGroups(toQuery(get().filters)),
+      getSignalPreferences(),
+      getWatchlists(),
+    ]);
+    set({ items: personalize(items, preferences, watchlists), feedGroups, preferences, watchlists });
+  },
+
+  refreshPreviews: async () => {
+    if (!get().desktop) return;
+    await fetchCuratedPreviews();
+    set({ resources: await getAllResources() });
+  },
+
+  setState: async (id, state) => {
+    await updateItemState(id, state);
+    await get().refresh();
+  },
+
+  setNotes: async (id, notes) => {
+    await updateItemNotes(id, notes);
+    await get().refresh();
+  },
+
+  toggleState: async (id, state) => {
+    const item = get().items.find((entry) => entry.id === id);
+    const next = item?.state === state ? "inbox" : state;
+    await get().setState(id, next);
+  },
+
+  recordFeedback: async (id, kind) => {
+    const item = get().items.find((entry) => entry.id === id);
+    if (!item) return;
+    const direction = kind === "more_like_this" ? 1 : -1;
+    const dimensions: Array<[SignalPreference["kind"], string | null]> = [
+      ["topic", item.topic ?? null],
+      ["source", item.source],
+      ["field", item.field],
+    ];
+    for (const [dimension, value] of dimensions)
+      if (value) await recordSignalFeedback(dimension, value, direction);
+    await get().refresh();
+    toast.success(
+      kind === "more_like_this" ? "Signal preference updated" : "Signal de-emphasized",
+      "Pulse will use this feedback in future rankings."
+    );
+  },
+
+  regenerateBriefing: async () => {
+    set({ briefingLoading: true });
+    try {
+      const briefing = await ensureBriefing(true);
+      set({ briefing });
+    } catch (err) {
+      toast.error("Briefing failed", err instanceof Error ? err.message : String(err));
+    } finally {
+      set({ briefingLoading: false });
+    }
+  },
+
+  fetchItemContent: async (id) => {
+    const item = get().items.find((entry) => entry.id === id);
+    if (!item) return;
+
+    set({ contentLoadingId: id });
+    try {
+      const result = await fetchAndSummarize(item);
+      const resources = await getAllResources();
+      set({ resources });
+      await get().refresh();
+
+      const captured = result.capturedResources.length;
+      const detail = [
+        `${result.characters.toLocaleString()} characters · ${result.engine}`,
+        captured > 0 ? `${captured} resource${captured === 1 ? "" : "s"} captured and saved` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      if (result.summary) {
+        toast.success("Fetched and summarized", detail);
+      } else {
+        toast.info("Content captured", `${detail} - summarization was unavailable.`);
+      }
+    } catch (err) {
+      toast.error("Could not fetch content", err instanceof Error ? err.message : String(err));
+    } finally {
+      set({ contentLoadingId: null });
+    }
+  },
+});
