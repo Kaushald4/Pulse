@@ -94,4 +94,3 @@ function previewFor(entry: ResourceEntry, previews: Map<string, ResourcePreview>
     image: stored?.image ?? item?.imageUrl ?? null,
   };
 }
-

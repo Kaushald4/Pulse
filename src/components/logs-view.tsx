@@ -1,14 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  AlertCircle,
-  AlertTriangle,
-  Coins,
-  ListChecks,
-  Loader2,
-  TrendingUp,
-} from "lucide-react";
+import { AlertCircle, AlertTriangle, Coins, ListChecks, Loader2, TrendingUp } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Chip } from "./chip";
 import { StatTile } from "./stat-tile";
@@ -145,8 +138,8 @@ export function LogsView() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Logs</h1>
           <p className="mt-1 max-w-[60ch] text-[13px] text-muted-foreground">
-            Every sync, classification, briefing, and article fetch - what happened, when, and
-            whether it is still running.
+            Every sync, classification, briefing, and article fetch - what happened, when, and whether it is
+            still running.
           </p>
         </div>
         <div className="flex items-center gap-0.5">
@@ -185,11 +178,7 @@ export function LogsView() {
           <span className="text-muted-foreground/40">·</span>
           <div className="flex items-center gap-0.5">
             {STATUSES.map((entry) => (
-              <FilterButton
-                key={entry.id}
-                active={status === entry.id}
-                onClick={() => setStatus(entry.id)}
-              >
+              <FilterButton key={entry.id} active={status === entry.id} onClick={() => setStatus(entry.id)}>
                 {entry.label}
               </FilterButton>
             ))}

@@ -36,32 +36,36 @@ export async function scoreJobRelevance(jobId: string): Promise<ScoreJobResult> 
     return { scored: false, error: "This job has no description yet - add one before scoring." };
   }
 
-  return withJobRun(jobLabel(job.title, job.company), (result) => `score ${result.score}/100`, async () => {
-    const resume = await getActiveResume();
-    if (!resume) {
-      return { scored: false, error: "No base resume uploaded yet - upload one first." };
+  return withJobRun(
+    jobLabel(job.title, job.company),
+    (result) => `score ${result.score}/100`,
+    async () => {
+      const resume = await getActiveResume();
+      if (!resume) {
+        return { scored: false, error: "No base resume uploaded yet - upload one first." };
+      }
+
+      let response;
+      try {
+        response = await callLlmStrict(SCORE_SYSTEM, resumeAndJobPrompt(resume.parsedText, job), true);
+      } catch (error) {
+        return { scored: false, error: `Request failed: ${errorMessage(error)}` };
+      }
+
+      const usage = usageOf(response);
+      const parsed = parseJsonLoose<ScorePayload>(response.text);
+      const score =
+        typeof parsed?.score === "number" ? Math.max(0, Math.min(100, Math.round(parsed.score))) : null;
+      const reasoning = typeof parsed?.reasoning === "string" ? parsed.reasoning.trim() : "";
+
+      if (score === null || !reasoning) {
+        return { scored: false, usage, error: "The model's score could not be read." };
+      }
+
+      await saveJobScore(job.id, score, reasoning);
+      return { scored: true, score, reasoning, usage };
     }
-
-    let response;
-    try {
-      response = await callLlmStrict(SCORE_SYSTEM, resumeAndJobPrompt(resume.parsedText, job), true);
-    } catch (error) {
-      return { scored: false, error: `Request failed: ${errorMessage(error)}` };
-    }
-
-    const usage = usageOf(response);
-    const parsed = parseJsonLoose<ScorePayload>(response.text);
-    const score =
-      typeof parsed?.score === "number" ? Math.max(0, Math.min(100, Math.round(parsed.score))) : null;
-    const reasoning = typeof parsed?.reasoning === "string" ? parsed.reasoning.trim() : "";
-
-    if (score === null || !reasoning) {
-      return { scored: false, usage, error: "The model's score could not be read." };
-    }
-
-    await saveJobScore(job.id, score, reasoning);
-    return { scored: true, score, reasoning, usage };
-  });
+  );
 }
 
 export interface ScoreBacklogResult {

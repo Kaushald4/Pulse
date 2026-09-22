@@ -6,12 +6,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import {
-  JOB_STATUS_LABELS,
-  JOB_STATUS_ORDER,
-  type JobFilter,
-  type JobSort,
-} from "../../lib/jobs/types";
+import { JOB_STATUS_LABELS, JOB_STATUS_ORDER, type JobFilter, type JobSort } from "../../lib/jobs/types";
 import type { JobCounts } from "../../lib/db/jobs";
 
 const SORTS: Array<{ id: JobSort; label: string }> = [

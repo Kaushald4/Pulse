@@ -7,7 +7,12 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
 import { DetailRow, Hint, SectionIntro } from "./shared";
-import { EMPTY_HELMSMAN_STATUS, getAppVersion, getHelmsmanStatus, type HelmsmanStatus } from "../../lib/config";
+import {
+  EMPTY_HELMSMAN_STATUS,
+  getAppVersion,
+  getHelmsmanStatus,
+  type HelmsmanStatus,
+} from "../../lib/config";
 import { getStorageStatus } from "../../lib/db/client";
 import { usePulse } from "../../store/pulse";
 import { useUpdates } from "../../store/updates";
@@ -71,9 +76,7 @@ export function AboutSection() {
 
   return (
     <div className="space-y-5">
-      <SectionIntro title="About">
-        Version and where Pulse keeps things on this machine.
-      </SectionIntro>
+      <SectionIntro title="About">Version and where Pulse keeps things on this machine.</SectionIntro>
 
       <Card>
         <CardHeader>
@@ -132,17 +135,17 @@ export function AboutSection() {
           </div>
 
           <Hint>
-            Updates are signed and verified against the key Pulse ships with, so only a release from
-            this project can be installed.
+            Updates are signed and verified against the key Pulse ships with, so only a release from this
+            project can be installed.
           </Hint>
         </CardContent>
       </Card>
 
       {desktop && storage.mode === "browser" && (
         <Hint className="break-all">
-          Pulse could not open its SQLite database, so everything is being kept in the browser
-          store. That store is small and the system is free to clear it, so the library is not
-          safe there. Reported error: {storage.error ?? "unknown"}.
+          Pulse could not open its SQLite database, so everything is being kept in the browser store. That
+          store is small and the system is free to clear it, so the library is not safe there. Reported error:{" "}
+          {storage.error ?? "unknown"}.
         </Hint>
       )}
     </div>

@@ -4,23 +4,30 @@
  */
 import type { Project, PulseSchedule, SignalPreference, Watchlist } from "../types";
 import { getDatabase, readLocal, writeLocal } from "./client";
-import {
-  LS_PREFERENCES,
-  LS_PROJECTS,
-  LS_SCHEDULE,
-  LS_WATCHLISTS,
-} from "./local-keys";
+import { LS_PREFERENCES, LS_PROJECTS, LS_SCHEDULE, LS_WATCHLISTS } from "./local-keys";
 
 function newId(prefix: string): string {
-  const uuid = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+  const uuid =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
   return `${prefix}_${uuid}`;
 }
 
 export async function getSignalPreferences(): Promise<SignalPreference[]> {
   const db = await getDatabase();
   if (db) {
-    const rows = (await db.select(`SELECT id, kind, value, weight, evidence, updated_at FROM signal_preferences ORDER BY weight DESC;`)) as any[];
-    return rows.map((row) => ({ id: row.id, kind: row.kind, value: row.value, weight: row.weight, evidence: row.evidence, updatedAt: row.updated_at }));
+    const rows = (await db.select(
+      `SELECT id, kind, value, weight, evidence, updated_at FROM signal_preferences ORDER BY weight DESC;`
+    )) as any[];
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      value: row.value,
+      weight: row.weight,
+      evidence: row.evidence,
+      updatedAt: row.updated_at,
+    }));
   }
   return readLocal<SignalPreference[]>(LS_PREFERENCES, []);
 }
@@ -64,7 +71,14 @@ export async function saveSignalPreferences(preferences: SignalPreference[]): Pr
       await db.execute(
         `INSERT INTO signal_preferences (id, kind, value, weight, evidence, updated_at) VALUES ($1,$2,$3,$4,$5,$6)
          ON CONFLICT(id) DO UPDATE SET weight = excluded.weight, evidence = excluded.evidence, updated_at = excluded.updated_at;`,
-        [preference.id, preference.kind, preference.value, preference.weight, preference.evidence, preference.updatedAt]
+        [
+          preference.id,
+          preference.kind,
+          preference.value,
+          preference.weight,
+          preference.evidence,
+          preference.updatedAt,
+        ]
       );
     }
     return;
@@ -76,7 +90,13 @@ export async function getWatchlists(): Promise<Watchlist[]> {
   const db = await getDatabase();
   if (db) {
     const rows = (await db.select(`SELECT * FROM watchlists ORDER BY created_at DESC;`)) as any[];
-    return rows.map((row) => ({ id: row.id, name: row.name, query: row.query, enabled: Boolean(row.enabled), createdAt: row.created_at }));
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      query: row.query,
+      enabled: Boolean(row.enabled),
+      createdAt: row.created_at,
+    }));
   }
   return readLocal<Watchlist[]>(LS_WATCHLISTS, []);
 }
@@ -104,7 +124,10 @@ export async function deleteWatchlist(id: string): Promise<void> {
     await db.execute(`DELETE FROM watchlists WHERE id = $1;`, [id]);
     return;
   }
-  writeLocal(LS_WATCHLISTS, readLocal<Watchlist[]>(LS_WATCHLISTS, []).filter((entry) => entry.id !== id));
+  writeLocal(
+    LS_WATCHLISTS,
+    readLocal<Watchlist[]>(LS_WATCHLISTS, []).filter((entry) => entry.id !== id)
+  );
 }
 
 export async function getProjects(): Promise<Project[]> {
@@ -112,7 +135,13 @@ export async function getProjects(): Promise<Project[]> {
   if (db) {
     const rows = (await db.select(`SELECT * FROM projects ORDER BY created_at DESC;`)) as any[];
     const itemRows = (await db.select(`SELECT project_id, item_id FROM project_items;`)) as any[];
-    return rows.map((row) => ({ id: row.id, name: row.name, description: row.description, createdAt: row.created_at, itemIds: itemRows.filter((item) => item.project_id === row.id).map((item) => item.item_id) }));
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      createdAt: row.created_at,
+      itemIds: itemRows.filter((item) => item.project_id === row.id).map((item) => item.item_id),
+    }));
   }
   return readLocal<Project[]>(LS_PROJECTS, []);
 }
@@ -126,7 +155,11 @@ export async function saveProject(project: Project): Promise<void> {
       [project.id, project.name, project.description, project.createdAt]
     );
     await db.execute(`DELETE FROM project_items WHERE project_id = $1;`, [project.id]);
-    for (const itemId of project.itemIds) await db.execute(`INSERT INTO project_items (project_id, item_id) VALUES ($1,$2);`, [project.id, itemId]);
+    for (const itemId of project.itemIds)
+      await db.execute(`INSERT INTO project_items (project_id, item_id) VALUES ($1,$2);`, [
+        project.id,
+        itemId,
+      ]);
     return;
   }
   const projects = readLocal<Project[]>(LS_PROJECTS, []);
@@ -143,7 +176,10 @@ export async function deleteProject(id: string): Promise<void> {
     await db.execute(`DELETE FROM projects WHERE id = $1;`, [id]);
     return;
   }
-  writeLocal(LS_PROJECTS, readLocal<Project[]>(LS_PROJECTS, []).filter((entry) => entry.id !== id));
+  writeLocal(
+    LS_PROJECTS,
+    readLocal<Project[]>(LS_PROJECTS, []).filter((entry) => entry.id !== id)
+  );
 }
 
 export async function getSchedule(): Promise<PulseSchedule> {
@@ -152,7 +188,16 @@ export async function getSchedule(): Promise<PulseSchedule> {
   if (db) {
     const rows = (await db.select(`SELECT * FROM pulse_schedule WHERE id = 'default' LIMIT 1;`)) as any[];
     const row = rows[0];
-    return row ? { id: row.id, enabled: Boolean(row.enabled), intervalMinutes: row.interval_minutes, notify: Boolean(row.notify), lastRunAt: row.last_run_at, nextRunAt: row.next_run_at } : fallback;
+    return row
+      ? {
+          id: row.id,
+          enabled: Boolean(row.enabled),
+          intervalMinutes: row.interval_minutes,
+          notify: Boolean(row.notify),
+          lastRunAt: row.last_run_at,
+          nextRunAt: row.next_run_at,
+        }
+      : fallback;
   }
   return readLocal<PulseSchedule>(LS_SCHEDULE, fallback);
 }
@@ -165,7 +210,14 @@ export async function saveSchedule(schedule: PulseSchedule): Promise<void> {
        VALUES ($1,$2,$3,$4,$5,$6)
        ON CONFLICT(id) DO UPDATE SET enabled = excluded.enabled, interval_minutes = excluded.interval_minutes,
        notify = excluded.notify, last_run_at = excluded.last_run_at, next_run_at = excluded.next_run_at;`,
-      [schedule.id, schedule.enabled ? 1 : 0, schedule.intervalMinutes, schedule.notify ? 1 : 0, schedule.lastRunAt ?? null, schedule.nextRunAt ?? null]
+      [
+        schedule.id,
+        schedule.enabled ? 1 : 0,
+        schedule.intervalMinutes,
+        schedule.notify ? 1 : 0,
+        schedule.lastRunAt ?? null,
+        schedule.nextRunAt ?? null,
+      ]
     );
     return;
   }
@@ -173,11 +225,23 @@ export async function saveSchedule(schedule: PulseSchedule): Promise<void> {
 }
 
 export function createWatchlist(name: string, query: string): Watchlist {
-  return { id: newId("watch"), name: name.trim(), query: query.trim(), enabled: true, createdAt: new Date().toISOString() };
+  return {
+    id: newId("watch"),
+    name: name.trim(),
+    query: query.trim(),
+    enabled: true,
+    createdAt: new Date().toISOString(),
+  };
 }
 
 export function createProject(name: string, description = ""): Project {
-  return { id: newId("project"), name: name.trim(), description: description.trim(), createdAt: new Date().toISOString(), itemIds: [] };
+  return {
+    id: newId("project"),
+    name: name.trim(),
+    description: description.trim(),
+    createdAt: new Date().toISOString(),
+    itemIds: [],
+  };
 }
 
 /** Items that have never been classified, or whose content changed. */

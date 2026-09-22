@@ -56,7 +56,11 @@ export function JobCoverLetterCard() {
             <div key={letter.id} className="space-y-2 rounded-lg border border-border p-3.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  {letter.tone && <Badge variant="secondary">{TONE_LABELS[letter.tone as CoverLetterTone] ?? letter.tone}</Badge>}
+                  {letter.tone && (
+                    <Badge variant="secondary">
+                      {TONE_LABELS[letter.tone as CoverLetterTone] ?? letter.tone}
+                    </Badge>
+                  )}
                   <span className="text-[11px] text-muted-foreground" suppressHydrationWarning>
                     {formatRelativeTime(letter.generatedAt)}
                   </span>
@@ -79,9 +83,7 @@ export function JobCoverLetterCard() {
                 </DropdownMenu>
               </div>
 
-              <p className="whitespace-pre-wrap text-[13px] leading-6 text-foreground/90">
-                {letter.content}
-              </p>
+              <p className="whitespace-pre-wrap text-[13px] leading-6 text-foreground/90">{letter.content}</p>
             </div>
           ))
         )}

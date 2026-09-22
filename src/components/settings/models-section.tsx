@@ -27,7 +27,9 @@ function ProbeRow({ label, probe, pending }: { label: string; probe: ProbeResult
 
   return (
     <div className="flex min-w-0 items-start gap-2 text-xs">
-      {state === "checking" && <Loader2 className="mt-0.5 size-3.5 shrink-0 animate-spin text-muted-foreground" />}
+      {state === "checking" && (
+        <Loader2 className="mt-0.5 size-3.5 shrink-0 animate-spin text-muted-foreground" />
+      )}
       {state === "ok" && <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-success" />}
       {state === "error" && <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-destructive" />}
       {state === "idle" && <span className="mt-0.5 size-3.5 shrink-0" />}
@@ -108,9 +110,7 @@ export function ModelsSection({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-1.5 text-2xl">
-            Sorting incoming items
-          </CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-2xl">Sorting incoming items</CardTitle>
           <CardDescription>
             Gives every item a category, a field, a topic and a signal score, which is what the feed ranks and
             filters on.
@@ -120,7 +120,10 @@ export function ModelsSection({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <span className="text-xs font-medium text-foreground">How it decides</span>
-              <Select value={classification.engine} onValueChange={(value) => changeEngine(value as ClassifierEngine)}>
+              <Select
+                value={classification.engine}
+                onValueChange={(value) => changeEngine(value as ClassifierEngine)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -169,9 +172,7 @@ export function ModelsSection({
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-1.5 text-2xl">
-            Writing
-          </CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-2xl">Writing</CardTitle>
           <CardDescription>
             Writes the daily briefing and the one-line &ldquo;why it matters&rdquo; note shown on each item.
           </CardDescription>

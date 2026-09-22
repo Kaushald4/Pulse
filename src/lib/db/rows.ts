@@ -57,7 +57,8 @@ export function rowToItem(row: any): PulseItem {
     createdAt: row.created_at,
     topic: row.topic ?? null,
     signal: typeof row.signal === "number" ? row.signal : null,
-    primarySource: row.primary_source === null || row.primary_source === undefined ? null : Boolean(row.primary_source),
+    primarySource:
+      row.primary_source === null || row.primary_source === undefined ? null : Boolean(row.primary_source),
     whyKey: row.why_key ?? null,
     why: row.why ?? null,
     classifierModel: row.jev_model ?? null,
@@ -91,7 +92,6 @@ export function rowToBriefing(row: any): DailyBriefing {
   };
 }
 
-
 export function rowToPreview(row: any): ResourcePreview {
   return {
     title: row.title ?? null,
@@ -99,7 +99,6 @@ export function rowToPreview(row: any): ResourcePreview {
     image: row.image ?? null,
   };
 }
-
 
 export function rowToSource(row: any): SourceConnection {
   return {

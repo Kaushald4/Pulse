@@ -1,7 +1,6 @@
 import type { AppConfig, ProbeResult } from "./types";
 
-export const isTauriEnv = (): boolean =>
-  typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+export const isTauriEnv = (): boolean => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 export const EMPTY_CONFIG: AppConfig = {
   macosWidgetEnabled: true,

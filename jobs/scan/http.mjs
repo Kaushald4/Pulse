@@ -53,9 +53,7 @@ async function fetchWithTimeout(url, opts, consume, outerSignal) {
 
     if (!res.ok) {
       const responseText = await res.text().catch(() => "");
-      const err = new Error(
-        `HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`
-      );
+      const err = new Error(`HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`);
       err.status = res.status;
       err.body = responseText;
       err.retryAfter = res.headers.get("retry-after");

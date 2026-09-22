@@ -101,9 +101,7 @@ export function SingleSourceDetail({ source }: { source: SourceConnection }) {
           <FilterChips source={source} />
         </div>
         <div className="space-y-3 border-t border-border pt-4">
-          <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Edit
-          </h3>
+          <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Edit</h3>
           <SourceEditor source={source} />
         </div>
       </div>
@@ -121,8 +119,8 @@ export function SingleSourceDetail({ source }: { source: SourceConnection }) {
             <AlertDialogTitle>Disconnect {source.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               This deletes the saved browser profile for{" "}
-              <span className="font-mono text-xs">{source.profileName}</span>, including its cookies and
-              local storage. You will need to sign in again to sync this source.
+              <span className="font-mono text-xs">{source.profileName}</span>, including its cookies and local
+              storage. You will need to sign in again to sync this source.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

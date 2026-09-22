@@ -13,8 +13,7 @@ import { useJobs } from "../../store/jobs";
 import type { AppConfig, ExtractionEngine } from "../../lib/types";
 
 const ENGINE_HINTS: Record<ExtractionEngine, string> = {
-  builtin:
-    "Plain HTTP fetch. Free, no setup, and good enough for most board and ATS pages.",
+  builtin: "Plain HTTP fetch. Free, no setup, and good enough for most board and ATS pages.",
   scrapling:
     "Renders the page in a real browser on this machine. Free per page, and it gets past the boards that 403 a plain fetch.",
   tinyfish:
@@ -64,16 +63,16 @@ export function JobBoardsSection({
   return (
     <div className="space-y-5">
       <SectionIntro title="Job boards">
-        Where job listings come from, and how their pages are read. The built-in boards need
-        nothing from you; tracking a company is a single careers link.
+        Where job listings come from, and how their pages are read. The built-in boards need nothing from you;
+        tracking a company is a single careers link.
       </SectionIntro>
 
       <Card>
         <CardHeader>
           <CardTitle>Reading job pages</CardTitle>
           <CardDescription>
-            Used to pull a description from a listing&rsquo;s own page. Separate from the article
-            reader on purpose, so scanning jobs can&rsquo;t spend its TinyFish allowance.
+            Used to pull a description from a listing&rsquo;s own page. Separate from the article reader on
+            purpose, so scanning jobs can&rsquo;t spend its TinyFish allowance.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -83,9 +82,7 @@ export function JobBoardsSection({
             </Label>
             <Select
               value={engine}
-              onValueChange={(value) =>
-                patch({ jobsExtraction: { engine: value as ExtractionEngine } })
-              }
+              onValueChange={(value) => patch({ jobsExtraction: { engine: value as ExtractionEngine } })}
             >
               <SelectTrigger id="job-engine" className="max-w-sm">
                 <SelectValue />
@@ -105,8 +102,7 @@ export function JobBoardsSection({
         <CardHeader>
           <CardTitle>Board feeds</CardTitle>
           <CardDescription>
-            Board-wide aggregators. Turn one off if it duplicates another or never matches what
-            you do.
+            Board-wide aggregators. Turn one off if it duplicates another or never matches what you do.
           </CardDescription>
         </CardHeader>
         <CardContent className="divide-y divide-border">

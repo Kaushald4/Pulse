@@ -32,11 +32,7 @@ export function usageOf(result: LlmResult | null): TokenUse {
  * matters") use `callLlm`; the jobs pipeline needs to tell "the request
  * failed" apart from "the model said nothing", so it uses this.
  */
-export async function callLlmStrict(
-  system: string,
-  prompt: string,
-  json: boolean
-): Promise<LlmResult> {
+export async function callLlmStrict(system: string, prompt: string, json: boolean): Promise<LlmResult> {
   if (!isTauriEnv()) throw new Error("AI calls need the desktop app.");
   const { invoke } = await import("@tauri-apps/api/core");
   return invoke<LlmResult>("ai_chat", {
@@ -62,7 +58,9 @@ interface ReasonPayload {
  * classification/score already attached to it. Falls back to the Jev "why"
  * category label so the field is never empty.
  */
-export async function generateReasons(items: PulseItem[]): Promise<{ reasons: Map<string, string>; usage: TokenUse }> {
+export async function generateReasons(
+  items: PulseItem[]
+): Promise<{ reasons: Map<string, string>; usage: TokenUse }> {
   const reasons = new Map<string, string>();
   const empty = { inputTokens: 0, outputTokens: 0, model: null };
   if (items.length === 0) return { reasons, usage: empty };
@@ -185,15 +183,14 @@ export async function generateBriefing(input: {
   };
 }
 
-function buildTemplatedSummary(
-  items: PulseItem[],
-  topics: Array<{ topic: string; count: number }>
-): string {
+function buildTemplatedSummary(items: PulseItem[], topics: Array<{ topic: string; count: number }>): string {
   if (items.length === 0) {
     return "No items have been collected today. Run a sync to pull fresh content.";
   }
   const top = topics[0];
-  const sources = Array.from(new Set(items.map((item) => item.source))).slice(0, 4).join(", ");
+  const sources = Array.from(new Set(items.map((item) => item.source)))
+    .slice(0, 4)
+    .join(", ");
   const leader = items[0];
   return [
     `${items.length} items collected today from ${sources}.`,

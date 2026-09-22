@@ -82,7 +82,13 @@ export function GeneratedResumeEditor({
         </DialogHeader>
 
         {selection.trim() && (
-          <Button variant="outline" size="sm" onClick={() => void rewrite()} disabled={busy} className="w-fit gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void rewrite()}
+            disabled={busy}
+            className="w-fit gap-1.5"
+          >
             <Sparkles className="size-3.5" />
             {busy ? "Rewriting…" : "Rewrite selection"}
           </Button>

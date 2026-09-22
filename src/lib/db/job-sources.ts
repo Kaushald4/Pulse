@@ -31,9 +31,7 @@ async function persist(db: any, source: JobSource): Promise<void> {
 export async function getJobSources(): Promise<JobSource[]> {
   const db = await getDatabase();
   if (db) {
-    const rows = (await db.select(
-      `SELECT * FROM job_sources ORDER BY created_at ASC, name ASC;`
-    )) as any[];
+    const rows = (await db.select(`SELECT * FROM job_sources ORDER BY created_at ASC, name ASC;`)) as any[];
     if (rows.length > 0) return rows.map(rowToJobSource);
 
     const seeded = defaultJobSources();

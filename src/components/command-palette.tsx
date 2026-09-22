@@ -68,12 +68,54 @@ export function CommandPalette() {
   ];
 
   const filters = [
-    { label: "Repositories", icon: GitBranch, run: () => { setView("feed"); setFilter({ category: "repo", state: "all", field: "all" }); } },
-    { label: "Papers", icon: FileText, run: () => { setView("feed"); setFilter({ category: "paper", state: "all", field: "all" }); } },
-    { label: "Products", icon: Sparkles, run: () => { setView("feed"); setFilter({ category: "resource", state: "all", field: "all" }); } },
-    { label: "Discussions", icon: Radio, run: () => { setView("feed"); setFilter({ category: "news", state: "all", field: "all" }); } },
-    { label: "Saved", icon: Bookmark, run: () => { setView("feed"); setFilter({ state: "saved", category: "all", field: "all" }); } },
-    { label: "Important", icon: Star, run: () => { setView("feed"); setFilter({ state: "important", category: "all", field: "all" }); } },
+    {
+      label: "Repositories",
+      icon: GitBranch,
+      run: () => {
+        setView("feed");
+        setFilter({ category: "repo", state: "all", field: "all" });
+      },
+    },
+    {
+      label: "Papers",
+      icon: FileText,
+      run: () => {
+        setView("feed");
+        setFilter({ category: "paper", state: "all", field: "all" });
+      },
+    },
+    {
+      label: "Products",
+      icon: Sparkles,
+      run: () => {
+        setView("feed");
+        setFilter({ category: "resource", state: "all", field: "all" });
+      },
+    },
+    {
+      label: "Discussions",
+      icon: Radio,
+      run: () => {
+        setView("feed");
+        setFilter({ category: "news", state: "all", field: "all" });
+      },
+    },
+    {
+      label: "Saved",
+      icon: Bookmark,
+      run: () => {
+        setView("feed");
+        setFilter({ state: "saved", category: "all", field: "all" });
+      },
+    },
+    {
+      label: "Important",
+      icon: Star,
+      run: () => {
+        setView("feed");
+        setFilter({ state: "important", category: "all", field: "all" });
+      },
+    },
   ];
 
   return (

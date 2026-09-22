@@ -54,4 +54,3 @@ export async function applyContent(
     writeLocal(LS_ITEMS, store);
   }
 }
-

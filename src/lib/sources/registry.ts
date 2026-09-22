@@ -4,18 +4,8 @@
  */
 import type { PulseItem, SourceConnection, SourceOptions } from "../types";
 import { requireDesktop } from "./helmsman";
-import {
-  fetchHackerNews,
-  fetchLobsters,
-  fetchRss,
-} from "./fetchers/aggregators";
-import {
-  fetchArxiv,
-  fetchDevTo,
-  fetchGithub,
-  fetchHuggingFace,
-  fetchProductHunt,
-} from "./fetchers/catalogs";
+import { fetchHackerNews, fetchLobsters, fetchRss } from "./fetchers/aggregators";
+import { fetchArxiv, fetchDevTo, fetchGithub, fetchHuggingFace, fetchProductHunt } from "./fetchers/catalogs";
 import { fetchLinkedIn, fetchReddit, fetchTwitter } from "./fetchers/social";
 
 /** Sources that need no login; the profile argument is ignored for them. */

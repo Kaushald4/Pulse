@@ -44,7 +44,11 @@ export async function normalizeResume(rawText: string): Promise<NormalizeResult>
 
   const normalized = response.text?.trim() ?? "";
   if (!normalized) {
-    return { text: trimmed, changed: false, warning: "Cleanup returned nothing, so the text is as extracted." };
+    return {
+      text: trimmed,
+      changed: false,
+      warning: "Cleanup returned nothing, so the text is as extracted.",
+    };
   }
   if (normalized.length < trimmed.length * 0.5) {
     return { text: trimmed, changed: false, warning: "Cleanup dropped too much text, so it was discarded." };

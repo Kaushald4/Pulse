@@ -22,12 +22,7 @@ import {
   getGeneratedResumes,
   updateGeneratedResumeContent,
 } from "../lib/db/job-resumes";
-import {
-  deleteJobSource,
-  getJobSources,
-  saveJobSource,
-  setJobSourceEnabled,
-} from "../lib/db/job-sources";
+import { deleteJobSource, getJobSources, saveJobSource, setJobSourceEnabled } from "../lib/db/job-sources";
 import { saveResumeAsDocx } from "../lib/jobs/download";
 import { fetchJobDescription } from "../lib/jobs/description";
 import { addManualJob, type ManualJobInput, type ManualJobResult } from "../lib/jobs/manual";
@@ -189,7 +184,10 @@ export const useJobs = create<JobStore>((set, get) => ({
       if (report.described > 0) parts.push(`${report.described} described`);
       const detail = parts.join(", ");
       if (report.errors.length > 0) {
-        toast.error(`Scan finished with ${report.errors.length} problem(s)`, `${detail}. ${report.errors[0]}`);
+        toast.error(
+          `Scan finished with ${report.errors.length} problem(s)`,
+          `${detail}. ${report.errors[0]}`
+        );
       } else {
         toast.success("Scan complete", detail);
       }
@@ -240,10 +238,7 @@ export const useJobs = create<JobStore>((set, get) => ({
             : "Upload a base resume first — scoring reads each description against it."
         );
       } else if (result.failed > 0) {
-        toast.error(
-          `Scored ${result.scored}, ${result.failed} failed`,
-          "The failures are on the Logs page."
-        );
+        toast.error(`Scored ${result.scored}, ${result.failed} failed`, "The failures are on the Logs page.");
       } else {
         toast.success(`Scored ${result.scored} job${result.scored === 1 ? "" : "s"}`);
       }
@@ -285,7 +280,9 @@ export const useJobs = create<JobStore>((set, get) => ({
       await get().refresh();
       toast.success(
         "Description fetched",
-        result.engine ? `${result.description.length.toLocaleString()} characters via ${result.engine}` : undefined
+        result.engine
+          ? `${result.description.length.toLocaleString()} characters via ${result.engine}`
+          : undefined
       );
     } catch (error) {
       toast.error("Could not fetch the description", message(error));

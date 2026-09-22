@@ -67,8 +67,8 @@ export function JobDescriptionCard() {
             />
             {!job.description && (
               <p className="text-[11px] text-muted-foreground">
-                These feeds usually ship without a description - fetch it from the listing, or paste
-                it in. Scoring, resumes and cover letters all read it.
+                These feeds usually ship without a description - fetch it from the listing, or paste it in.
+                Scoring, resumes and cover letters all read it.
               </p>
             )}
             <div className="flex items-center gap-2">
@@ -97,9 +97,7 @@ export function JobDescriptionCard() {
             </div>
           </>
         ) : (
-          <p className="whitespace-pre-line text-[13px] leading-6 text-muted-foreground">
-            {job.description}
-          </p>
+          <p className="whitespace-pre-line text-[13px] leading-6 text-muted-foreground">{job.description}</p>
         )}
       </CardContent>
     </Card>

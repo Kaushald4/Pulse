@@ -5,11 +5,7 @@
  * is rendered from that text at download time, so nothing binary is stored.
  */
 import { getJob } from "../../db/jobs";
-import {
-  getActiveResume,
-  getGeneratedResume,
-  saveGeneratedResume,
-} from "../../db/job-resumes";
+import { getActiveResume, getGeneratedResume, saveGeneratedResume } from "../../db/job-resumes";
 import type { GeneratedResume } from "../../jobs/types";
 import { callLlmStrict, usageOf, type TokenUse } from "../llm";
 import {
@@ -32,41 +28,48 @@ export async function generateTailoredResume(jobId: string): Promise<GenerateRes
   const job = await getJob(jobId);
   if (!job) return { generated: false, error: "Job not found." };
   if (!job.description?.trim()) {
-    return { generated: false, error: "This job has no description yet - add one before generating a resume." };
+    return {
+      generated: false,
+      error: "This job has no description yet - add one before generating a resume.",
+    };
   }
 
   const label = `${job.title}${job.company ? ` @ ${job.company}` : ""}`;
-  return withJobRun(label, (result) => result.draft?.fileName ?? "generated", async () => {
-    const resume = await getActiveResume();
-    if (!resume) {
-      return { generated: false, error: "No base resume uploaded yet - upload one first." };
-    }
+  return withJobRun(
+    label,
+    (result) => result.draft?.fileName ?? "generated",
+    async () => {
+      const resume = await getActiveResume();
+      if (!resume) {
+        return { generated: false, error: "No base resume uploaded yet - upload one first." };
+      }
 
-    let response;
-    try {
-      response = await callLlmStrict(
-        RESUME_SYSTEM,
-        resumeAndJobPrompt(resume.parsedText, job, "BASE RESUME"),
-        false
-      );
-    } catch (error) {
-      return { generated: false, error: `Request failed: ${errorMessage(error)}` };
-    }
+      let response;
+      try {
+        response = await callLlmStrict(
+          RESUME_SYSTEM,
+          resumeAndJobPrompt(resume.parsedText, job, "BASE RESUME"),
+          false
+        );
+      } catch (error) {
+        return { generated: false, error: `Request failed: ${errorMessage(error)}` };
+      }
 
-    const usage = usageOf(response);
-    const content = response.text?.trim();
-    if (!content) {
-      return { generated: false, usage, error: "The model returned nothing - resume not generated." };
-    }
+      const usage = usageOf(response);
+      const content = response.text?.trim();
+      if (!content) {
+        return { generated: false, usage, error: "The model returned nothing - resume not generated." };
+      }
 
-    const draft = await saveGeneratedResume({
-      jobId: job.id,
-      baseResumeId: resume.id,
-      content,
-      fileName: buildResumeFileName(job.title, job.company),
-    });
-    return { generated: true, draft, usage };
-  });
+      const draft = await saveGeneratedResume({
+        jobId: job.id,
+        baseResumeId: resume.id,
+        content,
+        fileName: buildResumeFileName(job.title, job.company),
+      });
+      return { generated: true, draft, usage };
+    }
+  );
 }
 
 export interface RewriteSelectionResult {

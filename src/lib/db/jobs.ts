@@ -41,9 +41,7 @@ export async function getJobs(filter: JobFilter, limit = 200): Promise<Job[]> {
   const db = await getDatabase();
 
   if (db) {
-    const conditions: string[] = [
-      `(closed_at IS NULL OR status IN ('applied','shortlisted','rejected'))`,
-    ];
+    const conditions: string[] = [`(closed_at IS NULL OR status IN ('applied','shortlisted','rejected'))`];
     const params: unknown[] = [];
     const add = (clause: string, value: unknown) => {
       params.push(value);
@@ -352,10 +350,7 @@ export async function updateJob(
       ]);
     }
     if (patch.description?.trim()) {
-      await db.execute(`UPDATE jobs SET description = $1 WHERE id = $2;`, [
-        patch.description.trim(),
-        id,
-      ]);
+      await db.execute(`UPDATE jobs SET description = $1 WHERE id = $2;`, [patch.description.trim(), id]);
     }
     return;
   }
@@ -371,11 +366,7 @@ export async function updateJob(
   writeLocal(LS_JOBS, stored);
 }
 
-export async function saveJobScore(
-  id: string,
-  score: number,
-  reasoning: string
-): Promise<void> {
+export async function saveJobScore(id: string, score: number, reasoning: string): Promise<void> {
   const db = await getDatabase();
   if (db) {
     await db.execute(`UPDATE jobs SET relevance_score = $1, relevance_reasoning = $2 WHERE id = $3;`, [

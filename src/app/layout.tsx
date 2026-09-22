@@ -6,8 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Pulse",
-  description:
-    "Desktop tracker for repositories, papers, developer tools, and technical discussions.",
+  description: "Desktop tracker for repositories, papers, developer tools, and technical discussions.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

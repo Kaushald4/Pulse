@@ -144,7 +144,6 @@ export async function getBriefing(date: string): Promise<DailyBriefing | null> {
   return briefings[date] ?? null;
 }
 
-
 /** Every stored briefing, for library export. */
 export async function getAllBriefings(): Promise<DailyBriefing[]> {
   const db = await getDatabase();
@@ -191,4 +190,3 @@ export async function saveBriefing(briefing: DailyBriefing): Promise<void> {
 /* -------------------------------------------------------------------------- */
 /* Sources                                                                     */
 /* -------------------------------------------------------------------------- */
-

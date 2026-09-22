@@ -83,9 +83,7 @@ export async function fetchCuratedPreviews(): Promise<PreviewReport> {
   if (!isTauriEnv()) return { enriched: 0, errors: [] };
 
   const existing = await getLinkPreviews();
-  const pending = CURATED_RESOURCES.map((resource) => resource.url).filter(
-    (url) => !existing.has(url)
-  );
+  const pending = CURATED_RESOURCES.map((resource) => resource.url).filter((url) => !existing.has(url));
   if (pending.length === 0) return { enriched: 0, errors: [] };
 
   const { invoke } = await import("@tauri-apps/api/core");
@@ -112,9 +110,7 @@ export async function fetchCuratedPreviews(): Promise<PreviewReport> {
     await applyLinkPreviews(updates);
     enriched += results.filter((entry) => entry.image).length;
     errors.push(
-      ...results
-        .filter((entry) => !entry.ok && entry.error)
-        .map((entry) => `${entry.url}: ${entry.error}`)
+      ...results.filter((entry) => !entry.ok && entry.error).map((entry) => `${entry.url}: ${entry.error}`)
     );
   }
 

@@ -48,16 +48,12 @@ function main() {
   const [dir, tag, repo, version, out = "latest.json"] = process.argv.slice(2);
 
   if (!dir || !tag || !repo || !version) {
-    console.error(
-      "usage: updater-manifest.mjs <artifacts-dir> <tag> <owner/repo> <version> [out]"
-    );
+    console.error("usage: updater-manifest.mjs <artifacts-dir> <tag> <owner/repo> <version> [out]");
     process.exit(2);
   }
 
   const files = walk(dir);
-  const signatures = new Map(
-    files.filter((f) => f.endsWith(".sig")).map((f) => [f.slice(0, -4), f])
-  );
+  const signatures = new Map(files.filter((f) => f.endsWith(".sig")).map((f) => [f.slice(0, -4), f]));
 
   const platforms = {};
   const missing = [];

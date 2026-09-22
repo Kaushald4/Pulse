@@ -42,8 +42,7 @@ const KNOWN_SECTION_NAMES = new Set([
 ]);
 
 export function isHeadingLine(line: string): boolean {
-  const isAllCaps =
-    HEADING_LINE_RE.test(line) && line === line.toUpperCase() && /[A-Z]/.test(line);
+  const isAllCaps = HEADING_LINE_RE.test(line) && line === line.toUpperCase() && /[A-Z]/.test(line);
   if (isAllCaps) return true;
   return line.length <= 40 && KNOWN_SECTION_NAMES.has(line.toLowerCase());
 }

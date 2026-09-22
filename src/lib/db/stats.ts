@@ -74,7 +74,6 @@ export async function getPulseStats(): Promise<PulseStats> {
   };
 }
 
-
 const DAY = 86_400_000;
 const TOPIC_WINDOW_DAYS = 7;
 const MAX_RISING_TOPICS = 6;
@@ -128,11 +127,7 @@ export async function getTopicSummary(): Promise<TopicSummary> {
 
     const age = now - published;
     const bucket =
-      age <= TOPIC_WINDOW_DAYS * DAY
-        ? current
-        : age <= 2 * TOPIC_WINDOW_DAYS * DAY
-        ? prior
-        : null;
+      age <= TOPIC_WINDOW_DAYS * DAY ? current : age <= 2 * TOPIC_WINDOW_DAYS * DAY ? prior : null;
     if (!bucket) continue;
 
     bucket.set(topic, (bucket.get(topic) ?? 0) + 1);

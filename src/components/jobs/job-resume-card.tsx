@@ -36,9 +36,7 @@ export function JobResumeCard() {
         </Button>
       </CardHeader>
       <CardContent className="space-y-2">
-        {!resume && (
-          <p className="text-[12px] text-muted-foreground">Upload a base resume first.</p>
-        )}
+        {!resume && <p className="text-[12px] text-muted-foreground">Upload a base resume first.</p>}
 
         {drafts.length === 0 ? (
           <p className="text-[13px] text-muted-foreground">
@@ -58,12 +56,7 @@ export function JobResumeCard() {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditing(draft)}
-                    className="gap-1.5"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setEditing(draft)} className="gap-1.5">
                     <Pencil className="size-3.5" />
                     Open
                   </Button>
@@ -97,9 +90,7 @@ export function JobResumeCard() {
           </div>
         )}
 
-        {drafts.length > 0 && (
-          <Chip label={`${drafts.length} version${drafts.length === 1 ? "" : "s"}`} />
-        )}
+        {drafts.length > 0 && <Chip label={`${drafts.length} version${drafts.length === 1 ? "" : "s"}`} />}
       </CardContent>
 
       <GeneratedResumeEditor

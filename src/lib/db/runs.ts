@@ -170,10 +170,7 @@ export async function restoreRuns(runs: RunRecord[]): Promise<number> {
 export async function getRuns(limit = 200): Promise<RunRecord[]> {
   const db = await getDatabase();
   if (db) {
-    const rows = (await db.select(
-      `SELECT * FROM runs ORDER BY started_at DESC LIMIT $1;`,
-      [limit]
-    )) as any[];
+    const rows = (await db.select(`SELECT * FROM runs ORDER BY started_at DESC LIMIT $1;`, [limit])) as any[];
     return rows.map(rowToRun);
   }
   // The localStorage fallback keeps insertion order, so sort it explicitly to
@@ -187,4 +184,3 @@ export async function getRuns(limit = 200): Promise<RunRecord[]> {
 /* -------------------------------------------------------------------------- */
 /* Demo data + maintenance                                                     */
 /* -------------------------------------------------------------------------- */
-

@@ -36,9 +36,7 @@ export function JobCard({ job, onOpen }: { job: Job; onOpen: () => void }) {
         {(job.location || job.workplaceType) && (
           <div className="flex items-center gap-1.5">
             <MapPin className="size-3 shrink-0" aria-hidden />
-            <span className="truncate">
-              {[job.location, job.workplaceType].filter(Boolean).join(" · ")}
-            </span>
+            <span className="truncate">{[job.location, job.workplaceType].filter(Boolean).join(" · ")}</span>
           </div>
         )}
       </div>

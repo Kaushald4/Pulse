@@ -3,7 +3,14 @@
 import React from "react";
 import { Download, Loader2, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Progress } from "./ui/progress";
 import { useUpdates } from "../store/updates";
 
@@ -60,9 +67,7 @@ export function UpdateNotice({ ready }: { ready: boolean }) {
           <div className="space-y-2">
             <Progress value={percent ?? undefined} />
             <p className="text-[12px] text-muted-foreground">
-              {progress
-                ? `Downloading${percent != null ? `, ${percent}%` : ""}`
-                : "Starting the download"}
+              {progress ? `Downloading${percent != null ? `, ${percent}%` : ""}` : "Starting the download"}
             </p>
           </div>
         )}
@@ -78,11 +83,7 @@ export function UpdateNotice({ ready }: { ready: boolean }) {
             Skip this version
           </Button>
           <Button onClick={() => void install()} disabled={installing} className="gap-1.5">
-            {installing ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Download className="size-3.5" />
-            )}
+            {installing ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
             {installing ? "Installing…" : "Update now"}
           </Button>
         </DialogFooter>

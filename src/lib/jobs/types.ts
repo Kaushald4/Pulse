@@ -113,12 +113,7 @@ export interface JobDetail {
 
 export type CoverLetterTone = "standard" | "professional" | "academic" | "casual";
 
-export const COVER_LETTER_TONES: CoverLetterTone[] = [
-  "standard",
-  "professional",
-  "academic",
-  "casual",
-];
+export const COVER_LETTER_TONES: CoverLetterTone[] = ["standard", "professional", "academic", "casual"];
 
 /** Live progress for a scan, so the UI can name what it is working on. */
 export interface JobScanProgress {

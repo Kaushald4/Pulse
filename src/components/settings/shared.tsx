@@ -22,9 +22,7 @@ export function Field({
 
 /** Quiet explanatory copy. */
 export function Hint({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <p className={cn("text-[11px] leading-relaxed text-muted-foreground", className)}>{children}</p>
-  );
+  return <p className={cn("text-[11px] leading-relaxed text-muted-foreground", className)}>{children}</p>;
 }
 
 /** Title + one-line explanation at the top of a settings pane. */

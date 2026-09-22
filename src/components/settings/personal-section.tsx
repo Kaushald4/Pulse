@@ -1,31 +1,11 @@
 "use client";
 
 import React from "react";
-import {
-  Bell,
-  Eye,
-  Plus,
-  Trash2,
-  ThumbsDown,
-  ThumbsUp,
-  Monitor,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Bell, Eye, Plus, Trash2, ThumbsDown, ThumbsUp, Monitor } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { SectionIntro } from "./shared";
 import { usePulse } from "../../store/pulse";
 import { formatRelativeTime } from "../../lib/utils";
@@ -52,14 +32,13 @@ export function PersonalSection() {
     setQuery("");
   };
 
-  const patchSchedule = (patch: Partial<PulseSchedule>) =>
-    void updateSchedule({ ...schedule, ...patch });
+  const patchSchedule = (patch: Partial<PulseSchedule>) => void updateSchedule({ ...schedule, ...patch });
 
   return (
     <div className="space-y-5">
       <SectionIntro title="Personal signal">
-        Teach Pulse what deserves more attention, keep explicit topics close,
-        and automate collection on a schedule.
+        Teach Pulse what deserves more attention, keep explicit topics close, and automate collection on a
+        schedule.
       </SectionIntro>
 
       <Card>
@@ -69,15 +48,12 @@ export function PersonalSection() {
             Watchlists
           </CardTitle>
           <CardDescription>
-            Matching items receive a small ranking boost. Watchlists are local
-            and can be broad phrases or exact technologies.
+            Matching items receive a small ranking boost. Watchlists are local and can be broad phrases or
+            exact technologies.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <form
-            onSubmit={(event) => void add(event)}
-            className="flex flex-wrap gap-2"
-          >
+          <form onSubmit={(event) => void add(event)} className="flex flex-wrap gap-2">
             <Input
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -98,14 +74,9 @@ export function PersonalSection() {
           {watchlists.length > 0 && (
             <div className="divide-y divide-border rounded-md border border-border">
               {watchlists.map((watchlist) => (
-                <div
-                  key={watchlist.id}
-                  className="flex items-center justify-between gap-3 px-3 py-2.5"
-                >
+                <div key={watchlist.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
                   <div className="min-w-0">
-                    <div className="text-[13px] font-medium">
-                      {watchlist.name}
-                    </div>
+                    <div className="text-[13px] font-medium">{watchlist.name}</div>
                     <div className="truncate text-[11px] text-muted-foreground">
                       matching “{watchlist.query}”
                     </div>
@@ -154,9 +125,8 @@ export function PersonalSection() {
         <CardHeader>
           <CardTitle className="text-sm">Learned preferences</CardTitle>
           <CardDescription>
-            Use “More like this” or “Less like this” in the reader. Pulse keeps
-            the evidence and adjusts future ranking without changing the
-            classifier’s raw score.
+            Use “More like this” or “Less like this” in the reader. Pulse keeps the evidence and adjusts
+            future ranking without changing the classifier’s raw score.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -171,13 +141,7 @@ export function PersonalSection() {
                   key={preference.id}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px]"
                 >
-                  <span
-                    className={
-                      preference.weight >= 0
-                        ? "text-success"
-                        : "text-destructive"
-                    }
-                  >
+                  <span className={preference.weight >= 0 ? "text-success" : "text-destructive"}>
                     {preference.weight >= 0 ? (
                       <ThumbsUp className="inline size-3" />
                     ) : (
@@ -185,9 +149,7 @@ export function PersonalSection() {
                     )}
                   </span>
                   {preference.value}
-                  <span className="text-muted-foreground">
-                    {preference.evidence}×
-                  </span>
+                  <span className="text-muted-foreground">{preference.evidence}×</span>
                 </span>
               ))}
             </div>
@@ -202,9 +164,8 @@ export function PersonalSection() {
             Scheduled sync
           </CardTitle>
           <CardDescription>
-            Pulse checks the schedule while the tray app is running, syncs
-            enabled sources, and can send a native notification when it
-            finishes.
+            Pulse checks the schedule while the tray app is running, syncs enabled sources, and can send a
+            native notification when it finishes.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-3">
@@ -212,9 +173,7 @@ export function PersonalSection() {
             <input
               type="checkbox"
               checked={schedule.enabled}
-              onChange={(event) =>
-                patchSchedule({ enabled: event.target.checked })
-              }
+              onChange={(event) => patchSchedule({ enabled: event.target.checked })}
             />
             Enable scheduled sync
           </label>
@@ -240,9 +199,7 @@ export function PersonalSection() {
             <input
               type="checkbox"
               checked={schedule.notify}
-              onChange={(event) =>
-                patchSchedule({ notify: event.target.checked })
-              }
+              onChange={(event) => patchSchedule({ notify: event.target.checked })}
             />
             Notify when complete
           </label>

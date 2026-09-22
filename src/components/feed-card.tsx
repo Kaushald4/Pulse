@@ -31,15 +31,39 @@ export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
   const stop = (event: React.MouseEvent) => event.stopPropagation();
 
   const actions = [
-    { key: "saved", label: isSaved ? "Remove from reading queue" : "Save for later", shortcut: "s", active: isSaved, icon: Bookmark, onClick: () => void toggleState(item.id, "saved") },
-    { key: "important", label: isImportant ? "Unmark important" : "Mark important", shortcut: "i", active: isImportant, icon: Star, onClick: () => void toggleState(item.id, "important") },
-    { key: "archived", label: isArchived ? "Move to inbox" : "Archive", shortcut: "a", active: isArchived, icon: Archive, onClick: () => void toggleState(item.id, "archived") },
+    {
+      key: "saved",
+      label: isSaved ? "Remove from reading queue" : "Save for later",
+      shortcut: "s",
+      active: isSaved,
+      icon: Bookmark,
+      onClick: () => void toggleState(item.id, "saved"),
+    },
+    {
+      key: "important",
+      label: isImportant ? "Unmark important" : "Mark important",
+      shortcut: "i",
+      active: isImportant,
+      icon: Star,
+      onClick: () => void toggleState(item.id, "important"),
+    },
+    {
+      key: "archived",
+      label: isArchived ? "Move to inbox" : "Archive",
+      shortcut: "a",
+      active: isArchived,
+      icon: Archive,
+      onClick: () => void toggleState(item.id, "archived"),
+    },
   ];
 
   return (
     <Card
       onClick={onSelect}
-      className={cn("group gap-0 p-0 transition-colors hover:bg-accent/40", isSelected && "border-primary/40 bg-accent/40")}
+      className={cn(
+        "group gap-0 p-0 transition-colors hover:bg-accent/40",
+        isSelected && "border-primary/40 bg-accent/40"
+      )}
     >
       <CardHeader className="flex flex-col items-start justify-between gap-3 space-y-0 p-4 sm:flex-row">
         <div className="min-w-0 space-y-1.5">
@@ -63,20 +87,31 @@ export function FeedCard({ item, isSelected, onSelect }: FeedCardProps) {
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
             <SourceChip source={item.source} />
             <Chip label={categoryLabel(item.category)} />
-            {typeof item.signal === "number" && item.signal >= 0.8 && <Chip label="High signal" tone="success" />}
+            {typeof item.signal === "number" && item.signal >= 0.8 && (
+              <Chip label="High signal" tone="success" />
+            )}
             {item.author && <span>by {item.author}</span>}
             <span>·</span>
             <HostLabel url={item.url} />
             <span>·</span>
             <span suppressHydrationWarning>{formatRelativeTime(item.publishedAt)}</span>
-            {item.state !== "inbox" && <Chip label={stateLabel(item.state)} tone={item.state === "important" ? "warning" : item.state === "saved" ? "success" : "neutral"} />}
+            {item.state !== "inbox" && (
+              <Chip
+                label={stateLabel(item.state)}
+                tone={item.state === "important" ? "warning" : item.state === "saved" ? "success" : "neutral"}
+              />
+            )}
           </div>
         </div>
 
         <div className="flex w-full shrink-0 items-start justify-between gap-3 sm:w-auto sm:justify-start">
           <div className="text-xs tabular-nums text-muted-foreground sm:text-right">
             {item.score > 0 && (
-              <div>{item.category === "repo" ? `${formatNumber(item.score)} stars` : `${formatNumber(item.score)} pts`}</div>
+              <div>
+                {item.category === "repo"
+                  ? `${formatNumber(item.score)} stars`
+                  : `${formatNumber(item.score)} pts`}
+              </div>
             )}
             {item.commentsCount > 0 && (
               <div className="inline-flex items-center gap-1">

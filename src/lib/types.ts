@@ -3,14 +3,7 @@ import type { ResourceType } from "./resources";
 export type ItemCategory = "all" | "repo" | "paper" | "resource" | "news";
 
 export type ContentField =
-  | "all"
-  | "ai_ml"
-  | "systems_infra"
-  | "web_frontend"
-  | "developer_tools"
-  | "security"
-  | "data"
-  | "other";
+  "all" | "ai_ml" | "systems_infra" | "web_frontend" | "developer_tools" | "security" | "data" | "other";
 
 /** A concrete field value (everything except the UI-only "all" filter). */
 export type ContentFieldValue = Exclude<ContentField, "all">;

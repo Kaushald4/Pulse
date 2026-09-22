@@ -50,9 +50,7 @@ function toEntry(source: JobSource) {
   };
 }
 
-async function runScanner(
-  entries: Array<ReturnType<typeof toEntry>>
-): Promise<BoardScanResult[]> {
+async function runScanner(entries: Array<ReturnType<typeof toEntry>>): Promise<BoardScanResult[]> {
   if (!isTauriEnv()) throw new Error("Scanning job boards needs the desktop app.");
   const { invoke } = await import("@tauri-apps/api/core");
   return invoke<BoardScanResult[]>("scan_job_providers", { entries });

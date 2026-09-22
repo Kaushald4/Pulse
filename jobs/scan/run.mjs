@@ -85,7 +85,7 @@ async function processEntry(entry, providers, baseCtx, entryTimeoutMs) {
     provider: provider.id,
     // An entry cut off mid-flight reports its own abort error, which says
     // nothing useful, so the deadline's message is used instead.
-    error: controller.signal.aborted ? timeoutMessage() : err?.message ?? String(err),
+    error: controller.signal.aborted ? timeoutMessage() : (err?.message ?? String(err)),
   }));
 
   // Raced as well as aborted. The abort closes the sockets, which is what lets
@@ -145,8 +145,6 @@ export async function runEntries(
     }
   }
 
-  await Promise.all(
-    Array.from({ length: Math.min(CONCURRENCY, entries.length) }, () => worker())
-  );
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, entries.length) }, () => worker()));
   return results;
 }

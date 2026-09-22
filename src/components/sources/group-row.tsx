@@ -29,12 +29,7 @@ export function GroupRow({
     >
       <span className="flex items-center gap-2">
         <span className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[status.tone])} aria-hidden />
-        <span
-          className={cn(
-            "min-w-0 flex-1 truncate text-[13px] text-foreground",
-            active && "font-medium"
-          )}
-        >
+        <span className={cn("min-w-0 flex-1 truncate text-[13px] text-foreground", active && "font-medium")}>
           {group.label}
         </span>
         {group.sources.length > 1 && (

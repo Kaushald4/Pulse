@@ -52,9 +52,7 @@ export async function ensureJobSchema(db: any): Promise<void> {
       generated_at TEXT NOT NULL
     );
   `);
-  await db.execute(
-    `CREATE INDEX IF NOT EXISTS idx_job_resume_drafts_job ON job_resume_drafts(job_id);`
-  );
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_job_resume_drafts_job ON job_resume_drafts(job_id);`);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS job_cover_letters (
@@ -65,9 +63,7 @@ export async function ensureJobSchema(db: any): Promise<void> {
       generated_at TEXT NOT NULL
     );
   `);
-  await db.execute(
-    `CREATE INDEX IF NOT EXISTS idx_job_cover_letters_job ON job_cover_letters(job_id);`
-  );
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_job_cover_letters_job ON job_cover_letters(job_id);`);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS job_sources (

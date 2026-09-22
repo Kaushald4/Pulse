@@ -66,14 +66,7 @@ import { toast } from "../lib/toast";
 import { useJobs } from "./jobs";
 
 export type NavigationTab =
-  | "today"
-  | "feed"
-  | "resources"
-  | "projects"
-  | "jobs"
-  | "sources"
-  | "logs"
-  | "settings";
+  "today" | "feed" | "resources" | "projects" | "jobs" | "sources" | "logs" | "settings";
 
 const EMPTY_STATS: PulseStats = {
   total: 0,
@@ -217,17 +210,33 @@ interface PulseStore {
 }
 
 function preferenceScore(item: PulseItem, preferences: SignalPreference[], watchlists: Watchlist[]): number {
-  const matches = preferences.filter((preference) =>
-    (preference.kind === "topic" && preference.value.toLowerCase() === (item.topic ?? "").toLowerCase()) ||
-    (preference.kind === "source" && preference.value.toLowerCase() === item.source.toLowerCase()) ||
-    (preference.kind === "field" && preference.value === item.field)
+  const matches = preferences.filter(
+    (preference) =>
+      (preference.kind === "topic" && preference.value.toLowerCase() === (item.topic ?? "").toLowerCase()) ||
+      (preference.kind === "source" && preference.value.toLowerCase() === item.source.toLowerCase()) ||
+      (preference.kind === "field" && preference.value === item.field)
   );
-  const watchBoost = watchlists.filter((watchlist) => watchlist.enabled && [item.title, item.body ?? "", item.topic ?? "", ...item.tags].join(" ").toLowerCase().includes(watchlist.query.toLowerCase())).length;
+  const watchBoost = watchlists.filter(
+    (watchlist) =>
+      watchlist.enabled &&
+      [item.title, item.body ?? "", item.topic ?? "", ...item.tags]
+        .join(" ")
+        .toLowerCase()
+        .includes(watchlist.query.toLowerCase())
+  ).length;
   return matches.reduce((total, preference) => total + preference.weight, 0) + watchBoost * 0.3;
 }
 
-function personalize(items: PulseItem[], preferences: SignalPreference[], watchlists: Watchlist[]): PulseItem[] {
-  return [...items].sort((a, b) => preferenceScore(b, preferences, watchlists) - preferenceScore(a, preferences, watchlists) || new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+function personalize(
+  items: PulseItem[],
+  preferences: SignalPreference[],
+  watchlists: Watchlist[]
+): PulseItem[] {
+  return [...items].sort(
+    (a, b) =>
+      preferenceScore(b, preferences, watchlists) - preferenceScore(a, preferences, watchlists) ||
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
 }
 
 /**
@@ -324,7 +333,12 @@ export const usePulse = create<PulseStore>((set, get) => ({
     set({ desktop });
 
     const [config, sources, preferences, watchlists, projects, stored] = await Promise.all([
-      getConfig(), getSources(), getSignalPreferences(), getWatchlists(), getProjects(), getSchedule(),
+      getConfig(),
+      getSources(),
+      getSignalPreferences(),
+      getWatchlists(),
+      getProjects(),
+      getSchedule(),
     ]);
 
     // Arming the timer also returns when it will next run, which is the only
@@ -350,7 +364,7 @@ export const usePulse = create<PulseStore>((set, get) => ({
     if (desktop && storage.mode === "browser") {
       toast.error(
         "Running on browser storage, not SQLite",
-        "Pulse could not open its database, so your library is in the browser store for now. See Settings, About.",
+        "Pulse could not open its database, so your library is in the browser store for now. See Settings, About."
       );
     }
 
@@ -362,7 +376,19 @@ export const usePulse = create<PulseStore>((set, get) => ({
   refresh: async () => {
     const { filters } = get();
     const since = startOfToday();
-    const [rawItems, stats, topicSummary, resources, briefing, todayItems, newItems, preferences, watchlists, projects, schedule] = await Promise.all([
+    const [
+      rawItems,
+      stats,
+      topicSummary,
+      resources,
+      briefing,
+      todayItems,
+      newItems,
+      preferences,
+      watchlists,
+      projects,
+      schedule,
+    ] = await Promise.all([
       queryItems(toQuery(filters)),
       getPulseStats(),
       getTopicSummary(),
@@ -382,15 +408,25 @@ export const usePulse = create<PulseStore>((set, get) => ({
     const items = personalize(rawItems, preferences, watchlists);
     const personalizedToday = personalize(todayItems, preferences, watchlists);
     const personalizedNewItems = personalize(newItems, preferences, watchlists);
-    set({ items, stats, topicSummary, resources, briefing, todayItems: personalizedToday, newItems: personalizedNewItems, preferences, watchlists, projects, schedule });
+    set({
+      items,
+      stats,
+      topicSummary,
+      resources,
+      briefing,
+      todayItems: personalizedToday,
+      newItems: personalizedNewItems,
+      preferences,
+      watchlists,
+      projects,
+      schedule,
+    });
 
     // A sync can collect an item whose publication date predates today. Keep
     // those newly collected items visible in the widget without changing the
     // meaning of the in-app Today view.
     const widgetItems = Array.from(
-      new Map(
-        [...personalizedToday, ...personalizedNewItems].map((item) => [item.id, item]),
-      ).values(),
+      new Map([...personalizedToday, ...personalizedNewItems].map((item) => [item.id, item])).values()
     );
     void publishWidgetSnapshot(
       widgetItems.slice(0, 8).map((item) => ({
@@ -404,7 +440,11 @@ export const usePulse = create<PulseStore>((set, get) => ({
   },
 
   refreshItems: async () => {
-    const [items, preferences, watchlists] = await Promise.all([queryItems(toQuery(get().filters)), getSignalPreferences(), getWatchlists()]);
+    const [items, preferences, watchlists] = await Promise.all([
+      queryItems(toQuery(get().filters)),
+      getSignalPreferences(),
+      getWatchlists(),
+    ]);
     set({ items: personalize(items, preferences, watchlists), preferences, watchlists });
   },
 
@@ -588,10 +628,18 @@ export const usePulse = create<PulseStore>((set, get) => ({
     const item = get().items.find((entry) => entry.id === id);
     if (!item) return;
     const direction = kind === "more_like_this" ? 1 : -1;
-    const dimensions: Array<[SignalPreference["kind"], string | null]> = [["topic", item.topic ?? null], ["source", item.source], ["field", item.field]];
-    for (const [dimension, value] of dimensions) if (value) await recordSignalFeedback(dimension, value, direction);
+    const dimensions: Array<[SignalPreference["kind"], string | null]> = [
+      ["topic", item.topic ?? null],
+      ["source", item.source],
+      ["field", item.field],
+    ];
+    for (const [dimension, value] of dimensions)
+      if (value) await recordSignalFeedback(dimension, value, direction);
     await get().refresh();
-    toast.success(kind === "more_like_this" ? "Signal preference updated" : "Signal de-emphasized", "Pulse will use this feedback in future rankings.");
+    toast.success(
+      kind === "more_like_this" ? "Signal preference updated" : "Signal de-emphasized",
+      "Pulse will use this feedback in future rankings."
+    );
   },
 
   addWatchlist: async (name, query) => {

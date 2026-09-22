@@ -182,7 +182,11 @@ export const INITIAL_SAMPLE_ITEMS: PulseItem[] = [
     whyKey: "other",
     why: "Notable development",
     extractedResources: [
-      { type: "repo", name: "e2b-dev/awesome-ai-agents", url: "https://github.com/e2b-dev/awesome-ai-agents" },
+      {
+        type: "repo",
+        name: "e2b-dev/awesome-ai-agents",
+        url: "https://github.com/e2b-dev/awesome-ai-agents",
+      },
     ],
     createdAt: new Date().toISOString(),
   },
@@ -490,8 +494,16 @@ export const DEFAULT_SOURCES: SourceConnection[] = [
     { id: "the-decoder", name: "The Decoder", feedUrl: "https://the-decoder.com/feed/" },
     { id: "syncedreview", name: "Synced", feedUrl: "https://syncedreview.com/feed/" },
     { id: "kdnuggets", name: "KDnuggets", feedUrl: "https://www.kdnuggets.com/feed" },
-    { id: "towardsdatascience", name: "Towards Data Science", feedUrl: "https://towardsdatascience.com/feed/" },
-    { id: "nvidia-dev-blog", name: "NVIDIA Developer Blog", feedUrl: "https://developer.nvidia.com/blog/feed" },
+    {
+      id: "towardsdatascience",
+      name: "Towards Data Science",
+      feedUrl: "https://towardsdatascience.com/feed/",
+    },
+    {
+      id: "nvidia-dev-blog",
+      name: "NVIDIA Developer Blog",
+      feedUrl: "https://developer.nvidia.com/blog/feed",
+    },
     { id: "github-blog", name: "GitHub Blog", feedUrl: "https://github.blog/feed/" },
     { id: "hn-frontpage", name: "Hacker News (RSS)", feedUrl: "https://news.ycombinator.com/rss" },
     { id: "stackoverflow-blog", name: "Stack Overflow Blog", feedUrl: "https://stackoverflow.blog/feed/" },
@@ -500,16 +512,14 @@ export const DEFAULT_SOURCES: SourceConnection[] = [
     { id: "css-tricks", name: "CSS-Tricks", feedUrl: "https://css-tricks.com/feed/" },
     { id: "freecodecamp", name: "freeCodeCamp", feedUrl: "https://www.freecodecamp.org/news/rss/" },
     { id: "sitepoint", name: "SitePoint", feedUrl: "https://www.sitepoint.com/sitepoint.rss" },
-  ].map(
-    (feed): SourceConnection => ({
-      id: feed.id,
-      source: "rss",
-      name: feed.name,
-      authType: "public_api",
-      isConnected: true,
-      monitoredChannels: [new URL(feed.feedUrl).hostname.replace(/^www\./, "")],
-      options: { feedUrl: feed.feedUrl, limit: 15 },
-      enabled: true,
-    })
-  ),
+  ].map((feed): SourceConnection => ({
+    id: feed.id,
+    source: "rss",
+    name: feed.name,
+    authType: "public_api",
+    isConnected: true,
+    monitoredChannels: [new URL(feed.feedUrl).hostname.replace(/^www\./, "")],
+    options: { feedUrl: feed.feedUrl, limit: 15 },
+    enabled: true,
+  })),
 ];

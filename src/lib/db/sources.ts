@@ -15,10 +15,7 @@ const AUTH_ERROR_RE = /login wall|requires authentication|re-authenticate|not lo
  * default - so improved defaults reach existing installs while real user
  * choices are never overwritten.
  */
-function mergeSourceDefaults(
-  source: SourceConnection,
-  saved: SourceConnection
-): SourceConnection {
+function mergeSourceDefaults(source: SourceConnection, saved: SourceConnection): SourceConnection {
   return {
     ...saved,
     options: { ...source.options, ...saved.options },
@@ -101,7 +98,7 @@ export async function recordSyncResult(
     entry.source === source || entry.id === source
       ? {
           ...entry,
-          lastSyncAt: result.ok ? result.lastSyncAt ?? new Date().toISOString() : entry.lastSyncAt,
+          lastSyncAt: result.ok ? (result.lastSyncAt ?? new Date().toISOString()) : entry.lastSyncAt,
           // A successful sync is the only real proof the saved profile works.
           // A directory existing proves nothing, so we never infer from that.
           isConnected: result.ok ? true : authFailure ? false : entry.isConnected,

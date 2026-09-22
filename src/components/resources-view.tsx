@@ -100,8 +100,8 @@ export function ResourcesView() {
             // resource, and only then the identifier.
             const heading =
               resource.type === "repo"
-                ? resource.name ?? preview?.title ?? resource.url
-                : preview?.title ?? (isSelf ? item?.title : null) ?? resource.name ?? resource.url;
+                ? (resource.name ?? preview?.title ?? resource.url)
+                : (preview?.title ?? (isSelf ? item?.title : null) ?? resource.name ?? resource.url);
             // Don't repeat the host when it already is the heading.
             const showHost = heading !== hostnameOf(resource.url);
 
@@ -140,9 +140,7 @@ export function ResourcesView() {
                   </div>
 
                   {description && (
-                    <p className="line-clamp-2 text-[13px] leading-5 text-muted-foreground">
-                      {description}
-                    </p>
+                    <p className="line-clamp-2 text-[13px] leading-5 text-muted-foreground">{description}</p>
                   )}
 
                   {hasStats && item && (
@@ -181,9 +179,12 @@ export function ResourcesView() {
           })}
         </div>
       )}
-      
+
       {hasMore && (
-        <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
+        <div
+          ref={sentinelRef}
+          className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground"
+        >
           Loading more...
         </div>
       )}

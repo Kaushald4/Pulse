@@ -4,13 +4,7 @@
  * Every job module reads rows through here, so a column rename only has to be
  * handled in one place.
  */
-import type {
-  BaseResume,
-  GeneratedResume,
-  Job,
-  JobCoverLetter,
-  JobSource,
-} from "../jobs/types";
+import type { BaseResume, GeneratedResume, Job, JobCoverLetter, JobSource } from "../jobs/types";
 
 export const LS_JOBS = "pulse_jobs_v1";
 export const LS_JOB_RESUMES = "pulse_job_resumes_v1";

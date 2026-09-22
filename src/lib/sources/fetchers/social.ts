@@ -73,7 +73,9 @@ export async function fetchTwitter(profile: string, options: SourceOptions): Pro
   const batches: any[][] = [];
   if (mode === "search") {
     for (const query of list(options.queries, ["AI agents"], 5)) {
-      batches.push(await runHelmsman("twitter", ["search", profile, query, "--sort", "top", "--limit", String(limit)]));
+      batches.push(
+        await runHelmsman("twitter", ["search", profile, query, "--sort", "top", "--limit", String(limit)])
+      );
     }
   } else {
     batches.push(await runHelmsman("twitter", ["feed", profile, "--limit", String(limit)]));

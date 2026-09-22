@@ -1,4 +1,13 @@
-import type { DailyBriefing, ItemState, PulseItem, Project, PulseSchedule, SignalPreference, SourceConnection, Watchlist } from "./types";
+import type {
+  DailyBriefing,
+  ItemState,
+  PulseItem,
+  Project,
+  PulseSchedule,
+  SignalPreference,
+  SourceConnection,
+  Watchlist,
+} from "./types";
 import { getAllBriefings, saveBriefing } from "./db/briefings";
 import { queryItems, upsertItems } from "./db/items";
 import {
@@ -99,9 +108,7 @@ function sanitizeItem(raw: unknown): PulseItem | null {
   const source = str(raw.source);
   if (!id || !title || !url || !source) return null;
 
-  const state = (["inbox", "saved", "important", "archived"] as ItemState[]).includes(
-    raw.state as ItemState
-  )
+  const state = (["inbox", "saved", "important", "archived"] as ItemState[]).includes(raw.state as ItemState)
     ? (raw.state as ItemState)
     : "inbox";
 
@@ -109,10 +116,11 @@ function sanitizeItem(raw: unknown): PulseItem | null {
     ? (raw.category as PulseItem["category"])
     : "news";
 
-  const num = (value: unknown): number =>
-    typeof value === "number" && Number.isFinite(value) ? value : 0;
+  const num = (value: unknown): number => (typeof value === "number" && Number.isFinite(value) ? value : 0);
 
-  const tags = Array.isArray(raw.tags) ? raw.tags.filter((tag): tag is string => typeof tag === "string") : [];
+  const tags = Array.isArray(raw.tags)
+    ? raw.tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
 
   return {
     id,

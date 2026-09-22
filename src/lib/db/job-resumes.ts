@@ -154,9 +154,7 @@ export async function getCoverLetter(id: string): Promise<JobCoverLetter | null>
     const rows = (await db.select(`SELECT * FROM job_cover_letters WHERE id = $1;`, [id])) as any[];
     return rows[0] ? rowToCoverLetter(rows[0]) : null;
   }
-  return (
-    readLocal<JobCoverLetter[]>(LS_JOB_COVER_LETTERS, []).find((letter) => letter.id === id) ?? null
-  );
+  return readLocal<JobCoverLetter[]>(LS_JOB_COVER_LETTERS, []).find((letter) => letter.id === id) ?? null;
 }
 
 export async function getCoverLetters(jobId: string): Promise<JobCoverLetter[]> {

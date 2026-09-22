@@ -60,9 +60,7 @@ export function InstallTerminal({ lines, running }: { lines: TerminalLine[]; run
         ) : (
           lines.map((line) => (
             <div key={line.id} className="flex gap-2 whitespace-pre-wrap break-words">
-              <span className="shrink-0 select-none text-muted-foreground/60">
-                {GLYPH[line.phase]}
-              </span>
+              <span className="shrink-0 select-none text-muted-foreground/60">{GLYPH[line.phase]}</span>
               <span className={cn("min-w-0 flex-1", TONE[line.phase])}>{line.text}</span>
             </div>
           ))

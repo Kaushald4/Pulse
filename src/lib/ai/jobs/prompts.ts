@@ -41,8 +41,7 @@ const TONE_TARGET: Record<CoverLetterTone, string> = {
   standard: "Natural, plain, confident. Vary sentence length. Cut hedging and filler.",
   professional:
     "Polished and businesslike, but not stiff - the register you'd use writing to a colleague you respect.",
-  academic:
-    "Precise, measured, formal register, no contractions - but still readable, not padded.",
+  academic: "Precise, measured, formal register, no contractions - but still readable, not padded.",
   casual: "Relaxed and conversational, contractions fine, like explaining it to a friend over coffee.",
 };
 

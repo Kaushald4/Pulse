@@ -1,7 +1,19 @@
 "use client";
 
 import React from "react";
-import { Newspaper, Layers, Bookmark, Sparkles, ArrowRight, Flame, RefreshCw, Inbox, Clock, CheckCircle2, Circle } from "lucide-react";
+import {
+  Newspaper,
+  Layers,
+  Bookmark,
+  Sparkles,
+  ArrowRight,
+  Flame,
+  RefreshCw,
+  Inbox,
+  Clock,
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -52,9 +64,10 @@ export function DashboardView() {
     [basisItems]
   );
 
-  const topItems = (
-    field === "all" ? basisItems : basisItems.filter((item) => item.field === field)
-  ).slice(0, 8);
+  const topItems = (field === "all" ? basisItems : basisItems.filter((item) => item.field === field)).slice(
+    0,
+    8
+  );
 
   const fieldTabs: Array<{ id: ContentField; label: string; count: number }> = [
     { id: "all", label: "All", count: counts.all ?? 0 },
@@ -69,11 +82,15 @@ export function DashboardView() {
   const showTopics = (topicSummary?.topics.length ?? 0) > 0;
   const hasModel = Boolean(
     (config.cloudflare?.apiToken && config.cloudflare?.accountId) ||
-      config.openrouter?.apiKey ||
-      (config.openaiCompatible?.apiKey && config.openaiCompatible?.baseUrl)
+    config.openrouter?.apiKey ||
+    (config.openaiCompatible?.apiKey && config.openaiCompatible?.baseUrl)
   );
   const setupSteps = [
-    { label: "Connect a source", done: sources.some((source) => source.lastSyncAt), view: "sources" as const },
+    {
+      label: "Connect a source",
+      done: sources.some((source) => source.lastSyncAt),
+      view: "sources" as const,
+    },
     { label: "Configure an AI provider", done: hasModel, view: "settings" as const },
     { label: "Collect your first items", done: stats.total > 0, view: "feed" as const },
   ];
@@ -137,7 +154,8 @@ export function DashboardView() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm">Set up your signal desk</CardTitle>
             <p className="text-[13px] leading-5 text-muted-foreground">
-              Pulse becomes useful after one source sync. These three steps are enough to get your first briefing.
+              Pulse becomes useful after one source sync. These three steps are enough to get your first
+              briefing.
             </p>
           </CardHeader>
           <CardContent className="grid gap-2 sm:grid-cols-3">
@@ -148,8 +166,14 @@ export function DashboardView() {
                 onClick={() => setView(step.view)}
                 className="flex items-center gap-2 rounded-md border border-border px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-accent"
               >
-                {step.done ? <CheckCircle2 className="size-4 shrink-0 text-success" /> : <Circle className="size-4 shrink-0 text-muted-foreground" />}
-                <span className={step.done ? "text-muted-foreground line-through" : "text-foreground"}>{step.label}</span>
+                {step.done ? (
+                  <CheckCircle2 className="size-4 shrink-0 text-success" />
+                ) : (
+                  <Circle className="size-4 shrink-0 text-muted-foreground" />
+                )}
+                <span className={step.done ? "text-muted-foreground line-through" : "text-foreground"}>
+                  {step.label}
+                </span>
                 {!step.done && <ArrowRight className="ml-auto size-3.5 text-muted-foreground" />}
               </button>
             ))}
@@ -243,8 +267,8 @@ export function DashboardView() {
                   basisItems.length > 0
                     ? "Nothing in this category today"
                     : basis === "published"
-                    ? "Nothing published today yet"
-                    : "Nothing new to Pulse today"
+                      ? "Nothing published today yet"
+                      : "Nothing new to Pulse today"
                 }
                 description={
                   basisItems.length > 0 ? (

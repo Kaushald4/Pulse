@@ -1,0 +1,26 @@
+# Build output and dependencies
+node_modules
+.next
+out
+landing/dist
+src-tauri/target
+src-tauri/gen
+native/macos/.build
+
+# Vendored, and deliberately kept byte-identical to upstream so it can be
+# diffed against it. Reformatting these would make that impossible.
+jobs/providers
+
+# Static assets, including a minified worker that is not source.
+public
+
+# Generated and lockfiles
+pnpm-lock.yaml
+next-env.d.ts
+
+# Prose is written by hand and Prettier would reflow it
+*.md
+
+# The landing page markup is hand-written and tuned by eye. Reflowing it risks
+# inline whitespace, so it stays as it is.
+landing/*.html

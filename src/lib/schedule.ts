@@ -32,9 +32,7 @@ export function toIso(ms: number | null | undefined): string | null {
 }
 
 /** Points the timer at a schedule, and reports what it will actually do. */
-export async function configureSchedule(
-  schedule: PulseSchedule,
-): Promise<SchedulerStatus | null> {
+export async function configureSchedule(schedule: PulseSchedule): Promise<SchedulerStatus | null> {
   if (!isTauriEnv()) return null;
 
   try {

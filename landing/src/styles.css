@@ -381,7 +381,9 @@
     font-size: 14px;
     font-weight: 500;
     border-radius: var(--radius-md);
-    transition: background-color 0.15s ease, transform 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
   }
   .btn-primary:hover {
     background-color: var(--color-brand-ink);
@@ -403,7 +405,9 @@
     font-size: 14px;
     font-weight: 500;
     border-radius: var(--radius-md);
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
   }
   .btn-secondary:hover {
     border-color: color-mix(in oklab, var(--color-ink) 30%, transparent);
@@ -435,11 +439,7 @@
     top: -120px;
     height: 620px;
     pointer-events: none;
-    background: radial-gradient(
-      55% 100% at 50% 0%,
-      var(--color-wash) 0%,
-      transparent 70%
-    );
+    background: radial-gradient(55% 100% at 50% 0%, var(--color-wash) 0%, transparent 70%);
   }
 
   /* -------------------------------------------------- sources → desk → output */
@@ -543,7 +543,9 @@
   .js .reveal.is-visible {
     opacity: 1;
     transform: none;
-    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
   @media (prefers-reduced-motion: reduce) {
     .js .reveal,

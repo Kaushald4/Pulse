@@ -65,7 +65,6 @@ export async function getItemsNeedingMetadata(limit = 40): Promise<PulseItem[]> 
 /* Link previews (URL-keyed)                                                   */
 /* -------------------------------------------------------------------------- */
 
-
 /** Every captured link preview, keyed by URL. */
 export async function getLinkPreviews(): Promise<Map<string, ResourcePreview>> {
   const db = await getDatabase();

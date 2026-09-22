@@ -15,7 +15,9 @@ export interface HeuristicResult {
  * the URL and keywords, and resources are parsed straight out of the URL. The UI
  * labels results from this path as heuristic so they are never mistaken for Jev.
  */
-export function heuristicClassify(item: Pick<PulseItem, "title" | "body" | "url" | "source">): HeuristicResult {
+export function heuristicClassify(
+  item: Pick<PulseItem, "title" | "body" | "url" | "source">
+): HeuristicResult {
   const text = `${item.title} ${item.body ?? ""} ${item.url}`.toLowerCase();
 
   let category: HeuristicResult["category"] = "news";

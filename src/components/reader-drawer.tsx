@@ -265,10 +265,28 @@ export function ReaderDrawer() {
           </div>
 
           <div className="mt-5 space-y-2 rounded-md border border-border p-3">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Tune your feed</div>
+            <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Tune your feed
+            </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => void recordFeedback(item.id, "more_like_this")} className="gap-1.5"><ThumbsUp className="size-3.5" />More like this</Button>
-              <Button variant="outline" size="sm" onClick={() => void recordFeedback(item.id, "less_like_this")} className="gap-1.5"><ThumbsDown className="size-3.5" />Less like this</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void recordFeedback(item.id, "more_like_this")}
+                className="gap-1.5"
+              >
+                <ThumbsUp className="size-3.5" />
+                More like this
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void recordFeedback(item.id, "less_like_this")}
+                className="gap-1.5"
+              >
+                <ThumbsDown className="size-3.5" />
+                Less like this
+              </Button>
             </div>
           </div>
 

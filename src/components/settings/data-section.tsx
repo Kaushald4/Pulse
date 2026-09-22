@@ -28,11 +28,21 @@ export function DataSection({ desktop }: { desktop: boolean }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => void exportLibrary()} disabled={!desktop} className="gap-1.5">
+          <Button
+            variant="outline"
+            onClick={() => void exportLibrary()}
+            disabled={!desktop}
+            className="gap-1.5"
+          >
             <Upload className="size-3.5" />
             Export a copy
           </Button>
-          <Button variant="outline" onClick={() => void importLibrary()} disabled={!desktop} className="gap-1.5">
+          <Button
+            variant="outline"
+            onClick={() => void importLibrary()}
+            disabled={!desktop}
+            className="gap-1.5"
+          >
             <Download className="size-3.5" />
             Import from a file
           </Button>
@@ -43,15 +53,19 @@ export function DataSection({ desktop }: { desktop: boolean }) {
         <CardHeader>
           <CardTitle>Reset</CardTitle>
           <CardDescription>
-            Clears every collected item, saved job, briefing and run record. Your
-            sources, job boards, resume and model choices are kept.
+            Clears every collected item, saved job, briefing and run record. Your sources, job boards, resume
+            and model choices are kept.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Button
             variant="outline"
             onClick={() => {
-              if (window.confirm("Delete all collected items, saved jobs, briefings and run history? Your sources, job boards and resume are kept. This cannot be undone.")) {
+              if (
+                window.confirm(
+                  "Delete all collected items, saved jobs, briefings and run history? Your sources, job boards and resume are kept. This cannot be undone."
+                )
+              ) {
                 void wipeData();
               }
             }}

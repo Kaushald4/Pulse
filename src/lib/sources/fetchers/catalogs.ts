@@ -10,13 +10,7 @@ import { count, one } from "../options";
 export async function fetchArxiv(options: SourceOptions): Promise<PulseItem[]> {
   const category = one(options.category, "cs.AI");
   const limit = count(options.limit, 15);
-  const papers = await runHelmsman("arxiv", [
-    "papers",
-    "--category",
-    category,
-    "--limit",
-    String(limit),
-  ]);
+  const papers = await runHelmsman("arxiv", ["papers", "--category", category, "--limit", String(limit)]);
 
   return papers
     .map((paper) => {
@@ -161,4 +155,3 @@ export async function fetchGithub(options: SourceOptions): Promise<PulseItem[]> 
     })
   );
 }
-

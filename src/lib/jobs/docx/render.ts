@@ -123,7 +123,9 @@ function buildBody(lines: string[]): Paragraph[] {
       children.push(
         new Paragraph({
           spacing: { before: 60, after: 100 },
-          children: [new TextRun({ text: line, font: FONT, size: HEADING_SIZE, bold: true, color: HEADING_COLOR })],
+          children: [
+            new TextRun({ text: line, font: FONT, size: HEADING_SIZE, bold: true, color: HEADING_COLOR }),
+          ],
         })
       );
       currentSection = line.toLowerCase();
@@ -159,7 +161,8 @@ function buildBody(lines: string[]): Paragraph[] {
 
     // Company line followed by "Title | Date range" - the two-line job header.
     const next = lines[index + 1];
-    const nextTitleDate = next && !isHeadingLine(next) && !next.startsWith("- ") ? parseTitleDate(next) : null;
+    const nextTitleDate =
+      next && !isHeadingLine(next) && !next.startsWith("- ") ? parseTitleDate(next) : null;
     if (nextTitleDate && !parseTitleDate(line) && !isHeadingLine(line) && !line.startsWith("- ")) {
       children.push(companyParagraph(line));
       children.push(titleDateParagraph(nextTitleDate.title, nextTitleDate.date));

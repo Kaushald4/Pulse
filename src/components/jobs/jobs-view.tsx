@@ -66,12 +66,7 @@ export function JobsView() {
             <Sparkles className={cn("size-3.5", scoring && "animate-pulse")} />
             {scoring ? "Scoring…" : counts.unscored > 0 ? `Score ${counts.unscored}` : "Score"}
           </Button>
-          <Button
-            size="sm"
-            onClick={() => void scan()}
-            disabled={scanning || scoring}
-            className="gap-1.5"
-          >
+          <Button size="sm" onClick={() => void scan()} disabled={scanning || scoring} className="gap-1.5">
             <RefreshCw className={cn("size-3.5", scanning && "animate-spin")} />
             {scanning ? "Scanning…" : "Scan"}
           </Button>
@@ -80,11 +75,7 @@ export function JobsView() {
 
       <BaseResumePanel />
       <ScanProgress />
-      <JobsToolbar
-        filter={filter}
-        counts={counts}
-        onChange={(patch) => void setFilter(patch)}
-      />
+      <JobsToolbar filter={filter} counts={counts} onChange={(patch) => void setFilter(patch)} />
 
       {!ready ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

@@ -115,12 +115,9 @@ function finalize(
   const whyKey = pick(raw.whyKey, WHY_OPTIONS, "other");
 
   const signal =
-    typeof raw.signalLevel === "number"
-      ? clamp01(raw.signalLevel / (SIGNAL_LEVELS.length - 1))
-      : null;
+    typeof raw.signalLevel === "number" ? clamp01(raw.signalLevel / (SIGNAL_LEVELS.length - 1)) : null;
 
-  const primarySource =
-    typeof raw.primary === "boolean" ? raw.primary : null;
+  const primarySource = typeof raw.primary === "boolean" ? raw.primary : null;
 
   return {
     category,
@@ -235,7 +232,12 @@ function addUsage(total: Usage, usage?: RawUsage): void {
 async function classifyWithJev(
   items: PulseItem[],
   model: string
-): Promise<{ classifications: Map<string, Classification>; errors: string[]; models: string[]; usage: Usage }> {
+): Promise<{
+  classifications: Map<string, Classification>;
+  errors: string[];
+  models: string[];
+  usage: Usage;
+}> {
   const classifications = new Map<string, Classification>();
   const errors: string[] = [];
   const models: string[] = [];
@@ -363,7 +365,12 @@ interface LlmClassificationPayload {
 async function classifyWithLlm(
   items: PulseItem[],
   model: string
-): Promise<{ classifications: Map<string, Classification>; errors: string[]; models: string[]; usage: Usage }> {
+): Promise<{
+  classifications: Map<string, Classification>;
+  errors: string[];
+  models: string[];
+  usage: Usage;
+}> {
   const classifications = new Map<string, Classification>();
   const errors: string[] = [];
   const models: string[] = [];

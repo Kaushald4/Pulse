@@ -138,8 +138,8 @@ export function ProvidersSection({
       </Card>
 
       <Hint>
-        Keys are stored in <span className="font-mono">~/.pulse/config.json</span> on this machine and are used
-        by the app&rsquo;s backend when it makes a request - they are never built into the app.
+        Keys are stored in <span className="font-mono">~/.pulse/config.json</span> on this machine and are
+        used by the app&rsquo;s backend when it makes a request - they are never built into the app.
       </Hint>
     </div>
   );

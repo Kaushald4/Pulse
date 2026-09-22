@@ -92,7 +92,6 @@ export async function applyClassifications(updates: ClassificationUpdate[]): Pro
   writeLocal(LS_ITEMS, store);
 }
 
-
 export async function applyReasons(reasons: Map<string, string>): Promise<void> {
   if (reasons.size === 0) return;
   const db = await getDatabase();
@@ -115,4 +114,3 @@ export async function applyReasons(reasons: Map<string, string>): Promise<void> 
 /* -------------------------------------------------------------------------- */
 /* Stats + topics + resources                                                  */
 /* -------------------------------------------------------------------------- */
-

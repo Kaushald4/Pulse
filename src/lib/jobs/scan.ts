@@ -35,9 +35,7 @@ export function markScanStopped(): void {
   stopped = true;
 }
 
-export async function scanJobs(
-  onProgress?: (progress: JobScanProgress) => void
-): Promise<JobScanReport> {
+export async function scanJobs(onProgress?: (progress: JobScanProgress) => void): Promise<JobScanReport> {
   const errors: string[] = [];
   let found = 0;
   let boards = 0;

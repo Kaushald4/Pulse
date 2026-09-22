@@ -105,7 +105,9 @@ export function SettingsView() {
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex shrink-0 items-start gap-2.5 rounded-lg px-3 py-2 text-left transition-colors",
-                  isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  isActive
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <Icon className={cn("mt-0.5 size-4 shrink-0", isActive && "text-primary")} />

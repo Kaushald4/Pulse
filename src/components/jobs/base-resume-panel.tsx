@@ -48,7 +48,13 @@ export function BaseResumePanel() {
         </div>
       </div>
 
-      <Button variant="outline" size="sm" onClick={() => void upload()} disabled={busy} className="shrink-0 gap-1.5">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => void upload()}
+        disabled={busy}
+        className="shrink-0 gap-1.5"
+      >
         <Upload className="size-3.5" />
         {busy ? "Reading…" : resume ? "Replace" : "Upload resume"}
       </Button>

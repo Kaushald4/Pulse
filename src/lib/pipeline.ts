@@ -124,7 +124,12 @@ export async function enrichPendingItems(): Promise<EnrichReport> {
       inputTokens: classification.inputTokens,
       outputTokens: classification.outputTokens,
     });
-    return { classified: 0, errors, inputTokens: classification.inputTokens, outputTokens: classification.outputTokens };
+    return {
+      classified: 0,
+      errors,
+      inputTokens: classification.inputTokens,
+      outputTokens: classification.outputTokens,
+    };
   }
 
   const updates: ClassificationUpdate[] = [];

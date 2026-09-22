@@ -66,7 +66,7 @@ export default function PulseApp() {
   }, [ready]);
 
   React.useEffect(() => {
-    if (!ready || !('__TAURI_INTERNALS__' in window)) return;
+    if (!ready || !("__TAURI_INTERNALS__" in window)) return;
     let unlisten: Array<() => void> = [];
     void import("@tauri-apps/api/event").then(({ listen }) =>
       Promise.all([
@@ -89,7 +89,10 @@ export default function PulseApp() {
 
           if (current.schedule.notify) {
             const { invoke } = await import("@tauri-apps/api/core");
-            await invoke("send_notification", { title: "Pulse sync complete", body: "Your signal desk has fresh items to review." });
+            await invoke("send_notification", {
+              title: "Pulse sync complete",
+              body: "Your signal desk has fresh items to review.",
+            });
           }
         }),
       ]).then((cleanups) => {
@@ -164,9 +167,7 @@ export default function PulseApp() {
   ]);
 
   if (setup && !setup.complete) {
-    return (
-      <InstallerView status={setup} onDone={() => setSetup({ ...setup, complete: true })} />
-    );
+    return <InstallerView status={setup} onDone={() => setSetup({ ...setup, complete: true })} />;
   }
 
   return (

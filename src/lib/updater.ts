@@ -99,9 +99,7 @@ export interface InstallProgress {
  * on macOS. Calling it there is required: without it the user keeps looking at
  * the old process until they quit and reopen.
  */
-export async function installUpdate(
-  onProgress?: (progress: InstallProgress) => void
-): Promise<void> {
+export async function installUpdate(onProgress?: (progress: InstallProgress) => void): Promise<void> {
   const { check } = await import("@tauri-apps/plugin-updater");
   const update = await check({ timeout: 30000 });
   if (!update) throw new Error("That update is no longer available.");

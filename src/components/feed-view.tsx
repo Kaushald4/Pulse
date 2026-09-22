@@ -34,14 +34,13 @@ export function FeedView() {
     filters.field !== "all" ||
     filters.state !== "all";
 
-  const heading =
-    filters.tag
-      ? `#${filters.tag}`
-      : filters.category !== "all"
+  const heading = filters.tag
+    ? `#${filters.tag}`
+    : filters.category !== "all"
       ? CATEGORY_LABELS[filters.category]
       : filters.state !== "all"
-      ? STATE_LABELS[filters.state]
-      : "Feed";
+        ? STATE_LABELS[filters.state]
+        : "Feed";
 
   // Another filter is another list, so the window starts over.
   const { visibleCount, hasMore, sentinelRef } = useProgressiveList(items.length, {
@@ -97,7 +96,12 @@ export function FeedView() {
                 Reset filters
               </Button>
             ) : (
-              <Button size="sm" onClick={() => void syncAll()} disabled={syncing || !desktop} className="gap-1.5">
+              <Button
+                size="sm"
+                onClick={() => void syncAll()}
+                disabled={syncing || !desktop}
+                className="gap-1.5"
+              >
                 <RefreshCw className={syncing ? "size-3.5 animate-spin" : "size-3.5"} />
                 {syncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -115,7 +119,10 @@ export function FeedView() {
             />
           ))}
           {hasMore && (
-            <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground">
+            <div
+              ref={sentinelRef}
+              className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground"
+            >
               Loading more...
             </div>
           )}

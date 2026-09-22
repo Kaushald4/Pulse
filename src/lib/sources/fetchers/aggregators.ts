@@ -64,9 +64,7 @@ export async function fetchHackerNewsSearch(options: SourceOptions): Promise<Pul
           title,
           url,
           author: text(story.author) || null,
-          authorUrl: story.author
-            ? `https://news.ycombinator.com/user?id=${text(story.author)}`
-            : null,
+          authorUrl: story.author ? `https://news.ycombinator.com/user?id=${text(story.author)}` : null,
           score: Number(story.points) || 0,
           commentsCount: Number(story.commentCount) || 0,
           publishedAt: toIso(story.publishedAt),

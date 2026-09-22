@@ -54,8 +54,8 @@ export function Header() {
           {syncing && syncProgress
             ? `Syncing ${syncProgress.index}/${syncProgress.total}`
             : syncing
-            ? "Syncing…"
-            : "Sync"}
+              ? "Syncing…"
+              : "Sync"}
         </span>
       </Button>
 

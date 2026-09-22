@@ -56,10 +56,7 @@ export function InstallSteps({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <span
-                  className={cn(
-                    "text-[13px] font-medium",
-                    failed ? "text-destructive" : "text-foreground"
-                  )}
+                  className={cn("text-[13px] font-medium", failed ? "text-destructive" : "text-foreground")}
                 >
                   {step.title}
                 </span>
@@ -74,15 +71,11 @@ export function InstallSteps({
               </div>
               <p className="mt-0.5 text-[12px] leading-4 text-muted-foreground">{step.detail}</p>
               {errors[step.id] && (
-                <p className="mt-1 break-words text-[12px] leading-4 text-destructive">
-                  {errors[step.id]}
-                </p>
+                <p className="mt-1 break-words text-[12px] leading-4 text-destructive">{errors[step.id]}</p>
               )}
             </div>
 
-            <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
-              {LABELS[state]}
-            </span>
+            <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">{LABELS[state]}</span>
           </li>
         );
       })}

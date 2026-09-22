@@ -108,7 +108,9 @@ export function SourcesSection({
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 p-3.5">
             <div className="min-w-0 space-y-1">
               <p className="text-xs font-medium text-foreground">
-                {helmsman.path ? `helmsman ${helmsman.version ?? ""}`.trim() : "helmsman is not installed yet"}
+                {helmsman.path
+                  ? `helmsman ${helmsman.version ?? ""}`.trim()
+                  : "helmsman is not installed yet"}
               </p>
               <p className="break-all font-mono text-[11px] text-muted-foreground">
                 {helmsman.path ?? "Installing puts it in ~/.pulse/helmsman."}
@@ -124,7 +126,11 @@ export function SourcesSection({
                 Run setup
               </Button>
               <Button onClick={() => void install()} disabled={installing} className="gap-1.5">
-                {installing ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+                {installing ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Download className="size-3.5" />
+                )}
                 {installing ? "Installing…" : "Install helmsman"}
               </Button>
             </div>
@@ -134,10 +140,10 @@ export function SourcesSection({
             <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
               <Hint>
-                Node.js could not be found. helmsman runs through Node, so syncing needs Node 20 or
-                newer. Pulse searches the PATH and the usual install locations (nvm, Volta, fnm,
-                Homebrew) - if yours lives somewhere else, linking it into{" "}
-                <span className="font-mono">/usr/local/bin</span> will always be found.
+                Node.js could not be found. helmsman runs through Node, so syncing needs Node 20 or newer.
+                Pulse searches the PATH and the usual install locations (nvm, Volta, fnm, Homebrew) - if yours
+                lives somewhere else, linking it into <span className="font-mono">/usr/local/bin</span> will
+                always be found.
               </Hint>
             </div>
           )}
@@ -207,7 +213,7 @@ export function SourcesSection({
             {engine === "tinyfish" &&
               "Returns clean Markdown with the page's title, description, images and links, and it also finds the tools and papers a page points at. Free tier is generous: up to 1,000 pages a day."}
             {engine === "scrapling" &&
-              "Runs entirely on this machine at no cost per page, using a real browser to render JavaScript. Requires Python with scrapling installed (pip install \"scrapling[rag]\")."}
+              'Runs entirely on this machine at no cost per page, using a real browser to render JavaScript. Requires Python with scrapling installed (pip install "scrapling[rag]").'}
           </Hint>
 
           {!desktop && (

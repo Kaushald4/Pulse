@@ -13,8 +13,7 @@ export interface ResumeFile {
 }
 
 const PDF_MIME = "application/pdf";
-const DOCX_MIME =
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 /** Opens the native picker. Returns null when the user cancels. */
 export async function pickResumeFile(): Promise<ResumeFile | null> {
@@ -43,9 +42,7 @@ async function extractPdf(base64: string): Promise<string> {
   for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
     const page = await document.getPage(pageNumber);
     const content = await page.getTextContent();
-    pages.push(
-      content.items.map((item) => ("str" in item ? item.str : "")).join(" ")
-    );
+    pages.push(content.items.map((item) => ("str" in item ? item.str : "")).join(" "));
   }
 
   return pages.join("\n\n").trim();
@@ -68,8 +65,8 @@ export async function extractResumeText(file: ResumeFile): Promise<string> {
     file.mimeType === PDF_MIME
       ? await extractPdf(file.base64)
       : file.mimeType === DOCX_MIME
-      ? await extractDocx(file.base64)
-      : new TextDecoder().decode(bytesOf(file.base64));
+        ? await extractDocx(file.base64)
+        : new TextDecoder().decode(bytesOf(file.base64));
 
   const trimmed = text.trim();
   if (!trimmed) throw new Error(`No text could be read from ${file.name}.`);

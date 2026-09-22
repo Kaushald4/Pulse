@@ -143,14 +143,12 @@ export function InstallerView({ status, onDone }: { status: SetupStatus; onDone:
           />
           <div className="flex items-baseline gap-2.5">
             <PulseWordmark className="text-2xl" />
-            <span className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
-              Tech Radar
-            </span>
+            <span className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">Tech Radar</span>
           </div>
           <PulseMark className="h-5 w-32 text-primary" />
           <p className="max-w-md text-[13px] leading-5 text-muted-foreground">
-            One-time setup. Pulse is installing the pieces it needs to read the web - everything
-            stays on this machine, and nothing here touches your system Python.
+            One-time setup. Pulse is installing the pieces it needs to read the web - everything stays on this
+            machine, and nothing here touches your system Python.
           </p>
         </header>
 
@@ -184,21 +182,23 @@ export function InstallerView({ status, onDone }: { status: SetupStatus; onDone:
                 Skip for now
               </Button>
 
-              {finished && !running && (blocked ? (
-                <>
-                  <Button variant="outline" size="sm" onClick={onDone}>
-                    Continue anyway
+              {finished &&
+                !running &&
+                (blocked ? (
+                  <>
+                    <Button variant="outline" size="sm" onClick={onDone}>
+                      Continue anyway
+                    </Button>
+                    <Button size="sm" className="gap-1.5" onClick={() => void install()}>
+                      <RotateCw className="size-3.5" />
+                      Try again
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="sm" className="gap-1.5" onClick={onDone}>
+                    Continue to Pulse
                   </Button>
-                  <Button size="sm" className="gap-1.5" onClick={() => void install()}>
-                    <RotateCw className="size-3.5" />
-                    Try again
-                  </Button>
-                </>
-              ) : (
-                <Button size="sm" className="gap-1.5" onClick={onDone}>
-                  Continue to Pulse
-                </Button>
-              ))}
+                ))}
 
               {running && (
                 <Button size="sm" className="gap-1.5" disabled>

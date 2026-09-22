@@ -42,9 +42,7 @@ export async function launchAuthLogin(profileName: string, siteDomain: string): 
 }
 
 /** Deletes the saved Chrome profile for a source, signing it out for real. */
-export async function disconnectProfile(
-  profileName: string
-): Promise<{ removed: boolean; path: string }> {
+export async function disconnectProfile(profileName: string): Promise<{ removed: boolean; path: string }> {
   if (!isTauriEnv()) {
     throw new Error("Disconnecting requires the desktop app.");
   }

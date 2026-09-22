@@ -20,10 +20,7 @@ const PAGE_SIZE = 30;
  * observer in existence watches a node that is no longer in the document. Binding
  * to the node removes the possibility rather than trying to work around it.
  */
-export function useProgressiveList(
-  total: number,
-  options: { resetKey?: unknown; pageSize?: number } = {},
-) {
+export function useProgressiveList(total: number, options: { resetKey?: unknown; pageSize?: number } = {}) {
   const { resetKey, pageSize = PAGE_SIZE } = options;
   const [visibleCount, setVisibleCount] = React.useState(pageSize);
   const observer = React.useRef<IntersectionObserver | null>(null);
@@ -47,13 +44,13 @@ export function useProgressiveList(
           }
         },
         // Lead the scroll slightly, so it does not visibly stall at the bottom.
-        { threshold: 0.1, rootMargin: "200px" },
+        { threshold: 0.1, rootMargin: "200px" }
       );
 
       created.observe(node);
       observer.current = created;
     },
-    [pageSize],
+    [pageSize]
   );
 
   return {
