@@ -2,14 +2,12 @@
  * Daily briefings: the candidates they are written from, and the stored result.
  */
 import type { DailyBriefing, PulseItem } from "../types";
+import { byImportance, diversify } from "../feed/ranking";
 import { startOfToday } from "../utils";
 import { getDatabase, readLocal, writeLocal } from "./client";
 import { queryItems } from "./items";
 import { LS_BRIEFINGS } from "./local-keys";
 import { rowToBriefing } from "./rows";
-
-/** How many items one source may contribute before the others get a turn. */
-const MAX_PER_SOURCE = 3;
 
 /**
  * Today's pool: published today, or collected today.
@@ -30,68 +28,6 @@ async function candidatePool(): Promise<PulseItem[]> {
 }
 
 /**
- * Importance with no classifier involved.
- *
- * Engagement is the only ranking signal that is present on every item whatever
- * the user has configured. Logarithmic on purpose: a 900-point thread is not
- * thirty times as useful as a 30-point one.
- */
-function engagement(item: PulseItem): number {
-  return Math.log1p(Math.max(0, item.score) + Math.max(0, item.commentsCount) * 2);
-}
-
-/**
- * Classifier score when there is one, engagement otherwise.
- *
- * Both classifier engines - Jev and the LLM JSON-mode one - write `signal`, so
- * this is not engine-specific. It falls back for the window before a classifier
- * has run over an item: a fresh sync, a partial failure, or no provider key
- * configured yet. Scoring is incremental, so part of the pool having a score is
- * normal rather than an edge case.
- */
-function byImportance(a: PulseItem, b: PulseItem): number {
-  const aScored = typeof a.signal === "number";
-  const bScored = typeof b.signal === "number";
-  if (aScored !== bScored) return aScored ? -1 : 1;
-  if (aScored && bScored && a.signal !== b.signal) {
-    return (b.signal as number) - (a.signal as number);
-  }
-  return engagement(b) - engagement(a);
-}
-
-/**
- * Caps how many items one source may contribute, then tops up in rank order if
- * the pool is too narrow to fill the budget.
- *
- * Without the cap a single fast-moving feed takes every slot: on a busy Reddit
- * day all sixteen candidates were Reddit threads, which is why the briefing had
- * nothing technical to say.
- */
-function diversify(ranked: PulseItem[], limit: number): PulseItem[] {
-  const chosen: PulseItem[] = [];
-  const perSource = new Map<string, number>();
-
-  for (const item of ranked) {
-    if (chosen.length === limit) return chosen;
-    const used = perSource.get(item.source) ?? 0;
-    if (used >= MAX_PER_SOURCE) continue;
-    perSource.set(item.source, used + 1);
-    chosen.push(item);
-  }
-
-  if (chosen.length < limit) {
-    const taken = new Set(chosen.map((item) => item.id));
-    for (const item of ranked) {
-      if (chosen.length === limit) break;
-      if (taken.has(item.id)) continue;
-      chosen.push(item);
-    }
-  }
-
-  return chosen;
-}
-
-/**
  * What the briefing is written from.
  *
  * Two properties matter more than the exact ordering: no single source may
@@ -102,7 +38,11 @@ export async function getBriefingCandidates(limit = 16): Promise<PulseItem[]> {
     (item) => item.title.trim().length > 0 && item.url.trim().length > 0
   );
   if (pool.length === 0) return [];
-  return diversify(pool.sort(byImportance), limit);
+  return diversify(pool.sort(byImportance), {
+    limit,
+    sourceOf: (item) => item.source,
+    keyOf: (item) => item.id,
+  });
 }
 
 /**

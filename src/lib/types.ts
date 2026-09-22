@@ -10,7 +10,7 @@ export type ContentFieldValue = Exclude<ContentField, "all">;
 
 export type ItemState = "inbox" | "saved" | "important" | "archived";
 
-export type SortKey = "recent" | "score" | "comments";
+export type SortKey = "best" | "recent" | "score" | "comments";
 
 export interface ExtractedResource {
   type: ResourceType;

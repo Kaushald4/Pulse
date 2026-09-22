@@ -81,10 +81,10 @@ export async function upsertItems(items: PulseItem[]): Promise<void> {
 /**
  * The WHERE clauses a filter contributes, plus their parameters.
  *
- * Shared by the item query and the grouped feed query so a filter cannot mean
- * one thing on the feed and another everywhere else.
+ * Shared by the item query, the grouped feed query and the facet counts, so a
+ * filter cannot mean one thing on the feed and another everywhere else.
  */
-function itemFilterClauses(filter: PulseFilter): { conditions: string[]; params: unknown[] } {
+export function itemFilterClauses(filter: PulseFilter): { conditions: string[]; params: unknown[] } {
   const conditions: string[] = [];
   const params: unknown[] = [];
 
@@ -116,6 +116,9 @@ export async function queryItems(filter: PulseFilter = {}): Promise<PulseItem[]>
     const { conditions, params } = itemFilterClauses(filter);
 
     const orderBy = {
+      // Classified items first, then by the classifier's score, then by
+      // engagement. Same rule as byImportance, expressed for SQL.
+      best: "signal IS NULL, signal DESC, (COALESCE(score, 0) + COALESCE(comments_count, 0) * 2) DESC, published_at DESC",
       recent: "published_at DESC",
       score: "score DESC, published_at DESC",
       comments: "comments_count DESC, published_at DESC",
@@ -188,6 +191,9 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
   const { conditions, params } = itemFilterClauses(filter);
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
   const orderBy = {
+    // The group's best signal and engagement, so a story ranks by its liveliest
+    // copy rather than by whichever one happens to represent it.
+    best: "top_signal IS NULL, top_signal DESC, (top_score + top_comments * 2) DESC, newest DESC",
     recent: "newest DESC",
     score: "top_score DESC, newest DESC",
     comments: "top_comments DESC, newest DESC",
@@ -201,7 +207,7 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
   // The ORDER BY here is the same rule as `pickRepresentative`.
   const rows = (await db.select(
     `WITH ranked AS (
-       SELECT id, source, score, comments_count, published_at,
+       SELECT id, source, score, comments_count, published_at, signal,
               ${key} AS group_key,
               ROW_NUMBER() OVER (
                 PARTITION BY ${key}
@@ -216,6 +222,7 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
             GROUP_CONCAT(DISTINCT source) AS sources,
             MAX(COALESCE(score, 0)) AS top_score,
             MAX(COALESCE(comments_count, 0)) AS top_comments,
+            MAX(signal) AS top_signal,
             MAX(published_at) AS newest
      FROM ranked
      GROUP BY group_key

@@ -6,6 +6,8 @@
  */
 import type { SyncProgress } from "../../lib/pipeline";
 import type { FeedGroup } from "../../lib/feed/grouping";
+import type { FeedFacets, WindowKey } from "../../lib/feed/facets";
+import { windowSince } from "../../lib/feed/facets";
 import type { RunRecord } from "../../lib/db/runs";
 import type {
   AppConfig,
@@ -41,6 +43,8 @@ export interface Filters {
   query: string;
   tag?: string;
   sortBy: SortKey;
+  /** How far back to look. Translated into `publishedSince` by `toQuery`. */
+  window: WindowKey;
 }
 
 export const DEFAULT_FILTERS: Filters = {
@@ -48,7 +52,8 @@ export const DEFAULT_FILTERS: Filters = {
   field: "all",
   state: "all",
   query: "",
-  sortBy: "recent",
+  sortBy: "best",
+  window: "all",
 };
 
 /** The store's filters, translated into a DB query. */
@@ -61,6 +66,7 @@ export function toQuery(filters: Filters): PulseFilter {
     query: filters.query,
     tag: filters.tag,
     sortBy: filters.sortBy,
+    publishedSince: windowSince(filters.window),
   };
 }
 
@@ -76,6 +82,11 @@ export interface ItemsSlice {
   items: PulseItem[];
   /** The same items, one row per story rather than one per source. */
   feedGroups: FeedGroup[];
+  /**
+   * Counts for the filter bar, each computed under the other active filters so
+   * a number always equals what clicking it returns. Null until first loaded.
+   */
+  facets: FeedFacets | null;
   /** Items published today on the local clock - resets at local midnight. */
   todayItems: PulseItem[];
   /** Items *collected* today (first seen), whenever they were published. */

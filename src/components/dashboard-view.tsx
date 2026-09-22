@@ -22,6 +22,7 @@ import { Chip } from "./chip";
 import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
 import { FeedCard } from "./feed/feed-card";
+import { groupItems } from "../lib/feed/grouping";
 import { usePulse } from "../store/pulse";
 import { formatRelativeTime } from "../lib/utils";
 import type { ContentField } from "../lib/types";
@@ -52,22 +53,30 @@ export function DashboardView() {
 
   const basisItems = basis === "published" ? todayItems : newItems;
   const basisLabel = basis === "published" ? "Today" : "New to Pulse";
+  // One card per story, and the counts below are stories for the same reason: a
+  // link carried by two sources is one thing that happened, not two.
+  const basisGroups = React.useMemo(() => groupItems(basisItems), [basisItems]);
 
   const counts = React.useMemo(() => {
-    const tally: Record<string, number> = { all: basisItems.length };
-    for (const item of basisItems) tally[item.field] = (tally[item.field] ?? 0) + 1;
+    const tally: Record<string, number> = { all: basisGroups.length };
+    for (const group of basisGroups) {
+      const field = group.representative.field;
+      tally[field] = (tally[field] ?? 0) + 1;
+    }
     return tally;
-  }, [basisItems]);
+  }, [basisGroups]);
 
   const savedOrImportant = React.useMemo(
-    () => basisItems.filter((item) => item.state === "saved" || item.state === "important").length,
-    [basisItems]
+    () =>
+      basisGroups.filter(
+        (group) => group.representative.state === "saved" || group.representative.state === "important"
+      ).length,
+    [basisGroups]
   );
 
-  const topItems = (field === "all" ? basisItems : basisItems.filter((item) => item.field === field)).slice(
-    0,
-    8
-  );
+  const topGroups = (
+    field === "all" ? basisGroups : basisGroups.filter((group) => group.representative.field === field)
+  ).slice(0, 8);
 
   const fieldTabs: Array<{ id: ContentField; label: string; count: number }> = [
     { id: "all", label: "All", count: counts.all ?? 0 },
@@ -182,7 +191,7 @@ export function DashboardView() {
       )}
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <StatTile value={basisItems.length} label="Items" hint={basisLabel} icon={Newspaper} />
+        <StatTile value={basisGroups.length} label="Items" hint={basisLabel} icon={Newspaper} />
         <StatTile value={counts.ai_ml ?? 0} label="AI & ML" hint={basisLabel} icon={Sparkles} />
         <StatTile value={counts.systems_infra ?? 0} label="Systems & infra" hint={basisLabel} icon={Layers} />
         <StatTile value={savedOrImportant} label="Saved & important" hint={basisLabel} icon={Bookmark} />
@@ -260,7 +269,7 @@ export function DashboardView() {
               </TabsList>
             </Tabs>
 
-            {topItems.length === 0 ? (
+            {topGroups.length === 0 ? (
               <EmptyState
                 icon={Inbox}
                 title={
@@ -292,12 +301,13 @@ export function DashboardView() {
               />
             ) : (
               <div className="space-y-2">
-                {topItems.map((item) => (
+                {topGroups.map((group) => (
                   <FeedCard
-                    key={item.id}
-                    item={item}
-                    isSelected={selectedItemId === item.id}
-                    onSelect={() => openDrawer(item.id)}
+                    key={group.key}
+                    item={group.representative}
+                    group={group}
+                    isSelected={selectedItemId === group.representative.id}
+                    onSelect={() => openDrawer(group.representative.id)}
                   />
                 ))}
               </div>

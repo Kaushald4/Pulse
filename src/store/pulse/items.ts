@@ -10,16 +10,28 @@ import { getPulseStats, getTopicSummary } from "../../lib/db/stats";
 import { ensureBriefing } from "../../lib/pipeline";
 import { fetchAndSummarize } from "../../lib/content";
 import { fetchCuratedPreviews } from "../../lib/metadata";
-import { personalize } from "../../lib/feed/ranking";
+import { getFeedFacets } from "../../lib/db/feed-facets";
+import { diversifyHead, personalize } from "../../lib/feed/ranking";
 import { getSignalPreferences, getWatchlists, recordSignalFeedback } from "../../lib/db/personal";
 import { startOfToday } from "../../lib/utils";
 import { toast } from "../../lib/toast";
 import type { SignalPreference } from "../../lib/types";
 import { toQuery, type ItemsSlice, type PulseStore } from "./types";
+import type { FeedGroup } from "../../lib/feed/grouping";
+import type { SortKey } from "../../lib/types";
+
+/**
+ * "Best" spreads its first screen across sources so one loud feed cannot own
+ * the top of the list. The other sorts are already ordered by SQL.
+ */
+function orderGroups(groups: FeedGroup[], sortBy: SortKey): FeedGroup[] {
+  return sortBy === "best" ? diversifyHead(groups) : groups;
+}
 
 export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (set, get) => ({
   items: [],
   feedGroups: [],
+  facets: null,
   todayItems: [],
   newItems: [],
   stats: EMPTY_STATS,
@@ -34,7 +46,8 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
     const since = startOfToday();
     const [
       rawItems,
-      feedGroups,
+      rawGroups,
+      facets,
       stats,
       topicSummary,
       resources,
@@ -47,6 +60,7 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
       queryItems(toQuery(filters)),
       // One row per story, so the feed does not show the same link three times.
       queryFeedGroups(toQuery(filters)),
+      getFeedFacets(toQuery(filters)),
       getPulseStats(),
       getTopicSummary(),
       getAllResources(),
@@ -65,7 +79,8 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
     const personalizedNewItems = personalize(newItems, preferences, watchlists);
     set({
       items,
-      feedGroups,
+      feedGroups: orderGroups(rawGroups, filters.sortBy),
+      facets,
       stats,
       topicSummary,
       resources,
@@ -94,13 +109,22 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
   },
 
   refreshItems: async () => {
-    const [items, feedGroups, preferences, watchlists] = await Promise.all([
-      queryItems(toQuery(get().filters)),
-      queryFeedGroups(toQuery(get().filters)),
+    const { filters } = get();
+    const [items, rawGroups, facets, preferences, watchlists] = await Promise.all([
+      queryItems(toQuery(filters)),
+      queryFeedGroups(toQuery(filters)),
+      // The counts depend on the filters, so they are re-read with the list.
+      getFeedFacets(toQuery(filters)),
       getSignalPreferences(),
       getWatchlists(),
     ]);
-    set({ items: personalize(items, preferences, watchlists), feedGroups, preferences, watchlists });
+    set({
+      items: personalize(items, preferences, watchlists),
+      feedGroups: orderGroups(rawGroups, filters.sortBy),
+      facets,
+      preferences,
+      watchlists,
+    });
   },
 
   refreshPreviews: async () => {

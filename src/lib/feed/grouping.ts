@@ -79,9 +79,7 @@ export function toGroup(key: string, members: PulseItem[]): FeedGroup {
     sources,
     latestAt: members.reduce(
       (newest, member) =>
-        new Date(member.publishedAt).getTime() > new Date(newest).getTime()
-          ? member.publishedAt
-          : newest,
+        new Date(member.publishedAt).getTime() > new Date(newest).getTime() ? member.publishedAt : newest,
       members[0].publishedAt
     ),
     topScore: members.reduce((best, member) => Math.max(best, member.score ?? 0), 0),
