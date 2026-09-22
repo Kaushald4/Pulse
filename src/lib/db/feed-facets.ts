@@ -8,9 +8,10 @@
  * Counts are stories, not rows. A story carried by three sources is one result,
  * so counting rows would overstate every option that touches a duplicate.
  *
- * The database path counts in SQL, because `queryItems` caps at 200 rows and a
- * capped count would be a lie. The browser preview has no SQL and no cap, so it
- * counts through the ordinary query instead.
+ * The database path counts in SQL, which counts every matching row rather than
+ * the page the feed happens to have loaded. The browser preview has no SQL, so it
+ * counts through the ordinary query, asked for everything rather than one page -
+ * a count taken over a page would just report the page size.
  */
 import { groupKeyFor } from "../feed/canonical";
 import { FIELD_OPTIONS, WINDOWS, windowSince, type FeedFacets } from "../feed/facets";
@@ -99,8 +100,11 @@ export async function getFeedFacets(filter: PulseFilter = {}): Promise<FeedFacet
 
 /** The same counts without SQL, for the browser preview. */
 async function previewFacets(filter: PulseFilter): Promise<FeedFacets> {
+  // Counted over everything: a count that only saw the first page would report
+  // the page size for every filter it covers.
   const stories = async (candidate: PulseFilter): Promise<number> =>
-    new Set((await queryItems(candidate)).map((item: PulseItem) => groupKeyFor(item))).size;
+    new Set((await queryItems({ ...candidate, limit: null })).map((item: PulseItem) => groupKeyFor(item)))
+      .size;
 
   const noWindow = withoutFilter(filter, "publishedSince");
 
@@ -114,7 +118,7 @@ async function previewFacets(filter: PulseFilter): Promise<FeedFacets> {
       }))
     ),
     (async () => {
-      const items = await queryItems(withoutFilter(filter, "source"));
+      const items = await queryItems({ ...withoutFilter(filter, "source"), limit: null });
       const counts = new Map<string, Set<string>>();
       for (const item of items) {
         const keys = counts.get(item.source) ?? new Set<string>();

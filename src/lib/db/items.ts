@@ -109,8 +109,25 @@ export function itemFilterClauses(filter: PulseFilter): { conditions: string[]; 
   return { conditions, params };
 }
 
+/** How many rows a query returns when the caller does not say. */
+export const DEFAULT_PAGE_SIZE = 200;
+
+/**
+ * The LIMIT and OFFSET a filter asks for.
+ *
+ * An omitted limit is the default page, and an explicit `null` means no limit,
+ * which is how a caller asks to read across everything rather than one page.
+ */
+function pageOf(filter: PulseFilter): { limit: number | null; offset: number } {
+  return {
+    limit: filter.limit === undefined ? DEFAULT_PAGE_SIZE : filter.limit,
+    offset: filter.offset ?? 0,
+  };
+}
+
 export async function queryItems(filter: PulseFilter = {}): Promise<PulseItem[]> {
   const db = await getDatabase();
+  const { limit, offset } = pageOf(filter);
 
   if (db) {
     const { conditions, params } = itemFilterClauses(filter);
@@ -125,9 +142,13 @@ export async function queryItems(filter: PulseFilter = {}): Promise<PulseItem[]>
     }[filter.sortBy ?? "recent"];
 
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    // Bound rather than interpolated, even though both numbers are ours.
+    const paging = limit === null ? "" : ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    const args = limit === null ? params : [...params, limit, offset];
+
     const rows = (await db.select(
-      `SELECT * FROM items ${where} ORDER BY ${orderBy} LIMIT 200;`,
-      params
+      `SELECT * FROM items ${where} ORDER BY ${orderBy}${paging};`,
+      args
     )) as any[];
     return rows.map(rowToItem);
   }
@@ -156,7 +177,8 @@ export async function queryItems(filter: PulseFilter = {}): Promise<PulseItem[]>
     list = list.filter((i) => (i.createdAt ?? "") >= since);
   }
 
-  return sortItems(list, filter.sortBy ?? "recent");
+  const sorted = sortItems(list, filter.sortBy ?? "recent");
+  return limit === null ? sorted.slice(offset) : sorted.slice(offset, offset + limit);
 }
 
 /** Item ids to items, for the grouped query's representatives. */
@@ -181,11 +203,15 @@ export async function getItemsByIds(ids: string[]): Promise<PulseItem[]> {
  * boundary stays whole. The browser-preview path has no SQL, so the same rules
  * run in memory over the items it already reads.
  */
-export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Promise<FeedGroup[]> {
+export async function queryFeedGroups(filter: PulseFilter = {}): Promise<FeedGroup[]> {
   const db = await getDatabase();
+  const { limit, offset } = pageOf(filter);
 
   if (!db) {
-    return groupItems(await queryItems(filter)).slice(0, limit);
+    // Grouped before it is paged, so a story whose members straddle the page
+    // boundary stays whole instead of being counted as two half-stories.
+    const groups = groupItems(await queryItems({ ...filter, limit: null }));
+    return limit === null ? groups.slice(offset) : groups.slice(offset, offset + limit);
   }
 
   const { conditions, params } = itemFilterClauses(filter);
@@ -228,8 +254,8 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
      FROM ranked
      GROUP BY group_key
      ORDER BY ${orderBy}
-     LIMIT $${params.length + 1};`,
-    [...params, limit]
+     ${limit === null ? "" : `LIMIT $${params.length + 1} OFFSET $${params.length + 2}`};`,
+    limit === null ? params : [...params, limit, offset]
   )) as any[];
 
   const representatives = new Map(

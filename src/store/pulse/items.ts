@@ -16,10 +16,9 @@ import { diversifyHead, personalize } from "../../lib/feed/ranking";
 import { getSignalPreferences, getWatchlists, recordSignalFeedback } from "../../lib/db/personal";
 import { startOfToday } from "../../lib/utils";
 import { toast } from "../../lib/toast";
-import type { SignalPreference } from "../../lib/types";
-import { toQuery, type ItemsSlice, type PulseStore } from "./types";
+import type { PulseFilter, SignalPreference, SortKey } from "../../lib/types";
+import { FEED_PAGE_SIZE, toQuery, type ItemsSlice, type PulseStore } from "./types";
 import type { FeedGroup } from "../../lib/feed/grouping";
-import type { SortKey } from "../../lib/types";
 
 /**
  * "Best" spreads its first screen across sources so one loud feed cannot own
@@ -34,6 +33,7 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
   feedGroups: [],
   facets: null,
   lastSeenAt: null,
+  feedLimit: FEED_PAGE_SIZE,
   todayItems: [],
   newItems: [],
   stats: EMPTY_STATS,
@@ -117,11 +117,15 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
   },
 
   refreshItems: async () => {
-    const { filters } = get();
+    const { filters, feedLimit } = get();
+    // Every query that fills the list is asked for the same window, so the rows
+    // and the stories they group into never come from different pages.
+    const window: PulseFilter = { ...toQuery(filters), limit: feedLimit };
     const [items, rawGroups, facets, preferences, watchlists] = await Promise.all([
-      queryItems(toQuery(filters)),
-      queryFeedGroups(toQuery(filters)),
-      // The counts depend on the filters, so they are re-read with the list.
+      queryItems(window),
+      queryFeedGroups(window),
+      // Counted across everything, not the window: a count that only saw the
+      // loaded rows would just report the page size.
       getFeedFacets(toQuery(filters)),
       getSignalPreferences(),
       getWatchlists(),
@@ -133,6 +137,16 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
       preferences,
       watchlists,
     });
+  },
+
+  loadMoreFeed: async () => {
+    const { feedLimit, feedGroups, facets } = get();
+    // The counts are the truth about how much there is, so stop once the list
+    // holds all of it instead of re-querying for another empty page.
+    if (facets && feedGroups.length >= facets.total) return;
+
+    set({ feedLimit: feedLimit + FEED_PAGE_SIZE });
+    await get().refreshItems();
   },
 
   refreshPreviews: async () => {

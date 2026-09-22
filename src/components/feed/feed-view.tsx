@@ -55,6 +55,16 @@ export function FeedView() {
     resetKey: filters,
   });
 
+  // The window can run out while the library still holds more, because the list
+  // carries only the pages fetched so far. The counts are the truth about how
+  // much there is, so the difference is what is still to fetch.
+  const loadMoreFeed = usePulse((state) => state.loadMoreFeed);
+  const needsMore = (facets?.total ?? 0) - groups.length > 0 && !hasMore;
+
+  React.useEffect(() => {
+    if (needsMore) void loadMoreFeed();
+  }, [needsMore, loadMoreFeed]);
+
   // Opening the feed is what counts as seeing it. Recorded once, after the
   // first load, and only the stored marker moves.
   React.useEffect(() => {
@@ -129,7 +139,7 @@ export function FeedView() {
                 />
               )}
               footer={
-                section.id === "rest" && hasMore ? (
+                section.id === "rest" && (hasMore || needsMore) ? (
                   <div
                     ref={sentinelRef}
                     className="h-10 w-full flex items-center justify-center text-xs text-muted-foreground"

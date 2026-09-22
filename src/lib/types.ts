@@ -149,6 +149,10 @@ export interface PulseFilter {
   publishedSince?: string;
   /** ISO instant lower bound on `created_at` (when Pulse collected it). */
   collectedSince?: string;
+  /** How many rows to return. Omitted uses the default page; null asks for all. */
+  limit?: number | null;
+  /** How many rows to skip, for reading past the first page. */
+  offset?: number;
 }
 
 export type FeedbackKind = "more_like_this" | "less_like_this";

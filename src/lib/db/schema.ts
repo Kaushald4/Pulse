@@ -9,7 +9,10 @@ import { LEGACY_DEMO_ITEM_IDS } from "../sources/sample-data";
 import { groupKeyFor } from "../feed/canonical";
 import { ensureJobSchema } from "./jobs-schema";
 
-const CURRENT_SCHEMA_VERSION = 3;
+// 4 was stamped on existing databases by a migration that was later removed. The
+// number stays spent: reusing it would make the next migration numbered 4 a no-op
+// on those databases, since they already report this version.
+const CURRENT_SCHEMA_VERSION = 4;
 
 /* -------------------------------------------------------------------------- */
 /* SQLite setup + migrations                                                   */

@@ -47,6 +47,14 @@ export interface Filters {
   window: WindowKey;
 }
 
+/**
+ * How many stories one page of the feed holds.
+ *
+ * Also the step the feed grows by, so reading on is the same request as the
+ * first one, only wider.
+ */
+export const FEED_PAGE_SIZE = 200;
+
 export const DEFAULT_FILTERS: Filters = {
   category: "all",
   field: "all",
@@ -95,6 +103,8 @@ export interface ItemsSlice {
    * while the reader is looking at it.
    */
   lastSeenAt: string | null;
+  /** How many stories the list currently holds. Grows as the reader reads on. */
+  feedLimit: number;
   /** Items published today on the local clock - resets at local midnight. */
   todayItems: PulseItem[];
   /** Items *collected* today (first seen), whenever they were published. */
@@ -109,6 +119,8 @@ export interface ItemsSlice {
   refresh: () => Promise<void>;
   /** Records that the feed has been looked at, for the next visit. */
   markFeedSeen: () => Promise<void>;
+  /** Widens the list by one page, for reading past what is already loaded. */
+  loadMoreFeed: () => Promise<void>;
   /** Re-queries only the item list - for filter changes, which change nothing else. */
   refreshItems: () => Promise<void>;
   /** Fetches Open Graph previews for links that don't have them yet. */
