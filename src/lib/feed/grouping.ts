@@ -21,6 +21,14 @@ export interface FeedGroup {
   members: number;
   /** Distinct sources, in the order they were first seen. */
   sources: string[];
+  /**
+   * The newest member's publication time.
+   *
+   * Separate from the representative's own time on purpose: groups are ordered
+   * by this, so a card showing the representative's older time would sit near
+   * the top of a recent-sorted feed claiming to be hours old.
+   */
+  latestAt: string;
   /** The group's best numbers, so the card carries the story's engagement. */
   topScore: number;
   topComments: number;
@@ -69,6 +77,13 @@ export function toGroup(key: string, members: PulseItem[]): FeedGroup {
     representative: pickRepresentative(members),
     members: members.length,
     sources,
+    latestAt: members.reduce(
+      (newest, member) =>
+        new Date(member.publishedAt).getTime() > new Date(newest).getTime()
+          ? member.publishedAt
+          : newest,
+      members[0].publishedAt
+    ),
     topScore: members.reduce((best, member) => Math.max(best, member.score ?? 0), 0),
     topComments: members.reduce((best, member) => Math.max(best, member.commentsCount ?? 0), 0),
   });
@@ -85,6 +100,7 @@ export function groupFromAggregates(input: {
   representative: PulseItem;
   members: number;
   sources: string[];
+  latestAt: string;
   topScore: number;
   topComments: number;
 }): FeedGroup {
@@ -93,6 +109,7 @@ export function groupFromAggregates(input: {
     representative: input.representative,
     members: input.members,
     sources: input.sources,
+    latestAt: input.latestAt,
     topScore: input.topScore,
     topComments: input.topComments,
   };

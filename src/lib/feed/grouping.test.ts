@@ -70,6 +70,31 @@ describe("groupItems", () => {
     expect(groups[0].topScore).toBe(420);
     expect(groups[0].topComments).toBe(99);
   });
+
+  /**
+   * Groups are ordered by their newest member, so the card has to show that
+   * time rather than the representative's. Otherwise a story sits near the top
+   * of a recent-sorted feed while claiming to be hours old.
+   */
+  it("reports the newest member's time, not the representative's", () => {
+    const groups = groupItems([
+      item({
+        id: "engaged",
+        url: "https://example.com/p",
+        score: 900,
+        publishedAt: "2026-01-01T00:00:00.000Z",
+      }),
+      item({
+        id: "newer",
+        url: "https://example.com/p",
+        score: 1,
+        publishedAt: "2026-03-01T00:00:00.000Z",
+      }),
+    ]);
+
+    expect(groups[0].representative.id).toBe("engaged");
+    expect(groups[0].latestAt).toBe("2026-03-01T00:00:00.000Z");
+  });
 });
 
 describe("pickRepresentative", () => {

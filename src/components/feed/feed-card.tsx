@@ -121,7 +121,9 @@ export function FeedCard({ item, group, isSelected, onSelect }: FeedCardProps) {
             <span>·</span>
             <HostLabel url={item.url} />
             <span>·</span>
-            <span suppressHydrationWarning>{formatRelativeTime(item.publishedAt)}</span>
+            <span suppressHydrationWarning>
+              {formatRelativeTime(group ? group.latestAt : item.publishedAt)}
+            </span>
             {item.state !== "inbox" && (
               <Chip
                 label={stateLabel(item.state)}

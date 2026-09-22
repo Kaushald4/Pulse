@@ -242,6 +242,8 @@ export async function queryFeedGroups(filter: PulseFilter = {}, limit = 200): Pr
         sources: String(row.sources ?? "")
           .split(",")
           .filter(Boolean),
+        // Groups are ordered by this, so the card has to show it too.
+        latestAt: String(row.newest ?? representative.publishedAt),
         topScore: Number(row.top_score) || 0,
         topComments: Number(row.top_comments) || 0,
       })
