@@ -183,6 +183,10 @@ export interface PersonalSlice {
 
   addWatchlist: (name: string, query: string) => Promise<void>;
   removeWatchlist: (id: string) => Promise<void>;
+  /** Forgets one thing learned from feedback. */
+  removePreference: (id: string) => Promise<void>;
+  /** Forgets every learned preference, keeping watchlists and projects. */
+  clearPreferences: () => Promise<void>;
   addProject: (name: string, description?: string) => Promise<void>;
   removeProject: (id: string) => Promise<void>;
   saveProject: (project: Project) => Promise<void>;

@@ -86,6 +86,34 @@ export async function saveSignalPreferences(preferences: SignalPreference[]): Pr
   writeLocal(LS_PREFERENCES, preferences);
 }
 
+/**
+ * Forgets one thing Pulse learned.
+ *
+ * The classifier's own score is untouched: this only drops the adjustment that
+ * feedback was adding on top of it, so ranking falls back to the raw judgement.
+ */
+export async function deleteSignalPreference(id: string): Promise<void> {
+  const db = await getDatabase();
+  if (db) {
+    await db.execute(`DELETE FROM signal_preferences WHERE id = $1;`, [id]);
+    return;
+  }
+  writeLocal(
+    LS_PREFERENCES,
+    readLocal<SignalPreference[]>(LS_PREFERENCES, []).filter((preference) => preference.id !== id)
+  );
+}
+
+/** Forgets everything learned from feedback. Watchlists are separate and kept. */
+export async function clearSignalPreferences(): Promise<void> {
+  const db = await getDatabase();
+  if (db) {
+    await db.execute(`DELETE FROM signal_preferences;`);
+    return;
+  }
+  writeLocal(LS_PREFERENCES, []);
+}
+
 export async function getWatchlists(): Promise<Watchlist[]> {
   const db = await getDatabase();
   if (db) {

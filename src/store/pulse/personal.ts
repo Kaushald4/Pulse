@@ -4,9 +4,11 @@
  */
 import type { StateCreator } from "zustand";
 import {
+  clearSignalPreferences,
   createProject,
   createWatchlist,
   deleteProject,
+  deleteSignalPreference,
   deleteWatchlist,
   saveProject,
   saveWatchlist,
@@ -27,6 +29,16 @@ export const createPersonalSlice: StateCreator<PulseStore, [], [], PersonalSlice
 
   removeWatchlist: async (id) => {
     await deleteWatchlist(id);
+    await get().refresh();
+  },
+
+  removePreference: async (id) => {
+    await deleteSignalPreference(id);
+    await get().refresh();
+  },
+
+  clearPreferences: async () => {
+    await clearSignalPreferences();
     await get().refresh();
   },
 

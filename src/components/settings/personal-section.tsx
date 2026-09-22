@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bell, Eye, Plus, Trash2, ThumbsDown, ThumbsUp, Monitor } from "lucide-react";
+import { Bell, Eye, Plus, Trash2, ThumbsDown, ThumbsUp, Monitor, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -19,6 +19,8 @@ export function PersonalSection() {
   const desktop = usePulse((state) => state.desktop);
   const addWatchlist = usePulse((state) => state.addWatchlist);
   const removeWatchlist = usePulse((state) => state.removeWatchlist);
+  const removePreference = usePulse((state) => state.removePreference);
+  const clearPreferences = usePulse((state) => state.clearPreferences);
   const updateSchedule = usePulse((state) => state.updateSchedule);
   const updateConfig = usePulse((state) => state.updateConfig);
   const [name, setName] = React.useState("");
@@ -129,30 +131,63 @@ export function PersonalSection() {
             future ranking without changing the classifier’s raw score.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {preferences.length === 0 ? (
             <p className="text-[13px] text-muted-foreground">
               No feedback yet. Your first few decisions will appear here.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {preferences.slice(0, 18).map((preference) => (
-                <span
-                  key={preference.id}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px]"
-                >
-                  <span className={preference.weight >= 0 ? "text-success" : "text-destructive"}>
-                    {preference.weight >= 0 ? (
-                      <ThumbsUp className="inline size-3" />
-                    ) : (
-                      <ThumbsDown className="inline size-3" />
-                    )}
+            <>
+              <div className="flex flex-wrap gap-2">
+                {preferences.slice(0, 18).map((preference) => (
+                  <span
+                    key={preference.id}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border py-1 pl-2 pr-1 text-[11px]"
+                  >
+                    <span className={preference.weight >= 0 ? "text-success" : "text-destructive"}>
+                      {preference.weight >= 0 ? (
+                        <ThumbsUp className="inline size-3" />
+                      ) : (
+                        <ThumbsDown className="inline size-3" />
+                      )}
+                    </span>
+                    {preference.value}
+                    <span className="text-muted-foreground">{preference.evidence}×</span>
+                    <button
+                      type="button"
+                      onClick={() => void removePreference(preference.id)}
+                      aria-label={`Delete the learned preference for ${preference.value}`}
+                      title={`Delete the learned preference for ${preference.value}`}
+                      className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      <X className="size-3" />
+                    </button>
                   </span>
-                  {preference.value}
-                  <span className="text-muted-foreground">{preference.evidence}×</span>
-                </span>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {preferences.length > 18 && (
+                <p className="text-[11px] text-muted-foreground">
+                  Showing 18 of {preferences.length}. Delete these, or clear them all.
+                </p>
+              )}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Delete every learned preference? Ranking falls back to the classifier's own scores, and your watchlists are kept. This cannot be undone."
+                    )
+                  ) {
+                    void clearPreferences();
+                  }
+                }}
+              >
+                Delete all learned preferences
+              </Button>
+            </>
           )}
         </CardContent>
       </Card>
