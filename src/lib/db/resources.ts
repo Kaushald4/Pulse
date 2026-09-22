@@ -18,7 +18,10 @@ import { LS_ITEMS } from "./local-keys";
  * is a genuinely named tool.
  */
 export async function getAllResources(): Promise<ResourceEntry[]> {
-  const [items, previews] = await Promise.all([queryItems({}), getLinkPreviews()]);
+  // limit: null reads across every item rather than one page. Reading a page
+  // made the catalog grow and shrink with whatever synced last, because a sync
+  // fills the newest rows and pushes older resource-bearing items out of it.
+  const [items, previews] = await Promise.all([queryItems({ limit: null }), getLinkPreviews()]);
   const byUrl = new Map<string, ResourceEntry>();
 
   for (const item of items) {

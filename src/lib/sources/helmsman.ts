@@ -41,6 +41,18 @@ export async function launchAuthLogin(profileName: string, siteDomain: string): 
   return invoke<string>("launch_auth_login", { profile: profileName, site: siteDomain });
 }
 
+/**
+ * Closes the browser holding this profile and releases its lock.
+ *
+ * Called once the user says the sign-in is finished. On macOS a closed Chrome
+ * window leaves the process running and the profile locked, so this both ends
+ * the login window and makes the profile usable by the sync that verifies it.
+ */
+export async function closeProfileBrowser(profileName: string): Promise<void> {
+  if (!isTauriEnv()) return;
+  await invoke<void>("close_profile_browser", { profile: profileName });
+}
+
 /** Deletes the saved Chrome profile for a source, signing it out for real. */
 export async function disconnectProfile(profileName: string): Promise<{ removed: boolean; path: string }> {
   if (!isTauriEnv()) {

@@ -1,28 +1,13 @@
 /**
- * The source registry: which sources need a login, and which fetcher answers
- * for each one. Adding a source means one case here and one fetcher file.
+ * The fetcher map: which extractor answers for each source. Adding a source
+ * means one case here and one fetcher file. What a source needs to run lives in
+ * `auth.ts`.
  */
 import type { PulseItem, SourceConnection, SourceOptions } from "../types";
 import { requireDesktop } from "./helmsman";
 import { fetchHackerNews, fetchLobsters, fetchRss } from "./fetchers/aggregators";
 import { fetchArxiv, fetchDevTo, fetchGithub, fetchHuggingFace, fetchProductHunt } from "./fetchers/catalogs";
 import { fetchLinkedIn, fetchReddit, fetchTwitter } from "./fetchers/social";
-
-/** Sources that need no login; the profile argument is ignored for them. */
-const PUBLIC_SOURCES = new Set([
-  "hackernews",
-  "lobsters",
-  "arxiv",
-  "huggingface",
-  "devto",
-  "producthunt",
-  "github",
-  "rss",
-]);
-
-export function requiresProfile(sourceId: string): boolean {
-  return !PUBLIC_SOURCES.has(sourceId);
-}
 
 export async function fetchSource(source: SourceConnection): Promise<PulseItem[]> {
   requireDesktop();

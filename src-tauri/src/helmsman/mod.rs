@@ -11,7 +11,7 @@ pub mod install;
 pub mod resolve;
 pub mod run;
 
-pub use chrome::{check_profile_status, disconnect_profile, launch_auth_login};
+pub use chrome::{check_profile_status, close_profile_browser, disconnect_profile, launch_auth_login};
 pub use install::{install_helmsman, install_with_progress};
 pub use resolve::{resolve, version_for};
 pub use run::{helmsman_status, run_helmsman_extract};

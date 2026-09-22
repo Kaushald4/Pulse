@@ -6,6 +6,8 @@
 use std::fs;
 use std::path::PathBuf;
 
+use tauri::Emitter;
+
 use crate::support::proc::env_dir;
 
 use super::resolve::resolve_path;
@@ -16,6 +18,11 @@ pub fn check_profile_status(profile: String) -> bool {
     dirs::home_dir()
         .map(|home| home.join(".helmsman").join("profiles").join(&profile).exists())
         .unwrap_or(false)
+}
+
+/// Rejects anything that could point outside the profiles directory.
+fn valid_profile_name(name: &str) -> bool {
+    !name.is_empty() && !name.contains('/') && !name.contains('\\') && !name.contains("..")
 }
 
 fn chrome_candidates() -> Vec<PathBuf> {
@@ -59,8 +66,19 @@ fn chrome_candidates() -> Vec<PathBuf> {
 
 /// Launches a real Chrome instance (outside automation) so the user can log in
 /// safely, falling back to `helmsman auth login`.
+///
+/// This returns as soon as Chrome starts, so on its own the frontend has no way
+/// of knowing when a login finished. The child is kept and watched here
+/// instead, and `profile-login-finished` is emitted once it exits, which is the
+/// moment the profile can be re-checked. Chrome can hold the profile lock past
+/// its window closing, so the lock is released before that event, otherwise the
+/// sync that follows a login runs into a locked profile.
 #[tauri::command]
-pub fn launch_auth_login(profile: String, site: String) -> Result<String, String> {
+pub fn launch_auth_login(
+    app: tauri::AppHandle,
+    profile: String,
+    site: String,
+) -> Result<String, String> {
     let url = if site.starts_with("http") {
         site.clone()
     } else {
@@ -71,11 +89,19 @@ pub fn launch_auth_login(profile: String, site: String) -> Result<String, String
     let profile_dir = home.join(".helmsman").join("profiles").join(&profile);
 
     if let Some(chrome) = chrome_candidates().into_iter().find(|p| p.exists()) {
-        crate::support::proc::command(chrome)
+        let mut child = crate::support::proc::command(chrome)
             .arg(format!("--user-data-dir={}", profile_dir.display()))
             .arg(&url)
             .spawn()
             .map_err(|e| format!("Failed to launch Chrome: {e}"))?;
+
+        let watched = profile.clone();
+        std::thread::spawn(move || {
+            let _ = child.wait();
+            close_profile(&watched);
+            let _ = app.emit("profile-login-finished", watched);
+        });
+
         return Ok(format!("Launched Chrome with profile '{profile}' for {site}"));
     }
 
@@ -90,6 +116,36 @@ pub fn launch_auth_login(profile: String, site: String) -> Result<String, String
     Err("Could not find Google Chrome or the helmsman CLI to launch login.".to_string())
 }
 
+/// Releases a profile lock so the next run can use it.
+///
+/// helmsman holds a lock for as long as a browser has the profile open, and
+/// Chrome can outlive its own window, so this is called explicitly rather than
+/// waiting for the process to be gone.
+fn close_profile(profile: &str) {
+    if let Some(binary) = resolve_path() {
+        let mut cmd = build_command(&binary, "auth");
+        cmd.arg("close").arg(profile);
+        let _ = cmd.output();
+    }
+}
+
+/// Closes the browser holding this profile and releases its lock.
+///
+/// This is what ends a login window. On macOS closing a Chrome window does not
+/// end the process, so it keeps running and keeps the profile locked, which
+/// means "the login window went away" is not something a flow can watch for.
+/// The user saying they are done is the signal, and this is what acts on it:
+/// the browser closes and the verification sync can open the profile.
+#[tauri::command]
+pub async fn close_profile_browser(profile: String) -> Result<(), String> {
+    let name = profile.trim().to_string();
+    if !valid_profile_name(&name) {
+        return Err("Invalid profile name.".to_string());
+    }
+    let _ = tauri::async_runtime::spawn_blocking(move || close_profile(&name)).await;
+    Ok(())
+}
+
 /// Removes a saved browser profile - this is what actually signs a source out.
 ///
 /// helmsman stores each profile as a directory under `~/.helmsman/profiles`, so
@@ -99,11 +155,7 @@ pub fn launch_auth_login(profile: String, site: String) -> Result<String, String
 #[tauri::command]
 pub async fn disconnect_profile(profile: String) -> Result<serde_json::Value, String> {
     let name = profile.trim().to_string();
-    if name.is_empty()
-        || name.contains('/')
-        || name.contains('\\')
-        || name.contains("..")
-    {
+    if !valid_profile_name(&name) {
         return Err("Invalid profile name.".to_string());
     }
 
@@ -113,14 +165,9 @@ pub async fn disconnect_profile(profile: String) -> Result<serde_json::Value, St
         .join("profiles")
         .join(&name);
 
-    if let Some(binary) = resolve_path() {
+    if resolve_path().is_some() {
         let name = name.clone();
-        let _ = tauri::async_runtime::spawn_blocking(move || {
-            let mut cmd = build_command(&binary, "auth");
-            cmd.arg("close").arg(&name);
-            let _ = cmd.output();
-        })
-        .await;
+        let _ = tauri::async_runtime::spawn_blocking(move || close_profile(&name)).await;
     }
 
     let removed = if dir.exists() {
@@ -134,4 +181,19 @@ pub async fn disconnect_profile(profile: String) -> Result<serde_json::Value, St
         "removed": removed,
         "path": dir.to_string_lossy(),
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::valid_profile_name;
+
+    #[test]
+    fn profile_names_cannot_escape_the_profiles_directory() {
+        assert!(valid_profile_name("reddit"));
+        assert!(valid_profile_name("x-com"));
+        assert!(!valid_profile_name(""));
+        assert!(!valid_profile_name("../secrets"));
+        assert!(!valid_profile_name("a/b"));
+        assert!(!valid_profile_name(r"a\b"));
+    }
 }

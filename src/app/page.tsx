@@ -71,6 +71,24 @@ export default function PulseApp() {
     void import("@tauri-apps/api/event").then(({ listen }) =>
       Promise.all([
         listen("tray-sync-request", () => void usePulse.getState().syncAll()),
+        listen<string>("profile-login-finished", async (event) => {
+          const state = usePulse.getState();
+          const profile = event.payload;
+          const pending = state.sources.find((entry) => entry.id === state.pendingLoginSourceId);
+
+          // Rust reports this when the login browser exits by itself, which is
+          // what happens if the user quits Chrome rather than just closing its
+          // window. That is the same end state the finish button produces, so it
+          // finishes the flow too, instead of asking for a click nobody needs.
+          if (pending && pending.profileName === profile) {
+            await state.finishConnect(pending);
+            return;
+          }
+
+          // Any other exit just means a profile may have changed, so the screen
+          // should re-read it rather than keep showing a stale connection state.
+          await state.refreshSources();
+        }),
         listen<ScheduleDue>("background-sync-due", async (event) => {
           const due = event.payload;
           const current = usePulse.getState();

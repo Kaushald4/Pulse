@@ -69,9 +69,11 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
       ensureBriefing(),
       // Published today ("what happened today") and collected today ("Pulse
       // found today") are deliberately separate - a big sync of older stories
-      // must not inflate "Today".
-      queryItems({ sortBy: "recent", publishedSince: since }),
-      queryItems({ sortBy: "recent", collectedSince: since }),
+      // must not inflate "Today". Both read their whole window rather than one
+      // page: a busy day runs past 200, and a list that stopped there silently
+      // would under-report what arrived.
+      queryItems({ sortBy: "recent", publishedSince: since, limit: null }),
+      queryItems({ sortBy: "recent", collectedSince: since, limit: null }),
       getSignalPreferences(),
       getWatchlists(),
     ]);

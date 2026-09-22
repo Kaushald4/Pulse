@@ -29,8 +29,8 @@ use app::{
 };
 use config::{get_config, set_config};
 use helmsman::{
-    check_profile_status, disconnect_profile, helmsman_status, install_helmsman, launch_auth_login,
-    run_helmsman_extract,
+    check_profile_status, close_profile_browser, disconnect_profile, helmsman_status, install_helmsman,
+    launch_auth_login, run_helmsman_extract,
 };
 use jobs::{cancel_job_scan, pick_resume_file, save_job_file, scan_job_providers, JobScanState};
 use reading::{extract_content, fetch_feed, fetch_link_metadata, github_trending};
@@ -78,6 +78,7 @@ pub fn run() {
             install_helmsman,
             check_profile_status,
             launch_auth_login,
+            close_profile_browser,
             disconnect_profile,
             run_helmsman_extract,
             github_trending,

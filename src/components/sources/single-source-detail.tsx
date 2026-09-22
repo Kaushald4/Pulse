@@ -1,6 +1,6 @@
 /** A single-source domain: the full focused editor and its actions. */
 import React from "react";
-import { ExternalLink, RefreshCw, Unplug } from "lucide-react";
+import { Check, ExternalLink, RefreshCw, Unplug } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import {
@@ -27,11 +27,14 @@ export function SingleSourceDetail({ source }: { source: SourceConnection }) {
   const syncOne = usePulse((state) => state.syncOne);
   const connectSource = usePulse((state) => state.connectSource);
   const disconnectSource = usePulse((state) => state.disconnectSource);
-  const refreshSources = usePulse((state) => state.refreshSources);
+  const finishConnect = usePulse((state) => state.finishConnect);
+  const cancelConnect = usePulse((state) => state.cancelConnect);
+  const pendingLoginSourceId = usePulse((state) => state.pendingLoginSourceId);
 
   const [confirmDisconnect, setConfirmDisconnect] = React.useState(false);
   const needsProfile = source.authType === "browser_profile";
   const isThisSyncing = syncingSource === source.id;
+  const waitingForLogin = pendingLoginSourceId === source.id;
 
   return (
     <Card className="flex flex-col gap-0 overflow-hidden p-0">
@@ -48,15 +51,28 @@ export function SingleSourceDetail({ source }: { source: SourceConnection }) {
           <StatusBadge status={sourceStatus(source)} />
         </div>
 
+        {needsProfile && waitingForLogin && (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 p-2.5">
+            <p className="min-w-0 flex-1 text-[12px] leading-4 text-muted-foreground">
+              Sign in to {source.name} in the Chrome window, then press I've signed in. Closing that window
+              does not quit Chrome, so Pulse waits for you rather than guessing.
+            </p>
+            <Button size="sm" onClick={() => void finishConnect(source)} className="gap-1.5">
+              <Check className="size-3.5" />
+              I've signed in
+            </Button>
+            <Button variant="ghost" size="sm" onClick={cancelConnect}>
+              Cancel
+            </Button>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center gap-2">
-          {needsProfile && (
+          {needsProfile && !waitingForLogin && (
             <Button
               variant="outline"
               size="sm"
-              onClick={async () => {
-                await connectSource(source);
-                await refreshSources();
-              }}
+              onClick={() => void connectSource(source)}
               className="gap-1.5"
             >
               <ExternalLink className="size-3.5" />
@@ -66,7 +82,7 @@ export function SingleSourceDetail({ source }: { source: SourceConnection }) {
           <Button
             size="sm"
             onClick={() => void syncOne(source.id)}
-            disabled={syncing || (needsProfile && !source.profileExists)}
+            disabled={syncing || waitingForLogin || (needsProfile && !source.profileExists)}
             className="gap-1.5"
           >
             <RefreshCw className={cn("size-3.5", isThisSyncing && "animate-spin")} />

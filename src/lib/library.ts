@@ -45,7 +45,7 @@ export interface LibraryFile {
 
 export async function buildLibraryExport(): Promise<LibraryFile> {
   const [items, sources, briefings, preferences, watchlists, projects, schedule] = await Promise.all([
-    queryItems({}),
+    queryItems({ limit: null }), // everything: a page would not be a backup
     getSources(),
     getAllBriefings(),
     getSignalPreferences(),

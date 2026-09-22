@@ -159,6 +159,8 @@ export interface SyncSlice {
   syncProgress: SyncProgress | null;
   /** The one source whose spinner should be active. */
   syncingSource: string | null;
+  /** The source whose login window is open, waiting for the user to finish. */
+  pendingLoginSourceId: string | null;
   /** The audit log: every recorded operation, newest first. */
   runs: RunRecord[];
   /** When the most recent successful sync finished, for "last synced at". */
@@ -171,6 +173,9 @@ export interface SyncSlice {
   /** Syncs a specific set of sources - used by a domain group ("Sync all 3"). */
   syncGroup: (sourceIds: string[]) => Promise<void>;
   connectSource: (source: SourceConnection) => Promise<void>;
+  /** Closes the login window, then syncs once to prove the saved login works. */
+  finishConnect: (source: SourceConnection) => Promise<void>;
+  cancelConnect: () => void;
   disconnectSource: (source: SourceConnection) => Promise<void>;
   updateSourceOptions: (sourceId: string, options: SourceOptions) => Promise<void>;
 }

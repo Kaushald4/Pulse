@@ -5,9 +5,14 @@ import type { StateCreator } from "zustand";
 import { getRuns } from "../../lib/db/runs";
 import { getSources, saveSources } from "../../lib/db/sources";
 import { syncSources } from "../../lib/pipeline";
+import { canSync, partitionSyncable } from "../../lib/sources/auth";
 import { describeOptions } from "../../lib/sources/describe";
-import { disconnectProfile, launchAuthLogin, profileExists } from "../../lib/sources/helmsman";
-import { requiresProfile } from "../../lib/sources/registry";
+import {
+  closeProfileBrowser,
+  disconnectProfile,
+  launchAuthLogin,
+  profileExists,
+} from "../../lib/sources/helmsman";
 import { toast } from "../../lib/toast";
 import type { SourceConnection } from "../../lib/types";
 import type { PulseStore, SyncSlice } from "./types";
@@ -31,8 +36,7 @@ async function runSync(
   set({ syncing: true, syncProgress: null });
   try {
     const enabled = targets.filter((source) => source.enabled !== false);
-    const ready = enabled.filter((source) => !requiresProfile(source.source) || source.isConnected);
-    const skipped = enabled.filter((source) => requiresProfile(source.source) && !source.isConnected);
+    const { ready, skipped } = partitionSyncable(enabled);
 
     if (ready.length === 0) {
       toast.info("Nothing to sync", "Connect a source in Sources, then try again.");
@@ -46,7 +50,7 @@ async function runSync(
 
     const parts = [`${report.newItems} items`, `${report.classified} classified`];
     if (report.previews > 0) parts.push(`${report.previews} previews`);
-    if (skipped.length) parts.push(`${skipped.length} skipped (not connected)`);
+    if (skipped.length) parts.push(`${skipped.length} skipped (no saved login)`);
 
     if (failures.length === 0) {
       toast.success("Sync complete", parts.join(" · "));
@@ -74,6 +78,7 @@ export const createSyncSlice: StateCreator<PulseStore, [], [], SyncSlice> = (set
   syncing: false,
   syncProgress: null,
   syncingSource: null,
+  pendingLoginSourceId: null,
   runs: [],
   lastSyncedAt: null,
 
@@ -148,11 +153,44 @@ export const createSyncSlice: StateCreator<PulseStore, [], [], SyncSlice> = (set
   connectSource: async (source) => {
     if (!source.profileName || !source.siteDomain) return;
     try {
-      const message = await launchAuthLogin(source.profileName, source.siteDomain);
-      toast.info("Login window opened", message);
+      await launchAuthLogin(source.profileName, source.siteDomain);
+      set({ pendingLoginSourceId: source.id });
+      toast.info(`Sign in to ${source.name}`, "Use the Chrome window, then press I've signed in here.");
     } catch (err) {
       toast.error("Could not open login", err instanceof Error ? err.message : String(err));
     }
+  },
+
+  cancelConnect: () => set({ pendingLoginSourceId: null }),
+
+  /**
+   * The user says the sign-in is finished.
+   *
+   * Closing the login window comes first, because on macOS a closed Chrome
+   * window leaves the browser running and the profile locked, and the sync below
+   * cannot open a locked profile. That sync then decides the outcome: a saved
+   * profile only means a browser ran, so a source counts as connected only once
+   * a sync against it has actually succeeded.
+   */
+  finishConnect: async (source) => {
+    set({ pendingLoginSourceId: null });
+    try {
+      if (source.profileName) await closeProfileBrowser(source.profileName);
+    } catch (err) {
+      toast.error("Could not close the login window", err instanceof Error ? err.message : String(err));
+      return;
+    }
+
+    await get().refreshSources();
+    const fresh = get().sources.find((entry) => entry.id === source.id);
+    if (!fresh) return;
+    if (!canSync(fresh)) {
+      toast.error("No login was saved", `Press Connect and sign in to ${source.name} again.`);
+      return;
+    }
+
+    toast.info(`Checking ${source.name}`, "Running a sync to confirm the saved login works.");
+    await get().syncOne(fresh.id);
   },
 
   disconnectSource: async (source) => {
@@ -165,6 +203,7 @@ export const createSyncSlice: StateCreator<PulseStore, [], [], SyncSlice> = (set
           : entry
       );
       set({ sources: next });
+      if (get().pendingLoginSourceId === source.id) set({ pendingLoginSourceId: null });
       await saveSources(next);
       toast.success(
         `${source.name} disconnected`,

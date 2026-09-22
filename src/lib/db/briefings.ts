@@ -18,8 +18,8 @@ import { rowToBriefing } from "./rows";
 async function candidatePool(): Promise<PulseItem[]> {
   const since = startOfToday();
   const [published, collected] = await Promise.all([
-    queryItems({ sortBy: "recent", publishedSince: since }),
-    queryItems({ sortBy: "recent", collectedSince: since }),
+    queryItems({ sortBy: "recent", publishedSince: since, limit: null }),
+    queryItems({ sortBy: "recent", collectedSince: since, limit: null }),
   ]);
 
   const byId = new Map<string, PulseItem>();

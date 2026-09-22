@@ -113,7 +113,7 @@ export async function getTopicSummary(): Promise<TopicSummary> {
   // Bounded by the window we actually compare over, so the prior bucket is a
   // real prior period rather than whatever fell inside the newest 200 rows.
   const since = new Date(Date.now() - 2 * TOPIC_WINDOW_DAYS * DAY).toISOString();
-  const items = await queryItems({ sortBy: "recent", publishedSince: since });
+  const items = await queryItems({ sortBy: "recent", publishedSince: since, limit: null });
   const now = Date.now();
   const current = new Map<string, number>();
   const prior = new Map<string, number>();
