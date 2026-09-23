@@ -17,12 +17,26 @@ import {
   type ResourceFilter,
 } from "../lib/resources";
 import { openExternal } from "../lib/config";
+import { fetchResourcePreviews } from "../lib/metadata";
 import { useProgressiveList } from "../lib/use-progressive-list";
 import { usePulse } from "../store/pulse";
 
 export function ResourcesView() {
   const resources = usePulse((state) => state.resources);
   const [filter, setFilter] = React.useState<ResourceFilter>("all");
+
+  // Most resources are links mentioned inside items, and nothing had ever
+  // fetched a preview for them, which left the cards with a hostname and
+  // nothing else. Open the view and a bounded batch fills in; the guard keeps a
+  // reload from starting another pass.
+  const backfilled = React.useRef(false);
+  React.useEffect(() => {
+    if (backfilled.current || resources.length === 0) return;
+    backfilled.current = true;
+    void fetchResourcePreviews(resources.map((entry) => entry.resource.url)).then((report) => {
+      if (report.enriched > 0) void usePulse.getState().refresh();
+    });
+  }, [resources]);
 
   const counts = React.useMemo(() => {
     const tally: Record<ResourceFilter, number> = {
@@ -91,9 +105,12 @@ export function ResourcesView() {
             // Repo stats only belong to the repo itself - a post that merely
             // mentions it would otherwise show the post's points as stars.
             const hasStats = resource.type === "repo" && isSelf && (item?.score ?? 0) > 0;
-            const image = preview?.image ?? item?.imageUrl ?? null;
-            const description =
-              preview?.description ?? item?.linkDescription ?? item?.why ?? item?.body ?? null;
+            // The preview is the single source for a resource's own words. This
+            // view used to fall back to the mentioning item as well, which is how
+            // one roundup post's description appeared on every site it linked to.
+            // That rule lives in previewFor now, where it also covers the image.
+            const image = preview?.image ?? null;
+            const description = preview?.description ?? null;
             // A repo is identified by owner/name; a site reads better by its own
             // title ("Jina AI") than by its bare host. Anything else prefers a
             // fetched preview title, then the title of the item that is the

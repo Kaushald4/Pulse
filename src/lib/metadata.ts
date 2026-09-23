@@ -73,18 +73,14 @@ export async function fetchLinkPreviews(limit = 40): Promise<PreviewReport> {
 const PREVIEW_BATCH = 50;
 
 /**
- * Fetches Open Graph previews for the built-in curated links.
+ * Fetches and stores URL-keyed previews for URLs that have never been checked.
  *
- * These links have no item row, so results are stored in `link_previews` keyed
- * by URL. Already-checked links are skipped, making this a one-time cost per
- * link - enough for the default catalog to render as rich cards.
+ * Already-checked links are skipped, and because `applyLinkPreviews` records
+ * failures too, this is a one-time cost per URL rather than a retry on every
+ * launch.
  */
-export async function fetchCuratedPreviews(): Promise<PreviewReport> {
-  if (!isTauriEnv()) return { enriched: 0, errors: [] };
-
-  const existing = await getLinkPreviews();
-  const pending = CURATED_RESOURCES.map((resource) => resource.url).filter((url) => !existing.has(url));
-  if (pending.length === 0) return { enriched: 0, errors: [] };
+async function previewUrls(pending: string[]): Promise<PreviewReport> {
+  if (pending.length === 0 || !isTauriEnv()) return { enriched: 0, errors: [] };
 
   const { invoke } = await import("@tauri-apps/api/core");
   let enriched = 0;
@@ -115,4 +111,30 @@ export async function fetchCuratedPreviews(): Promise<PreviewReport> {
   }
 
   return { enriched, errors: errors.slice(0, 3) };
+}
+
+/**
+ * Fetches Open Graph previews for the built-in curated links.
+ *
+ * These links have no item row, so results are stored in `link_previews` keyed
+ * by URL. Enough for the default catalog to render as rich cards.
+ */
+export async function fetchCuratedPreviews(): Promise<PreviewReport> {
+  const existing = await getLinkPreviews();
+  const pending = CURATED_RESOURCES.map((resource) => resource.url).filter((url) => !existing.has(url));
+  return previewUrls(pending);
+}
+
+/**
+ * Fetches Open Graph previews for resources extracted from collected content.
+ *
+ * A resource is normally a link mentioned inside an item, so it has no item row
+ * of its own and the URL-keyed table never covered it. That is most of the
+ * catalog, which is why those cards showed a hostname and nothing else. Called
+ * with a bounded slice, so each pass covers a little more.
+ */
+export async function fetchResourcePreviews(urls: string[], limit = PREVIEW_BATCH): Promise<PreviewReport> {
+  const existing = await getLinkPreviews();
+  const pending = urls.filter((url) => !existing.has(url)).slice(0, limit);
+  return previewUrls(pending);
 }

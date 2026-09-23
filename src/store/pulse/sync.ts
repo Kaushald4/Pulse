@@ -4,6 +4,7 @@
 import type { StateCreator } from "zustand";
 import { getRuns } from "../../lib/db/runs";
 import { getSources, saveSources } from "../../lib/db/sources";
+import { fetchResourcePreviews } from "../../lib/metadata";
 import { syncSources } from "../../lib/pipeline";
 import { canSync, partitionSyncable } from "../../lib/sources/auth";
 import { describeOptions } from "../../lib/sources/describe";
@@ -62,6 +63,10 @@ async function runSync(
     }
 
     await get().refreshSources();
+    // Resource cards are links mentioned inside items, and nothing had ever
+    // fetched a preview for those, so cover a bounded batch before the reload
+    // below picks the results up.
+    await fetchResourcePreviews(get().resources.map((entry) => entry.resource.url));
     await get().refresh();
     // The run log is its own table - it must be re-read or it keeps showing
     // whatever it held when the app started.

@@ -69,7 +69,8 @@ function arg(name: string, fallback: string): string {
 
 function defaultDatabasePath(): string {
   const identifier = "com.pulse.desktop";
-  if (process.platform === "darwin") return join(homedir(), "Library", "Application Support", identifier, "pulse.db");
+  if (process.platform === "darwin")
+    return join(homedir(), "Library", "Application Support", identifier, "pulse.db");
   if (process.platform === "win32") {
     return join(process.env.APPDATA ?? join(homedir(), "AppData", "Roaming"), identifier, "pulse.db");
   }
@@ -132,7 +133,8 @@ function loadTeacher() {
   } else {
     throw new Error(`This runner speaks OpenAI-compatible chat only, not provider "${provider}".`);
   }
-  if (!url.startsWith("http") || !apiKey) throw new Error(`Provider "${provider}" is missing a base URL or API key.`);
+  if (!url.startsWith("http") || !apiKey)
+    throw new Error(`Provider "${provider}" is missing a base URL or API key.`);
   return { provider, model: String(task.model ?? ""), url, apiKey };
 }
 
@@ -155,7 +157,10 @@ async function callTeacher(teacher: ReturnType<typeof loadTeacher>, items: Teach
       body: JSON.stringify(body),
     });
     if (response.ok) {
-      const value = (await response.json()) as { choices?: Array<{ message?: { content?: string } }>; model?: string };
+      const value = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+        model?: string;
+      };
       return { text: value.choices?.[0]?.message?.content ?? "", model: value.model ?? teacher.model };
     }
     last = `${response.status} ${(await response.text()).slice(0, 160)}`;
@@ -193,7 +198,8 @@ async function main(): Promise<void> {
   const splitsPath = join(artifacts, "splits.json");
   if (existsSync(splitsPath)) {
     const splits = JSON.parse(readFileSync(splitsPath, "utf8")).splits as Record<string, string[]>;
-    for (const name of ["test", "validation", "calibration"]) for (const id of splits[name] ?? []) splitIds.add(id);
+    for (const name of ["test", "validation", "calibration"])
+      for (const id of splits[name] ?? []) splitIds.add(id);
   }
 
   const db = new DatabaseSync(snapshot, { readOnly: true });
@@ -204,7 +210,9 @@ async function main(): Promise<void> {
     .all() as unknown as Row[];
   db.close();
 
-  const eligible = rows.filter((row) => !alreadyLabelled.has(row.id) && !splitIds.has(row.id) && row.title.trim());
+  const eligible = rows.filter(
+    (row) => !alreadyLabelled.has(row.id) && !splitIds.has(row.id) && row.title.trim()
+  );
 
   // Coverage-first selection: rare proxied cells whole, then diversity across
   // sources, so the corpus widens the class spread rather than just growing.
@@ -222,7 +230,9 @@ async function main(): Promise<void> {
   }
   const corpus = selected.slice(0, max);
 
-  console.log(`contract frozen: taxonomy ${contract.taxonomyVersion}, prompt ${contract.promptTemplateSha256.slice(0, 12)}`);
+  console.log(
+    `contract frozen: taxonomy ${contract.taxonomyVersion}, prompt ${contract.promptTemplateSha256.slice(0, 12)}`
+  );
   console.log(`eligible unlabelled ${eligible.length}, rare-cell ${rare.length}, selected ${corpus.length}`);
   console.log(`excluded ${splitIds.size} ids held by validation, calibration or the test lock`);
 
@@ -355,7 +365,11 @@ async function main(): Promise<void> {
 
   console.log(`\n\nlabelled ${out.length} new rows, ${unresolved.length} without an answer`);
   for (const [head, stats] of Object.entries(coverage)) {
-    const typed = stats as { classes_before: number; before_counts: Record<string, number>; added_counts: Record<string, number> };
+    const typed = stats as {
+      classes_before: number;
+      before_counts: Record<string, number>;
+      added_counts: Record<string, number>;
+    };
     const after = new Set([...Object.keys(typed.before_counts), ...Object.keys(typed.added_counts)]);
     console.log(`  ${head.padEnd(12)} classes ${typed.classes_before} -> ${after.size}`);
   }

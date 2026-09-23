@@ -87,13 +87,38 @@ export async function applyResources(id: string, resources: unknown[]): Promise<
 
 /** Stores fetched page content and its summary. Pass null text to keep the old one. */
 
-/** One entry's preview, preferring a captured Open Graph fetch over item data. */
+/**
+ * One entry's preview: a captured Open Graph fetch when there is one, otherwise
+ * the item's own metadata, but only when the item *is* the resource.
+ *
+ * A roundup post is one item with a dozen resources, and its description
+ * describes the roundup rather than the sites inside it. Borrowing it made
+ * futuretools.io, aitools.fyi and huggingface.co all render the same sentence.
+ * With nothing true to say about a resource, the honest answer is nothing.
+ */
 function previewFor(entry: ResourceEntry, previews: Map<string, ResourcePreview>): ResourcePreview {
   const stored = previews.get(entry.resource.url);
-  const item = entry.item;
+  const isSelf = sameUrl(entry.resource.url, entry.item?.url);
   return {
     title: stored?.title ?? null,
-    description: stored?.description ?? item?.linkDescription ?? item?.why ?? item?.body ?? null,
-    image: stored?.image ?? item?.imageUrl ?? null,
+    description: stored?.description ?? (isSelf ? itemText(entry) : null),
+    image: stored?.image ?? (isSelf ? (entry.item?.imageUrl ?? null) : null),
   };
+}
+
+/** The item's own words about itself, in falling order of usefulness. */
+function itemText(entry: ResourceEntry): string | null {
+  return entry.item?.linkDescription ?? entry.item?.why ?? entry.item?.body ?? null;
+}
+
+/**
+ * Whether two URLs are the same address, ignoring a trailing slash and host
+ * case. Deliberately stricter than the feed's canonicalisation: merging two
+ * genuinely different links here would attribute one site's description to
+ * another, which is the bug this guards against.
+ */
+function sameUrl(a: string, b?: string | null): boolean {
+  if (!b) return false;
+  const strip = (value: string) => value.trim().replace(/\/+$/, "").toLowerCase();
+  return strip(a) === strip(b);
 }

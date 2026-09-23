@@ -8,6 +8,7 @@ import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
 import { usePulse } from "../store/pulse";
 import { cn, formatRelativeTime } from "../lib/utils";
+import { useProgressiveList } from "../lib/use-progressive-list";
 import type { RunCategory, RunStatus } from "../lib/db/runs";
 
 const RANGES = [
@@ -111,6 +112,14 @@ export function LogsView() {
   const byCategory = category === "all" ? inRange : inRange.filter((run) => run.category === category);
   const visible = status === "all" ? byCategory : byCategory.filter((run) => run.status === status);
 
+  // The log only ever grows, so it is revealed a page at a time rather than
+  // rendered whole. Revealing resets whenever a filter changes, and the sentinel
+  // below pulls in the next window as it comes into view.
+  const { visibleCount, hasMore, sentinelRef } = useProgressiveList(visible.length, {
+    resetKey: `${range}-${category}-${status}`,
+  });
+  const shown = visible.slice(0, visibleCount);
+
   const running = byCategory.filter((run) => run.status === "running").length;
   const failures = byCategory.filter((run) => run.status === "failed").length;
   const finished = byCategory.filter((run) => run.status !== "running").length;
@@ -210,7 +219,7 @@ export function LogsView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visible.map((run) => {
+              {shown.map((run) => {
                 const runTokens = run.inputTokens + run.outputTokens;
                 const result =
                   run.status === "running" ? "-" : run.status === "failed" ? run.error : run.summary;
@@ -246,6 +255,13 @@ export function LogsView() {
               })}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-between border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
+            <span className="tabular-nums">
+              Showing {shown.length} of {visible.length}
+            </span>
+            {hasMore && <span>Scroll for more</span>}
+            <div ref={sentinelRef} aria-hidden />
+          </div>
         </div>
       )}
     </div>
