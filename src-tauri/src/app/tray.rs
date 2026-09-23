@@ -44,7 +44,7 @@ pub fn build(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
-            "show" => show_window(app),
+            "show" => show_main_window(app),
             SYNC_ITEM_ID => {
                 let _ = app.emit("tray-sync-request", ());
             }
@@ -63,7 +63,7 @@ pub fn build(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     if window.is_visible().unwrap_or(false) {
                         let _ = window.hide();
                     } else {
-                        show_window(app);
+                        show_main_window(app);
                     }
                 }
             }
@@ -141,8 +141,16 @@ fn with_activity_dot(base: &Image<'_>) -> Image<'static> {
     Image::new_owned(rgba, width, height)
 }
 
-fn show_window(app: &AppHandle) {
+/// Shows, unminimises and focuses the main window.
+///
+/// Public because the tray is not the only way back into Pulse. macOS asks the
+/// app to reopen itself when the Dock icon is clicked or the app is activated,
+/// and that arrives through `RunEvent::Reopen` rather than through this module.
+pub fn show_main_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
+        // A window can be hidden, minimised, or both, and every route back in
+        // should end with the same visible, focused window.
+        let _ = window.unminimize();
         let _ = window.show();
         let _ = window.set_focus();
     }

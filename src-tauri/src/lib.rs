@@ -105,6 +105,16 @@ pub fn run() {
             run_setup,
             dismiss_setup
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running pulse desktop application");
+        .build(tauri::generate_context!())
+        .expect("error while running pulse desktop application")
+        .run(|app_handle, event| {
+            // Clicking the Dock icon, or activating Pulse again, asks the app to
+            // reopen itself. Closing the window only hides it, so without this
+            // handler that click does nothing and the tray becomes the only way
+            // back in. The request is not a window event, which is why it has to
+            // be caught here rather than next to the close handler above.
+            if let tauri::RunEvent::Reopen { .. } = event {
+                tray::show_main_window(app_handle);
+            }
+        });
 }
