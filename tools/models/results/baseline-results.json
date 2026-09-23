@@ -1,0 +1,730 @@
+{
+  "phase": "1 candidate benchmark (partial: prior and tf-idf logistic regression)",
+  "ranAt": "2026-09-23T02:24:07",
+  "evaluated_on": "validation",
+  "test_split_read": false,
+  "label_target": {
+    "description": "Pulse stored labels, exactly as they are, as of the dataset snapshot",
+    "engine": "one engine produced all 674 labels (deepseek-v4-flash)",
+    "prompt_version": "unknown for historical labels; not recorded before this work",
+    "taxonomy_version": "1",
+    "canonical_input_version": "1",
+    "label_audit": "results/label-audit.json records agreement with a re-run of the current teacher",
+    "caveat": "Phase 0 measured contract drift, so these are not a canonical contract"
+  },
+  "splits": {
+    "train": 431,
+    "validation": 122,
+    "calibration": 61,
+    "test": 60
+  },
+  "seed": 20260922,
+  "bootstrap_samples": 1000,
+  "heads": {
+    "category": {
+      "promoted": false,
+      "primary_metric": "macro_f1",
+      "classes_in_use": 4,
+      "evaluated": 122,
+      "prior": {
+        "point": 0.2081,
+        "majority_class": "news"
+      },
+      "candidate": {
+        "point": 0.1929,
+        "ci95": [
+          0.1502,
+          0.3021
+        ],
+        "delta_vs_prior": -0.0152,
+        "better_than_prior": false
+      },
+      "accuracy": 0.377,
+      "macro_f1": 0.1929,
+      "per_class_f1": {
+        "news": 0.4032,
+        "paper": 0.0,
+        "repo": 0.0,
+        "resource": 0.3684
+      },
+      "ordinal": null,
+      "ece": 0.3897,
+      "confusion": {
+        "labels": [
+          "news",
+          "paper",
+          "repo",
+          "resource"
+        ],
+        "matrix": [
+          [
+            25,
+            0,
+            0,
+            62
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            4,
+            0,
+            0,
+            0
+          ],
+          [
+            8,
+            0,
+            1,
+            21
+          ]
+        ]
+      }
+    },
+    "field": {
+      "promoted": false,
+      "primary_metric": "macro_f1",
+      "classes_in_use": 7,
+      "evaluated": 122,
+      "prior": {
+        "point": 0.1182,
+        "majority_class": "developer_tools"
+      },
+      "candidate": {
+        "point": 0.1141,
+        "ci95": [
+          0.0616,
+          0.1885
+        ],
+        "delta_vs_prior": -0.004,
+        "better_than_prior": false
+      },
+      "accuracy": 0.1311,
+      "macro_f1": 0.1141,
+      "per_class_f1": {
+        "ai_ml": 0.0741,
+        "data": 0.0,
+        "developer_tools": 0.093,
+        "other": 0.1159,
+        "security": 0.0,
+        "systems_infra": 0.2,
+        "web_frontend": 0.3158
+      },
+      "ordinal": null,
+      "ece": 0.2658,
+      "confusion": {
+        "labels": [
+          "ai_ml",
+          "data",
+          "developer_tools",
+          "other",
+          "security",
+          "systems_infra",
+          "web_frontend"
+        ],
+        "matrix": [
+          [
+            1,
+            0,
+            5,
+            15,
+            0,
+            3,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            4,
+            32,
+            0,
+            22,
+            9
+          ],
+          [
+            1,
+            0,
+            7,
+            4,
+            0,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            3,
+            2,
+            0,
+            4,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3
+          ]
+        ]
+      }
+    },
+    "topic": {
+      "promoted": true,
+      "primary_metric": "macro_f1",
+      "classes_in_use": 15,
+      "evaluated": 122,
+      "prior": {
+        "point": 0.0372,
+        "majority_class": "other"
+      },
+      "candidate": {
+        "point": 0.1503,
+        "ci95": [
+          0.1006,
+          0.1952
+        ],
+        "delta_vs_prior": 0.113,
+        "better_than_prior": true
+      },
+      "accuracy": 0.2541,
+      "macro_f1": 0.1503,
+      "per_class_f1": {
+        "benchmarks-eval": 0.0,
+        "databases-storage": 0.0,
+        "dev-tooling": 0.0667,
+        "developer-experience": 0.087,
+        "hardware-chips": 0.3333,
+        "inference-serving": 0.0,
+        "llm-agents": 0.4,
+        "model-releases": 0.0,
+        "networking-distributed": 0.0,
+        "open-source": 0.0,
+        "other": 0.4,
+        "security-privacy": 0.0,
+        "systems-runtime": 0.4167,
+        "training-methods": 0.0,
+        "web-frontend": 0.4
+      },
+      "ordinal": null,
+      "ece": 0.02,
+      "confusion": {
+        "labels": [
+          "benchmarks-eval",
+          "databases-storage",
+          "dev-tooling",
+          "developer-experience",
+          "hardware-chips",
+          "inference-serving",
+          "llm-agents",
+          "model-releases",
+          "networking-distributed",
+          "open-source",
+          "other",
+          "security-privacy",
+          "systems-runtime",
+          "training-methods",
+          "web-frontend"
+        ],
+        "matrix": [
+          [
+            0,
+            0,
+            2,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            2,
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            2,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            2,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            2,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            3,
+            1,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            9,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            6,
+            4,
+            5,
+            0,
+            1,
+            0,
+            0,
+            0,
+            14,
+            0,
+            6,
+            0,
+            5
+          ],
+          [
+            0,
+            1,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            5,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            5,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            4
+          ]
+        ]
+      }
+    },
+    "signal": {
+      "promoted": true,
+      "primary_metric": "mae",
+      "classes_in_use": 4,
+      "evaluated": 118,
+      "prior": {
+        "point": 0.9407,
+        "majority_class": "2"
+      },
+      "candidate": {
+        "point": 0.5932,
+        "ci95": [
+          0.4831,
+          0.7203
+        ],
+        "delta_vs_prior": 0.3475,
+        "better_than_prior": true
+      },
+      "accuracy": 0.4831,
+      "macro_f1": 0.3328,
+      "per_class_f1": {
+        "0": 0.4923,
+        "1": 0.56,
+        "2": 0.2791,
+        "3": 0.0
+      },
+      "ordinal": {
+        "mae": 0.5932,
+        "quadratic_weighted_kappa": 0.2879,
+        "ece": 0.0377
+      },
+      "ece": null,
+      "confusion": {
+        "labels": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "matrix": [
+          [
+            16,
+            13,
+            0,
+            0
+          ],
+          [
+            14,
+            35,
+            1,
+            0
+          ],
+          [
+            5,
+            25,
+            6,
+            0
+          ],
+          [
+            1,
+            2,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    "primary": {
+      "promoted": true,
+      "primary_metric": "positive_f1",
+      "classes_in_use": 2,
+      "evaluated": 118,
+      "prior": {
+        "point": 0.4474,
+        "majority_class": "True"
+      },
+      "candidate": {
+        "point": 0.3333,
+        "ci95": [
+          0.1538,
+          0.5
+        ],
+        "delta_vs_prior": -0.114,
+        "better_than_prior": false
+      },
+      "accuracy": 0.7627,
+      "macro_f1": 0.5945,
+      "per_class_f1": {
+        "False": 0.8557,
+        "True": 0.3333
+      },
+      "ordinal": null,
+      "ece": 0.0902,
+      "confusion": {
+        "labels": [
+          "False",
+          "True"
+        ],
+        "matrix": [
+          [
+            83,
+            1
+          ],
+          [
+            27,
+            7
+          ]
+        ]
+      }
+    },
+    "whyKey": {
+      "promoted": true,
+      "primary_metric": "macro_f1",
+      "classes_in_use": 7,
+      "evaluated": 122,
+      "prior": {
+        "point": 0.1032,
+        "majority_class": "other"
+      },
+      "candidate": {
+        "point": 0.1835,
+        "ci95": [
+          0.1294,
+          0.2392
+        ],
+        "delta_vs_prior": 0.0803,
+        "better_than_prior": true
+      },
+      "accuracy": 0.5164,
+      "macro_f1": 0.1835,
+      "per_class_f1": {
+        "benchmark-or-paper": 0.0,
+        "community-debate": 0.3636,
+        "major-model-release": 0.0,
+        "new-tool-release": 0.25,
+        "other": 0.6709,
+        "security-incident": 0.0,
+        "systems-technique": 0.0
+      },
+      "ordinal": null,
+      "ece": 0.0943,
+      "confusion": {
+        "labels": [
+          "benchmark-or-paper",
+          "community-debate",
+          "major-model-release",
+          "new-tool-release",
+          "other",
+          "security-incident",
+          "systems-technique"
+        ],
+        "matrix": [
+          [
+            0,
+            3,
+            0,
+            0,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            8,
+            0,
+            0,
+            8,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            7,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0,
+            2,
+            7,
+            0,
+            0
+          ],
+          [
+            0,
+            13,
+            0,
+            3,
+            53,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            8,
+            0,
+            0
+          ]
+        ]
+      }
+    }
+  }
+}

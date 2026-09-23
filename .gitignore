@@ -24,6 +24,11 @@ native/macos/.build/
 *.sqlite
 *.sqlite3
 
+# Model tooling: snapshots and the exported dataset hold real item text, so they
+# stay local. Reports under tools/models/results/ are committed.
+tools/models/artifacts/
+tools/models/.venv/
+
 # Environment variables & local configs
 .env*.local
 .env

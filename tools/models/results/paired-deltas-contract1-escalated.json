@@ -1,0 +1,309 @@
+{
+  "note": "positive delta means the fine-tuned candidate is better",
+  "heads": {
+    "topic": {
+      "all-MiniLM-L6-v2": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "macro_f1",
+          "reference_point": 0.3955,
+          "candidate_point": 0.2675,
+          "delta": -0.128,
+          "delta_ci95": [
+            -0.2086,
+            -0.0273
+          ],
+          "probability_candidate_better": 0.0035
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "macro_f1",
+          "reference_point": 0.3793,
+          "candidate_point": 0.2675,
+          "delta": -0.1118,
+          "delta_ci95": [
+            -0.1906,
+            -0.0127
+          ],
+          "probability_candidate_better": 0.012
+        },
+        "tfidf": {
+          "metric": "macro_f1",
+          "reference_point": 0.2261,
+          "candidate_point": 0.2675,
+          "delta": 0.0414,
+          "delta_ci95": [
+            -0.0364,
+            0.1168
+          ],
+          "probability_candidate_better": 0.849
+        }
+      },
+      "bge-small-en-v1.5": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "macro_f1",
+          "reference_point": 0.3955,
+          "candidate_point": 0.2482,
+          "delta": -0.1473,
+          "delta_ci95": [
+            -0.241,
+            -0.046
+          ],
+          "probability_candidate_better": 0.001
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "macro_f1",
+          "reference_point": 0.3793,
+          "candidate_point": 0.2482,
+          "delta": -0.1311,
+          "delta_ci95": [
+            -0.2176,
+            -0.0336
+          ],
+          "probability_candidate_better": 0.002
+        },
+        "tfidf": {
+          "metric": "macro_f1",
+          "reference_point": 0.2261,
+          "candidate_point": 0.2482,
+          "delta": 0.0221,
+          "delta_ci95": [
+            -0.0575,
+            0.0939
+          ],
+          "probability_candidate_better": 0.7215
+        }
+      }
+    },
+    "signal": {
+      "all-MiniLM-L6-v2": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "mae",
+          "reference_point": -0.6224,
+          "candidate_point": -0.5255,
+          "delta": 0.0969,
+          "delta_ci95": [
+            0.0,
+            0.2041
+          ],
+          "probability_candidate_better": 0.97
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "mae",
+          "reference_point": -0.6276,
+          "candidate_point": -0.5255,
+          "delta": 0.102,
+          "delta_ci95": [
+            0.0051,
+            0.199
+          ],
+          "probability_candidate_better": 0.981
+        },
+        "tfidf": {
+          "metric": "mae",
+          "reference_point": -0.5561,
+          "candidate_point": -0.5255,
+          "delta": 0.0306,
+          "delta_ci95": [
+            -0.0714,
+            0.1327
+          ],
+          "probability_candidate_better": 0.7165
+        }
+      },
+      "bge-small-en-v1.5": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "mae",
+          "reference_point": -0.6224,
+          "candidate_point": -0.551,
+          "delta": 0.0714,
+          "delta_ci95": [
+            -0.0357,
+            0.1787
+          ],
+          "probability_candidate_better": 0.8895
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "mae",
+          "reference_point": -0.6276,
+          "candidate_point": -0.551,
+          "delta": 0.0765,
+          "delta_ci95": [
+            -0.0255,
+            0.1786
+          ],
+          "probability_candidate_better": 0.929
+        },
+        "tfidf": {
+          "metric": "mae",
+          "reference_point": -0.5561,
+          "candidate_point": -0.551,
+          "delta": 0.0051,
+          "delta_ci95": [
+            -0.102,
+            0.1122
+          ],
+          "probability_candidate_better": 0.549
+        }
+      }
+    },
+    "primary": {
+      "all-MiniLM-L6-v2": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "positive_f1",
+          "reference_point": 0.7477,
+          "candidate_point": 0.77,
+          "delta": 0.0223,
+          "delta_ci95": [
+            -0.0482,
+            0.091
+          ],
+          "probability_candidate_better": 0.728
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "positive_f1",
+          "reference_point": 0.731,
+          "candidate_point": 0.77,
+          "delta": 0.039,
+          "delta_ci95": [
+            -0.0386,
+            0.1151
+          ],
+          "probability_candidate_better": 0.8305
+        },
+        "tfidf": {
+          "metric": "positive_f1",
+          "reference_point": 0.8342,
+          "candidate_point": 0.77,
+          "delta": -0.0642,
+          "delta_ci95": [
+            -0.1387,
+            0.0117
+          ],
+          "probability_candidate_better": 0.043
+        }
+      },
+      "bge-small-en-v1.5": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "positive_f1",
+          "reference_point": 0.7477,
+          "candidate_point": 0.7843,
+          "delta": 0.0367,
+          "delta_ci95": [
+            -0.0351,
+            0.1085
+          ],
+          "probability_candidate_better": 0.835
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "positive_f1",
+          "reference_point": 0.731,
+          "candidate_point": 0.7843,
+          "delta": 0.0533,
+          "delta_ci95": [
+            -0.0185,
+            0.1266
+          ],
+          "probability_candidate_better": 0.9295
+        },
+        "tfidf": {
+          "metric": "positive_f1",
+          "reference_point": 0.8342,
+          "candidate_point": 0.7843,
+          "delta": -0.0499,
+          "delta_ci95": [
+            -0.1229,
+            0.0233
+          ],
+          "probability_candidate_better": 0.0885
+        }
+      }
+    },
+    "whyKey": {
+      "all-MiniLM-L6-v2": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "macro_f1",
+          "reference_point": 0.385,
+          "candidate_point": 0.4971,
+          "delta": 0.112,
+          "delta_ci95": [
+            0.0261,
+            0.1937
+          ],
+          "probability_candidate_better": 0.998
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "macro_f1",
+          "reference_point": 0.3722,
+          "candidate_point": 0.4971,
+          "delta": 0.1249,
+          "delta_ci95": [
+            0.0324,
+            0.2152
+          ],
+          "probability_candidate_better": 0.9945
+        },
+        "tfidf": {
+          "metric": "macro_f1",
+          "reference_point": 0.4533,
+          "candidate_point": 0.4971,
+          "delta": 0.0437,
+          "delta_ci95": [
+            -0.0682,
+            0.1548
+          ],
+          "probability_candidate_better": 0.7775
+        }
+      },
+      "bge-small-en-v1.5": {
+        "frozen-all-MiniLM-L6-v2": {
+          "metric": "macro_f1",
+          "reference_point": 0.385,
+          "candidate_point": 0.5285,
+          "delta": 0.1434,
+          "delta_ci95": [
+            0.0471,
+            0.2253
+          ],
+          "probability_candidate_better": 0.9995
+        },
+        "frozen-bge-small-en-v1.5": {
+          "metric": "macro_f1",
+          "reference_point": 0.3722,
+          "candidate_point": 0.5285,
+          "delta": 0.1563,
+          "delta_ci95": [
+            0.059,
+            0.242
+          ],
+          "probability_candidate_better": 1.0
+        },
+        "tfidf": {
+          "metric": "macro_f1",
+          "reference_point": 0.4533,
+          "candidate_point": 0.5285,
+          "delta": 0.0751,
+          "delta_ci95": [
+            -0.024,
+            0.1734
+          ],
+          "probability_candidate_better": 0.935
+        }
+      }
+    }
+  },
+  "convergence": {
+    "all-MiniLM-L6-v2": {
+      "tail_mean_loss": 0.8837,
+      "previous_mean_loss": 0.8209,
+      "improvement": -0.0629,
+      "converged": true,
+      "rule": "tail improvement under 1 percent of the previous window over 10 steps"
+    },
+    "bge-small-en-v1.5": {
+      "tail_mean_loss": 1.1842,
+      "previous_mean_loss": 1.1267,
+      "improvement": -0.0575,
+      "converged": true,
+      "rule": "tail improvement under 1 percent of the previous window over 10 steps"
+    }
+  }
+}

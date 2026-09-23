@@ -14,6 +14,11 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "models:taxonomy": "tsx scripts/models/export-taxonomy.ts",
+    "models:dataset": "tsx scripts/models/export-dataset.ts",
+    "models:audit": "python3 tools/models/audit_dataset.py",
+    "models:sample": "python3 tools/models/sample_for_audit.py",
+    "models:labels": "tsx scripts/models/audit-labels.ts",
     "tauri": "node scripts/tauri.mjs"
   },
   "dependencies": {
@@ -54,13 +59,14 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@tauri-apps/cli": "^2.2.0",
-    "@types/node": "^20.17.19",
+    "@types/node": "^24.13.6",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "cross-env": "^10.1.0",
     "postcss": "^8.5.2",
     "prettier": "^3.9.8",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3",
     "vitest": "^5.0.1"
   }

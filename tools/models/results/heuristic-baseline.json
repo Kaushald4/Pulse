@@ -1,0 +1,31 @@
+{
+  "candidate": "heuristicClassify (the app's own deterministic rules)",
+  "evaluated_on": "validation of the contract-v1 split",
+  "evaluated": 200,
+  "seed": 20260922,
+  "applies_to": [
+    "category",
+    "field"
+  ],
+  "not_applicable": "topic, signal, primary, whyKey: the heuristic produces no prediction",
+  "heads": {
+    "category": {
+      "primary_metric": "macro_f1",
+      "point": 0.6255,
+      "ci95": [
+        0.571,
+        0.6754
+      ],
+      "accuracy": 0.535
+    },
+    "field": {
+      "primary_metric": "macro_f1",
+      "point": 0.1962,
+      "ci95": [
+        0.1291,
+        0.2657
+      ],
+      "accuracy": 0.28
+    }
+  }
+}

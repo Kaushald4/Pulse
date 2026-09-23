@@ -1,0 +1,266 @@
+{
+  "phase": "0 label consistency audit",
+  "ranAt": "2026-09-22T20:34:45.589Z",
+  "teacher": {
+    "provider": "openai-compatible",
+    "model": "deepseek-v4-flash",
+    "endpoint_host": "api.neuralwatt.com",
+    "temperature": 0.3,
+    "max_tokens": 1600,
+    "response_format": "json_object",
+    "system_prompt_sha": "37ce234d87f370ed",
+    "prompt_version": "b863e17af0ff0dd9",
+    "chunk_size": 8,
+    "taxonomy_signal_levels": 4
+  },
+  "dataset": {
+    "exportedAt": "2026-09-22T20:26:21.052Z",
+    "snapshot": {
+      "path": "/Users/kaushal/Desktop/my-tech-journal/pulse/tools/models/artifacts/snapshot/pulse.db",
+      "source": "/Users/kaushal/Library/Application Support/com.pulse.desktop/pulse.db",
+      "takenAt": "2026-09-22T20:26:21.038Z"
+    },
+    "taxonomyVersion": "1",
+    "canonicalInputVersion": "1",
+    "counts": {
+      "rows": 1708,
+      "labelled": 674,
+      "unlabelled": 1034,
+      "contentChanged": 0
+    }
+  },
+  "sample": {
+    "size": 400,
+    "seed": 20260922,
+    "stratified_on": "topic",
+    "floor_per_class": 12,
+    "classes": {
+      "benchmarks-eval": 22,
+      "databases-storage": 15,
+      "dev-tooling": 55,
+      "developer-experience": 15,
+      "hardware-chips": 13,
+      "inference-serving": 32,
+      "llm-agents": 75,
+      "model-releases": 29,
+      "networking-distributed": 9,
+      "open-source": 6,
+      "other": 285,
+      "security-privacy": 36,
+      "systems-runtime": 30,
+      "training-methods": 34,
+      "web-frontend": 18
+    },
+    "floors_met": {
+      "benchmarks-eval": 12,
+      "databases-storage": 12,
+      "dev-tooling": 12,
+      "developer-experience": 12,
+      "hardware-chips": 12,
+      "inference-serving": 12,
+      "llm-agents": 12,
+      "model-releases": 12,
+      "networking-distributed": 9,
+      "open-source": 6,
+      "other": 12,
+      "security-privacy": 12,
+      "systems-runtime": 12,
+      "training-methods": 12,
+      "web-frontend": 12
+    },
+    "labelled_available": 674
+  },
+  "items_compared": 400,
+  "responses_without_usable_entries": 0,
+  "agreement": {
+    "category": {
+      "compared": 378,
+      "agreed": 212,
+      "agreement": 0.5608,
+      "unanswered": 22,
+      "regenerated_missing": 0,
+      "raw_types_observed": {
+        "string": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "news -> resource": 134,
+        "news -> repo": 13,
+        "news -> paper": 5,
+        "repo -> resource": 5,
+        "resource -> news": 5,
+        "resource -> paper": 2,
+        "resource -> repo": 2
+      }
+    },
+    "field": {
+      "compared": 378,
+      "agreed": 165,
+      "agreement": 0.4365,
+      "unanswered": 22,
+      "regenerated_missing": 0,
+      "raw_types_observed": {
+        "string": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "developer_tools -> ai_ml": 62,
+        "developer_tools -> other": 55,
+        "developer_tools -> systems_infra": 15,
+        "developer_tools -> security": 15,
+        "systems_infra -> ai_ml": 9,
+        "systems_infra -> developer_tools": 9,
+        "developer_tools -> web_frontend": 7,
+        "systems_infra -> other": 6
+      }
+    },
+    "topic": {
+      "compared": 378,
+      "agreed": 258,
+      "agreement": 0.6825,
+      "unanswered": 22,
+      "regenerated_missing": 0,
+      "raw_types_observed": {
+        "string": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "other -> llm-agents": 9,
+        "other -> training-methods": 8,
+        "other -> benchmarks-eval": 8,
+        "llm-agents -> other": 4,
+        "other -> hardware-chips": 4,
+        "other -> security-privacy": 4,
+        "dev-tooling -> llm-agents": 4,
+        "other -> open-source": 4
+      }
+    },
+    "signal": {
+      "compared": 335,
+      "agreed": 250,
+      "agreement": 0.7463,
+      "unanswered": 65,
+      "regenerated_missing": 22,
+      "raw_types_observed": {
+        "integer": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "1 -> 2": 35,
+        "2 -> 1": 17,
+        "0 -> 1": 12,
+        "1 -> 0": 9,
+        "2 -> 3": 8,
+        "3 -> 2": 3,
+        "0 -> 2": 1
+      }
+    },
+    "primary": {
+      "compared": 335,
+      "agreed": 300,
+      "agreement": 0.8955,
+      "unanswered": 65,
+      "regenerated_missing": 22,
+      "raw_types_observed": {
+        "boolean": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "true -> false": 20,
+        "false -> true": 15
+      }
+    },
+    "whyKey": {
+      "compared": 378,
+      "agreed": 299,
+      "agreement": 0.791,
+      "unanswered": 22,
+      "regenerated_missing": 0,
+      "raw_types_observed": {
+        "string": 378,
+        "absent": 22
+      },
+      "top_disagreements": {
+        "other -> community-debate": 21,
+        "other -> new-tool-release": 13,
+        "community-debate -> other": 9,
+        "other -> benchmark-or-paper": 8,
+        "new-tool-release -> other": 5,
+        "other -> systems-technique": 4,
+        "systems-technique -> other": 3,
+        "benchmark-or-paper -> other": 3
+      }
+    }
+  },
+  "self_consistency": {
+    "repeats": 3,
+    "subset": 40,
+    "per_head": {
+      "category": {
+        "pairs": 80,
+        "stable": 74,
+        "rate": 0.925
+      },
+      "field": {
+        "pairs": 80,
+        "stable": 78,
+        "rate": 0.975
+      },
+      "topic": {
+        "pairs": 80,
+        "stable": 74,
+        "rate": 0.925
+      },
+      "signal": {
+        "pairs": 80,
+        "stable": 69,
+        "rate": 0.8625
+      },
+      "primary": {
+        "pairs": 80,
+        "stable": 76,
+        "rate": 0.95
+      },
+      "whyKey": {
+        "pairs": 80,
+        "stable": 70,
+        "rate": 0.875
+      }
+    }
+  },
+  "batch_context": {
+    "items": 8,
+    "per_head": {
+      "category": {
+        "pairs": 8,
+        "same": 7,
+        "rate": 0.875
+      },
+      "field": {
+        "pairs": 8,
+        "same": 7,
+        "rate": 0.875
+      },
+      "topic": {
+        "pairs": 8,
+        "same": 6,
+        "rate": 0.75
+      },
+      "signal": {
+        "pairs": 8,
+        "same": 5,
+        "rate": 0.625
+      },
+      "primary": {
+        "pairs": 8,
+        "same": 5,
+        "rate": 0.625
+      },
+      "whyKey": {
+        "pairs": 8,
+        "same": 6,
+        "rate": 0.75
+      }
+    }
+  }
+}

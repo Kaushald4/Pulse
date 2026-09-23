@@ -1,0 +1,180 @@
+{
+  "ranAt": "2026-09-22T21:23:17.759Z",
+  "contract": {
+    "contract": "pulse-classification",
+    "version": "1",
+    "status": "frozen",
+    "frozenAt": "2026-09-22T21:21:01.670Z",
+    "taxonomyVersion": "1",
+    "canonicalInputVersion": "1",
+    "provider": "openai-compatible",
+    "model": "deepseek-v4-flash",
+    "temperature": 0.3,
+    "maxTokens": 1600,
+    "responseFormat": "json_object",
+    "chunkSize": 8,
+    "systemPromptSha256": "37ce234d87f370ed09ff928330246cdaf8d3d389880172b63c6d4cb367451481",
+    "promptTemplateSha256": "b863e17af0ff0dd9ccb022e45747263a11b59dbc5b31d2e6205c614807c88279",
+    "validation": "every answer passes through finalize(), the same vocabulary validation production uses",
+    "note": "supersedes nothing: historical labels keep their own unknown provenance and are not rewritten"
+  },
+  "snapshot": {
+    "path": "/Users/kaushal/Desktop/my-tech-journal/pulse/tools/models/artifacts/snapshot-relabel/pulse.db",
+    "takenAt": "2026-09-22T21:21:01.667Z"
+  },
+  "selection": {
+    "rule": "rare proxied cells whole, then a per-source quota, then fill to the cap",
+    "rare_fields": [
+      "data",
+      "security",
+      "web_frontend",
+      "systems_infra"
+    ],
+    "rare_categories": [
+      "repo",
+      "paper"
+    ],
+    "eligible": 1159,
+    "rare_cell": 390,
+    "selected": 1159,
+    "excluded_split_ids": 243
+  },
+  "new_rows": 1149,
+  "rows_without_an_answer": 10,
+  "phase1_dataset_untouched": true,
+  "coverage": {
+    "category": {
+      "classes_before": 4,
+      "classes_added_by_new_corpus": [],
+      "before_counts": {
+        "news": 446,
+        "resource": 110,
+        "paper": 56,
+        "repo": 62
+      },
+      "added_counts": {
+        "resource": 520,
+        "repo": 100,
+        "news": 362,
+        "paper": 167
+      }
+    },
+    "field": {
+      "classes_before": 7,
+      "classes_added_by_new_corpus": [],
+      "before_counts": {
+        "developer_tools": 370,
+        "ai_ml": 127,
+        "systems_infra": 61,
+        "web_frontend": 23,
+        "other": 65,
+        "security": 21,
+        "data": 7
+      },
+      "added_counts": {
+        "web_frontend": 57,
+        "developer_tools": 167,
+        "other": 254,
+        "ai_ml": 508,
+        "systems_infra": 79,
+        "security": 66,
+        "data": 18
+      }
+    },
+    "topic": {
+      "classes_before": 15,
+      "classes_added_by_new_corpus": [
+        "browser-automation"
+      ],
+      "before_counts": {
+        "other": 285,
+        "inference-serving": 32,
+        "dev-tooling": 55,
+        "networking-distributed": 9,
+        "llm-agents": 75,
+        "developer-experience": 15,
+        "security-privacy": 36,
+        "databases-storage": 15,
+        "web-frontend": 18,
+        "open-source": 6,
+        "systems-runtime": 30,
+        "training-methods": 34,
+        "hardware-chips": 13,
+        "model-releases": 29,
+        "benchmarks-eval": 22
+      },
+      "added_counts": {
+        "web-frontend": 56,
+        "dev-tooling": 105,
+        "other": 305,
+        "llm-agents": 181,
+        "systems-runtime": 53,
+        "security-privacy": 83,
+        "developer-experience": 28,
+        "inference-serving": 46,
+        "model-releases": 75,
+        "training-methods": 99,
+        "browser-automation": 7,
+        "benchmarks-eval": 51,
+        "databases-storage": 16,
+        "networking-distributed": 4,
+        "open-source": 16,
+        "hardware-chips": 24
+      }
+    },
+    "signalLevel": {
+      "classes_before": 5,
+      "classes_added_by_new_corpus": [],
+      "before_counts": {
+        "0": 139,
+        "1": 229,
+        "2": 197,
+        "3": 18,
+        "null": 91
+      },
+      "added_counts": {
+        "0": 158,
+        "1": 464,
+        "2": 429,
+        "3": 58,
+        "null": 40
+      }
+    },
+    "primary": {
+      "classes_before": 3,
+      "classes_added_by_new_corpus": [],
+      "before_counts": {
+        "false": 334,
+        "true": 249,
+        "null": 91
+      },
+      "added_counts": {
+        "true": 600,
+        "false": 509,
+        "null": 40
+      }
+    },
+    "whyKey": {
+      "classes_before": 7,
+      "classes_added_by_new_corpus": [],
+      "before_counts": {
+        "other": 372,
+        "community-debate": 78,
+        "new-tool-release": 87,
+        "security-incident": 15,
+        "benchmark-or-paper": 80,
+        "major-model-release": 19,
+        "systems-technique": 23
+      },
+      "added_counts": {
+        "new-tool-release": 189,
+        "other": 514,
+        "community-debate": 105,
+        "security-incident": 32,
+        "benchmark-or-paper": 209,
+        "systems-technique": 46,
+        "major-model-release": 54
+      }
+    }
+  }
+}

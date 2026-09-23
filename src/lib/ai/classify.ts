@@ -2,66 +2,8 @@ import type { ClassifierEngine, ContentFieldValue, ItemCategory, PulseItem } fro
 import { heuristicClassify } from "../classify/heuristic";
 import { getConfig, isTauriEnv } from "../config";
 import { hashContent, parseJsonLoose } from "../utils";
+import { CATEGORY_OPTIONS, FIELD_OPTIONS, SIGNAL_LEVELS, TOPIC_OPTIONS, WHY_OPTIONS } from "./taxonomy";
 import { readUsage, type RawUsage } from "./usage";
-
-export const FIELD_OPTIONS: ContentFieldValue[] = [
-  "ai_ml",
-  "systems_infra",
-  "web_frontend",
-  "developer_tools",
-  "security",
-  "data",
-  "other",
-];
-
-/** Bounded topic vocabulary. Gives Rising Topics a stable key to aggregate on. */
-export const TOPIC_OPTIONS = [
-  "llm-agents",
-  "model-releases",
-  "inference-serving",
-  "training-methods",
-  "systems-runtime",
-  "databases-storage",
-  "web-frontend",
-  "dev-tooling",
-  "security-privacy",
-  "browser-automation",
-  "open-source",
-  "hardware-chips",
-  "networking-distributed",
-  "developer-experience",
-  "benchmarks-eval",
-  "other",
-];
-
-export const SIGNAL_LEVELS = [
-  "Noise; promotion, spam, or off-topic filler with no engineering value",
-  "Peripheral; mildly interesting but skippable for someone tracking this space",
-  "Useful; worth a look for an engineer working in this area",
-  "High-signal must-read; a significant development likely to matter for weeks",
-];
-
-export const WHY_OPTIONS = [
-  "new-tool-release",
-  "major-model-release",
-  "systems-technique",
-  "security-incident",
-  "benchmark-or-paper",
-  "community-debate",
-  "other",
-];
-
-export const WHY_LABELS: Record<string, string> = {
-  "new-tool-release": "New tool or library release",
-  "major-model-release": "Major model release",
-  "systems-technique": "Systems or infrastructure technique",
-  "security-incident": "Security or privacy finding",
-  "benchmark-or-paper": "Benchmark or research result",
-  "community-debate": "Ongoing community debate",
-  other: "Notable development",
-};
-
-const CATEGORY_OPTIONS = ["repo", "paper", "resource", "news"] as const;
 
 export interface Classification {
   category: Exclude<ItemCategory, "all">;
@@ -101,7 +43,7 @@ function clamp01(value: number): number {
  * off-vocabulary falls back to the deterministic heuristic rather than being
  * trusted blindly.
  */
-function finalize(
+export function finalize(
   item: PulseItem,
   raw: RawClassification,
   model: string | null,
@@ -312,15 +254,22 @@ async function classifyWithJev(
 /* LLM JSON-mode classification                                                */
 /* -------------------------------------------------------------------------- */
 
-const LLM_CHUNK_SIZE = 8;
+/** Reused by the label audit, so a batch is the same size in both places. */
+export const LLM_CHUNK_SIZE = 8;
 
-const LLM_SYSTEM = [
+export const LLM_SYSTEM = [
   "You classify technical content for a personal reading tracker.",
   "Use only the allowed values given in the prompt. Never invent facts.",
   "Reply with JSON only - no prose, no markdown fences.",
 ].join(" ");
 
-function buildLlmPrompt(items: PulseItem[]): string {
+/**
+ * The fields the teacher is asked about. Narrower than `PulseItem` so the audit
+ * can build the identical prompt from database columns.
+ */
+export type TeacherPromptItem = Pick<PulseItem, "id" | "title" | "source" | "url" | "author" | "body">;
+
+export function buildLlmPrompt(items: TeacherPromptItem[]): string {
   const payload = items.map((item) => ({
     id: item.id,
     title: item.title,
@@ -350,16 +299,35 @@ function buildLlmPrompt(items: PulseItem[]): string {
   ].join("\n");
 }
 
+export interface LlmClassificationEntry {
+  id?: string;
+  category?: unknown;
+  field?: unknown;
+  topic?: unknown;
+  signal?: unknown;
+  primary?: unknown;
+  whyKey?: unknown;
+}
+
 interface LlmClassificationPayload {
-  items?: Array<{
-    id?: string;
-    category?: unknown;
-    field?: unknown;
-    topic?: unknown;
-    signal?: unknown;
-    primary?: unknown;
-    whyKey?: unknown;
-  }>;
+  items?: LlmClassificationEntry[];
+}
+
+/**
+ * One item's answer, mapped to the shape `finalize` validates.
+ *
+ * Shared with the label audit, so the audit measures this mapping rather than a
+ * copy of it and any change here shows up in the next audit run.
+ */
+export function llmEntryToRaw(entry: LlmClassificationEntry): RawClassification {
+  return {
+    category: entry.category,
+    field: entry.field,
+    topic: entry.topic,
+    signalLevel: typeof entry.signal === "number" ? entry.signal : null,
+    primary: typeof entry.primary === "boolean" ? entry.primary : null,
+    whyKey: entry.whyKey,
+  };
 }
 
 async function classifyWithLlm(
@@ -414,14 +382,7 @@ async function classifyWithLlm(
           item.id,
           finalize(
             item,
-            {
-              category: entry.category,
-              field: entry.field,
-              topic: entry.topic,
-              signalLevel: typeof entry.signal === "number" ? entry.signal : null,
-              primary: typeof entry.primary === "boolean" ? entry.primary : null,
-              whyKey: entry.whyKey,
-            },
+            llmEntryToRaw(entry),
             outcome.model ?? model,
             hashContent(item.title, item.url, item.body)
           )

@@ -1,7 +1,7 @@
 import type { PulseItem } from "../types";
 import { isTauriEnv } from "../config";
 import { parseJsonLoose } from "../utils";
-import { WHY_LABELS } from "./classify";
+import { WHY_LABELS } from "./taxonomy";
 import { readUsage, type RawUsage } from "./usage";
 
 export interface LlmResult {

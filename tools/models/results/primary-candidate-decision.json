@@ -1,0 +1,81 @@
+{
+  "record": "primary local model, candidate decision and corrected threshold selection",
+  "decidedAt": "2026-09-22",
+  "status": "candidate",
+  "status_meaning": [
+    "family B, a separate local head model, not a shared-encoder PulseClassify model",
+    "the corrected deployed-rule gate passes, so it is eligible to ship once the production configuration is frozen",
+    "the test split remains locked and unread"
+  ],
+  "model": {
+    "id": "pulse-primary-local",
+    "version": "1.2.0",
+    "model_type": "separate_tfidf_linear",
+    "head": "primary",
+    "form": "TF-IDF plus logistic regression, one head, native runtime, no ONNX Runtime and no tokenizer",
+    "artifact": "tools/models/artifacts/primary-local/primary-local.json",
+    "manifest": "tools/models/artifacts/primary-local/manifest.json",
+    "undeclared_heads_route_to": "existing configured engine (topic, signal, whyKey, category, field)"
+  },
+  "routing": {
+    "declared_mode": "empirical-threshold",
+    "decision": "explicit per-head architecture decision, recorded here and in the manifest",
+    "score": "raw decision value from the linear classifier",
+    "probabilities_as_confidence": false,
+    "calibration_required_for_routing": false,
+    "consequence": "ECE is measured and reported for transparency and is not blocking, because no probability is consumed as confidence"
+  },
+  "phase_1_classifier_level": {
+    "metric": "positive-class F1 under an open rule",
+    "value": 0.8342,
+    "result": "passed, so the candidate was eligible to proceed"
+  },
+  "old_threshold_invalidated": {
+    "threshold": 0.64,
+    "selected_by": "precision-only procedure, which is no longer permitted",
+    "deployed_rule_quality_f1": 0.7473,
+    "quality_result": "failed against the 0.80 floor",
+    "coverage": 0.3724,
+    "coverage_result": "failed against the 0.40 floor",
+    "status": "invalidated and not carried forward"
+  },
+  "corrected_threshold_selection": {
+    "procedure": "routing mode first, then cross-fitted selection over a training-side pool, highest coverage among thresholds satisfying every applicable constraint, confirmed on a held-out half, frozen, then validation read once",
+    "selection_pool": {
+      "construction": "training split only",
+      "rows": 676,
+      "excluded": { "validation": 200, "calibration": 97, "test": 148 },
+      "cross_fitting": "5-fold, vectorizer and classifier refitted per fold, raw decision scores, so no row is scored by a model fitted on it"
+    },
+    "constraints": { "deployed_rule_quality": 0.8, "routing_precision": 0.9, "routing_coverage": 0.4 },
+    "feasible_thresholds_found": 23,
+    "objective": "highest coverage among the feasible thresholds",
+    "chosen_threshold": -0.0346,
+    "selection_half": { "f1": 0.87, "precision": 0.9016, "coverage": 0.571, "accepted_local": 193, "deferred": 145 },
+    "held_out_half": { "f1": 0.9008, "precision": 0.8842, "coverage": 0.5621, "accepted_local": 190, "deferred": 148 },
+    "validation_read_once": { "f1": 0.8358, "precision": 0.913, "coverage": 0.4694, "accepted_local": 92, "deferred": 104 }
+  },
+  "gate_status": {
+    "deployed_rule_quality_0_80": { "value": 0.8358, "pass": true },
+    "routing_precision_0_90": { "value": 0.913, "pass": true },
+    "routing_coverage_0_40": { "value": 0.4694, "pass": true },
+    "calibration_ece_0_05": {
+      "value": 0.3266,
+      "blocking": false,
+      "status": "informational: empirical threshold routing was explicitly selected for this head, so probabilities are not consumed as confidence",
+      "not_silently_waived": "under probability-based routing this same number would be blocking"
+    },
+    "thresholds_changed": false,
+    "verdict": "all applicable constraints pass on the frozen deployed rule, evaluated once on validation"
+  },
+  "honest_caveats": [
+    "the chosen threshold maximises coverage, so it sits on the precision boundary: the held-out half scored 0.8842 against a 0.90 floor while the selection half and validation scored 0.9016 and 0.9130",
+    "the three precision estimates disagree by about three points, which is the same heterogeneity seen before between periods",
+    "calibration remains uncalibrated at ECE 0.3266 and is not blocking only because of the recorded mode decision"
+  ],
+  "not_done": [
+    "the test split has not been opened and stays locked at 148 ids",
+    "the production configuration is not frozen",
+    "no further training was run"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "ranAt": "2026-09-23T02:28:08",
+  "criterion": {
+    "model_artifact_limit_bytes": 41943040,
+    "applies_to": "onnx weights plus tokenizer",
+    "excludes": "onnxruntime library, reported separately as a per-platform install cost"
+  },
+  "onnxruntime_library_bytes": 33209560,
+  "models": {
+    "all-MiniLM-L6-v2": {
+      "repo": "Xenova/all-MiniLM-L6-v2",
+      "pooling": "mean",
+      "dimension": 384,
+      "fp32": {
+        "weights_bytes": 90387606,
+        "tokenizer_bytes": 711661,
+        "artifact_bytes": 91099267
+      },
+      "int8": {
+        "weights_bytes": 22869072,
+        "tokenizer_bytes": 711661,
+        "artifact_bytes": 23580733,
+        "path": "tools/models/artifacts/quantized/all-MiniLM-L6-v2-int8.onnx"
+      },
+      "reduction": 0.2588,
+      "embedding_drift": {
+        "min_cosine": 0.952814519405365,
+        "max_abs_diff": 0.05124974995851517
+      },
+      "artifact_within_limit": true
+    },
+    "bge-small-en-v1.5": {
+      "repo": "Xenova/bge-small-en-v1.5",
+      "pooling": "cls",
+      "dimension": 384,
+      "fp32": {
+        "weights_bytes": 133093490,
+        "tokenizer_bytes": 711396,
+        "artifact_bytes": 133804886
+      },
+      "int8": {
+        "weights_bytes": 33807386,
+        "tokenizer_bytes": 711396,
+        "artifact_bytes": 34518782,
+        "path": "tools/models/artifacts/quantized/bge-small-en-v1.5-int8.onnx"
+      },
+      "reduction": 0.258,
+      "embedding_drift": {
+        "min_cosine": 0.9807071685791016,
+        "max_abs_diff": 0.039417702704668045
+      },
+      "artifact_within_limit": true
+    }
+  }
+}

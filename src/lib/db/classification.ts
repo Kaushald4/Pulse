@@ -2,25 +2,38 @@
  * Where classifier output lands on items, and what still needs classifying.
  */
 import type { PulseItem } from "../types";
+import { hashContent } from "../utils";
 import { getDatabase, readLocal, writeLocal } from "./client";
 import { LS_ITEMS } from "./local-keys";
 import { rowToItem } from "./rows";
+
+/**
+ * Whether an item needs classifying: never labelled, no recorded hash, or the
+ * content moved on since the label was written.
+ *
+ * `content_hash` belongs to the *classification*, not to the item. Refreshing it
+ * on ingest would erase the only record of which content a label came from,
+ * which is exactly the provenance the dataset export needs, so the comparison
+ * happens here instead and nothing is overwritten.
+ */
+export function needsClassification(item: PulseItem): boolean {
+  if (!item.classifiedAt || !item.contentHash) return true;
+  return item.contentHash !== hashContent(item.title, item.url, item.body);
+}
 
 /** Items that have never been classified, or whose content changed. */
 export async function getUnclassifiedItems(limit = 60): Promise<PulseItem[]> {
   const db = await getDatabase();
   if (db) {
-    const rows = (await db.select(
-      `SELECT * FROM items
-       WHERE jev_at IS NULL OR content_hash IS NULL
-       ORDER BY published_at DESC LIMIT $1;`,
-      [limit]
-    )) as any[];
-    return rows.map(rowToItem);
+    // The current hash is computed in JavaScript, not SQL, so the candidates are
+    // read and filtered here rather than narrowed by a query. At a few thousand
+    // rows that costs a few milliseconds. If the library ever grows enough for it
+    // to matter, the answer is a fingerprint written at ingest, never a narrower
+    // query, which would silently skip changed rows.
+    const rows = (await db.select(`SELECT * FROM items ORDER BY published_at DESC;`)) as any[];
+    return rows.map(rowToItem).filter(needsClassification).slice(0, limit);
   }
-  return readLocal<PulseItem[]>(LS_ITEMS, [])
-    .filter((item) => !item.classifiedAt || !item.contentHash)
-    .slice(0, limit);
+  return readLocal<PulseItem[]>(LS_ITEMS, []).filter(needsClassification).slice(0, limit);
 }
 
 export interface ClassificationUpdate {

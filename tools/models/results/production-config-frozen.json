@@ -1,0 +1,52 @@
+{
+  "frozenAt": "2026-09-23T04:45:20",
+  "status": "frozen",
+  "accepted_as_is": [
+    "empirical threshold routing, the recorded per-head architecture decision",
+    "threshold -0.0346 selected by the coverage-maximising objective",
+    "held-out precision 0.8842 recorded as a known variability point",
+    "ECE non-blocking because probabilities are not consumed as confidence"
+  ],
+  "not_rerun": [
+    "selection",
+    "training",
+    "calibration",
+    "threshold optimisation"
+  ],
+  "artifact": {
+    "path": "tools/models/artifacts/primary-local/primary-local.json",
+    "sha256": "a2c8d869e9810138783addf14dd9d2ce6730acda94346c786487edefcbc89263",
+    "bytes": 280197
+  },
+  "manifest": {
+    "model_id": "pulse-primary-local",
+    "version": "1.2.0",
+    "model_type": "separate_tfidf_linear",
+    "heads": {
+      "primary": {
+        "kind": "noul",
+        "routing_mode": "empirical-threshold",
+        "score": "decision_function",
+        "threshold": -0.0346
+      }
+    },
+    "undeclared_heads": {
+      "topic": "existing configured engine",
+      "signal": "existing configured engine",
+      "whyKey": "existing configured engine",
+      "category": "existing configured engine",
+      "field": "existing configured engine"
+    },
+    "runtime": "native vectorizer and linear inference; no ONNX Runtime, no tokenizer",
+    "calibration": {
+      "required_for_routing": false,
+      "reason": "empirical threshold routing is the explicit architecture decision for this head"
+    }
+  },
+  "routing_mode": "empirical-threshold",
+  "threshold": -0.0346,
+  "test_split": {
+    "locked": true,
+    "ids": 148
+  }
+}

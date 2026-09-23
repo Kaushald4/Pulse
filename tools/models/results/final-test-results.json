@@ -1,0 +1,61 @@
+{
+  "ranAt": "2026-09-23T04:45:20",
+  "phase": "final test evaluation, read once",
+  "candidate": "TF-IDF + logistic regression, primary head only, family B",
+  "configuration": {
+    "frozen": true,
+    "artifact_sha256": "a2c8d869e9810138783addf14dd9d2ce6730acda94346c786487edefcbc89263",
+    "routing_mode": "empirical-threshold",
+    "threshold": -0.0346
+  },
+  "test_split": {
+    "items": 140,
+    "read": true,
+    "note": "read once after freezing; the configuration was not modified afterwards"
+  },
+  "parity_before_test": {
+    "rows": 676,
+    "max_abs_difference": 3.962013779279516e-07,
+    "tolerance": 1e-06
+  },
+  "test": {
+    "f1": 0.8382,
+    "precision": 0.7917,
+    "recall": 0.8906,
+    "accepted_local": 72,
+    "deferred": 68,
+    "coverage": 0.5143
+  },
+  "calibration": {
+    "ece": 0.3371,
+    "brier": 0.1176,
+    "blocking": false
+  },
+  "gates": {
+    "deployed_rule_quality_0_80": {
+      "value": 0.8382,
+      "pass": true
+    },
+    "routing_precision_0_90": {
+      "value": 0.7917,
+      "pass": false
+    },
+    "routing_coverage_0_40": {
+      "value": 0.5143,
+      "pass": true
+    },
+    "calibration_ece_0_05": {
+      "value": 0.3371,
+      "blocking": false,
+      "status": "informational under empirical routing"
+    }
+  },
+  "shipping_decision": "do not ship: keep primary on the existing engine",
+  "configuration_modified_after_test": false,
+  "latency": {
+    "ms_per_item_p50": 0.0184,
+    "ms_per_item_p95": 0.0192,
+    "reference": "Darwin arm64"
+  },
+  "seed": 20260922
+}

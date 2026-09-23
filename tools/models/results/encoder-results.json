@@ -1,0 +1,1454 @@
+{
+  "phase": "1 candidate benchmark (frozen encoder embeddings, linear heads)",
+  "ranAt": "2026-09-23T02:24:12",
+  "evaluated_on": "validation",
+  "test_split_read": false,
+  "seed": 20260922,
+  "bootstrap_samples": 1000,
+  "text_features": "frozen encoder embedding, normalized, logistic head only",
+  "label_target": "Pulse stored labels as of the dataset snapshot (see baseline-results.json)",
+  "models": {
+    "all-MiniLM-L6-v2": {
+      "repo": "Xenova/all-MiniLM-L6-v2",
+      "pooling": "mean",
+      "dimension": 384,
+      "is_finetuned": false,
+      "parameters_note": "backbone frozen; only the linear head is fitted",
+      "artifact_sizes": {
+        "onnx_model_bytes": 90387606,
+        "tokenizer_bytes": 711661,
+        "onnxruntime_library_bytes": 33209560,
+        "total_bytes_without_app": 124308827,
+        "note": "runtime is per platform; weights and tokenizer are shared"
+      },
+      "heads": {
+        "category": {
+          "promoted": false,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 4,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.2081,
+            "majority_class": "news"
+          },
+          "candidate": {
+            "point": 0.3418,
+            "ci95": [
+              0.2398,
+              0.5217
+            ],
+            "delta_vs_prior": 0.1336,
+            "better_than_prior": true
+          },
+          "accuracy": 0.4754,
+          "macro_f1": 0.3418,
+          "per_class_f1": {
+            "news": 0.6,
+            "paper": 0.0,
+            "repo": 0.5333,
+            "resource": 0.2338
+          },
+          "ordinal": null,
+          "ece": 0.1537,
+          "confusion": {
+            "labels": [
+              "news",
+              "paper",
+              "repo",
+              "resource"
+            ],
+            "matrix": [
+              [
+                45,
+                1,
+                3,
+                38
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                4,
+                0
+              ],
+              [
+                18,
+                0,
+                3,
+                9
+              ]
+            ]
+          }
+        },
+        "field": {
+          "promoted": false,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 7,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.1182,
+            "majority_class": "developer_tools"
+          },
+          "candidate": {
+            "point": 0.269,
+            "ci95": [
+              0.176,
+              0.3495
+            ],
+            "delta_vs_prior": 0.1508,
+            "better_than_prior": true
+          },
+          "accuracy": 0.3361,
+          "macro_f1": 0.269,
+          "per_class_f1": {
+            "ai_ml": 0.4091,
+            "data": 0.0,
+            "developer_tools": 0.4,
+            "other": 0.1538,
+            "security": 0.0,
+            "systems_infra": 0.4286,
+            "web_frontend": 0.2222
+          },
+          "ordinal": null,
+          "ece": 0.1304,
+          "confusion": {
+            "labels": [
+              "ai_ml",
+              "data",
+              "developer_tools",
+              "other",
+              "security",
+              "systems_infra",
+              "web_frontend"
+            ],
+            "matrix": [
+              [
+                9,
+                0,
+                5,
+                8,
+                2,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                8,
+                0,
+                21,
+                22,
+                2,
+                11,
+                3
+              ],
+              [
+                2,
+                0,
+                8,
+                4,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                1,
+                0,
+                6,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        },
+        "topic": {
+          "promoted": true,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 15,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.0372,
+            "majority_class": "other"
+          },
+          "candidate": {
+            "point": 0.2908,
+            "ci95": [
+              0.1924,
+              0.3908
+            ],
+            "delta_vs_prior": 0.2535,
+            "better_than_prior": true
+          },
+          "accuracy": 0.459,
+          "macro_f1": 0.2908,
+          "per_class_f1": {
+            "benchmarks-eval": 0.5,
+            "databases-storage": 0.0,
+            "dev-tooling": 0.2353,
+            "developer-experience": 0.2857,
+            "hardware-chips": 0.0,
+            "inference-serving": 0.2222,
+            "llm-agents": 0.3846,
+            "model-releases": 0.6087,
+            "networking-distributed": 0.0,
+            "open-source": 0.0,
+            "other": 0.6263,
+            "security-privacy": 0.1818,
+            "systems-runtime": 0.4706,
+            "training-methods": 0.3333,
+            "web-frontend": 0.2222
+          },
+          "ordinal": null,
+          "ece": 0.1275,
+          "confusion": {
+            "labels": [
+              "benchmarks-eval",
+              "databases-storage",
+              "dev-tooling",
+              "developer-experience",
+              "hardware-chips",
+              "inference-serving",
+              "llm-agents",
+              "model-releases",
+              "networking-distributed",
+              "open-source",
+              "other",
+              "security-privacy",
+              "systems-runtime",
+              "training-methods",
+              "web-frontend"
+            ],
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                3,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                1,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                5,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                7,
+                0,
+                0,
+                4,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                1,
+                1,
+                0,
+                5,
+                1,
+                0,
+                0,
+                31,
+                1,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                3,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                4,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                3,
+                0,
+                0,
+                0,
+                2,
+                0,
+                1,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        },
+        "signal": {
+          "promoted": true,
+          "primary_metric": "mae",
+          "classes_in_use": 4,
+          "evaluated": 118,
+          "prior": {
+            "point": 0.9407,
+            "majority_class": "2"
+          },
+          "candidate": {
+            "point": 0.6441,
+            "ci95": [
+              0.5339,
+              0.7629
+            ],
+            "delta_vs_prior": 0.2966,
+            "better_than_prior": true
+          },
+          "accuracy": 0.4492,
+          "macro_f1": 0.3423,
+          "per_class_f1": {
+            "0": 0.4932,
+            "1": 0.4694,
+            "2": 0.4068,
+            "3": 0.0
+          },
+          "ordinal": {
+            "mae": 0.6441,
+            "quadratic_weighted_kappa": 0.3723,
+            "ece": 0.1417
+          },
+          "ece": null,
+          "confusion": {
+            "labels": [
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "matrix": [
+              [
+                18,
+                10,
+                1,
+                0
+              ],
+              [
+                18,
+                23,
+                8,
+                1
+              ],
+              [
+                7,
+                15,
+                12,
+                2
+              ],
+              [
+                1,
+                0,
+                2,
+                0
+              ]
+            ]
+          }
+        },
+        "primary": {
+          "promoted": true,
+          "primary_metric": "positive_f1",
+          "classes_in_use": 2,
+          "evaluated": 118,
+          "prior": {
+            "point": 0.4474,
+            "majority_class": "True"
+          },
+          "candidate": {
+            "point": 0.6933,
+            "ci95": [
+              0.5573,
+              0.8001
+            ],
+            "delta_vs_prior": 0.246,
+            "better_than_prior": true
+          },
+          "accuracy": 0.8051,
+          "macro_f1": 0.7752,
+          "per_class_f1": {
+            "False": 0.8571,
+            "True": 0.6933
+          },
+          "ordinal": null,
+          "ece": 0.0842,
+          "confusion": {
+            "labels": [
+              "False",
+              "True"
+            ],
+            "matrix": [
+              [
+                69,
+                15
+              ],
+              [
+                8,
+                26
+              ]
+            ]
+          }
+        },
+        "whyKey": {
+          "promoted": true,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 7,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.1032,
+            "majority_class": "other"
+          },
+          "candidate": {
+            "point": 0.3369,
+            "ci95": [
+              0.2439,
+              0.4174
+            ],
+            "delta_vs_prior": 0.2336,
+            "better_than_prior": true
+          },
+          "accuracy": 0.5492,
+          "macro_f1": 0.3369,
+          "per_class_f1": {
+            "benchmark-or-paper": 0.1429,
+            "community-debate": 0.2857,
+            "major-model-release": 0.5714,
+            "new-tool-release": 0.5,
+            "other": 0.7246,
+            "security-incident": 0.0,
+            "systems-technique": 0.1333
+          },
+          "ordinal": null,
+          "ece": 0.0913,
+          "confusion": {
+            "labels": [
+              "benchmark-or-paper",
+              "community-debate",
+              "major-model-release",
+              "new-tool-release",
+              "other",
+              "security-incident",
+              "systems-technique"
+            ],
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                1,
+                3,
+                0,
+                2
+              ],
+              [
+                3,
+                5,
+                1,
+                1,
+                6,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                4,
+                0,
+                3,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                6,
+                2,
+                1,
+                1
+              ],
+              [
+                2,
+                12,
+                0,
+                3,
+                50,
+                0,
+                2
+              ],
+              [
+                0,
+                2,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                0,
+                0,
+                2,
+                4,
+                0,
+                1
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "bge-small-en-v1.5": {
+      "repo": "Xenova/bge-small-en-v1.5",
+      "pooling": "cls",
+      "dimension": 384,
+      "is_finetuned": false,
+      "parameters_note": "backbone frozen; only the linear head is fitted",
+      "artifact_sizes": {
+        "onnx_model_bytes": 133093490,
+        "tokenizer_bytes": 711396,
+        "onnxruntime_library_bytes": 33209560,
+        "total_bytes_without_app": 167014446,
+        "note": "runtime is per platform; weights and tokenizer are shared"
+      },
+      "heads": {
+        "category": {
+          "promoted": false,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 4,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.2081,
+            "majority_class": "news"
+          },
+          "candidate": {
+            "point": 0.2737,
+            "ci95": [
+              0.1815,
+              0.3586
+            ],
+            "delta_vs_prior": 0.0655,
+            "better_than_prior": true
+          },
+          "accuracy": 0.3934,
+          "macro_f1": 0.2737,
+          "per_class_f1": {
+            "news": 0.5113,
+            "paper": 0.0,
+            "repo": 0.3333,
+            "resource": 0.25
+          },
+          "ordinal": null,
+          "ece": 0.1766,
+          "confusion": {
+            "labels": [
+              "news",
+              "paper",
+              "repo",
+              "resource"
+            ],
+            "matrix": [
+              [
+                34,
+                2,
+                4,
+                47
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                3,
+                0
+              ],
+              [
+                11,
+                2,
+                6,
+                11
+              ]
+            ]
+          }
+        },
+        "field": {
+          "promoted": false,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 7,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.1182,
+            "majority_class": "developer_tools"
+          },
+          "candidate": {
+            "point": 0.1936,
+            "ci95": [
+              0.1312,
+              0.2937
+            ],
+            "delta_vs_prior": 0.0754,
+            "better_than_prior": true
+          },
+          "accuracy": 0.2623,
+          "macro_f1": 0.1936,
+          "per_class_f1": {
+            "ai_ml": 0.3265,
+            "data": 0.0,
+            "developer_tools": 0.2,
+            "other": 0.2857,
+            "security": 0.0,
+            "systems_infra": 0.3429,
+            "web_frontend": 0.2
+          },
+          "ordinal": null,
+          "ece": 0.1006,
+          "confusion": {
+            "labels": [
+              "ai_ml",
+              "data",
+              "developer_tools",
+              "other",
+              "security",
+              "systems_infra",
+              "web_frontend"
+            ],
+            "matrix": [
+              [
+                8,
+                0,
+                7,
+                5,
+                0,
+                3,
+                2
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                14,
+                1,
+                9,
+                24,
+                1,
+                15,
+                3
+              ],
+              [
+                0,
+                0,
+                5,
+                8,
+                0,
+                1,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                0,
+                1,
+                1,
+                0,
+                6,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        },
+        "topic": {
+          "promoted": true,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 15,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.0372,
+            "majority_class": "other"
+          },
+          "candidate": {
+            "point": 0.3956,
+            "ci95": [
+              0.2994,
+              0.4965
+            ],
+            "delta_vs_prior": 0.3584,
+            "better_than_prior": true
+          },
+          "accuracy": 0.5,
+          "macro_f1": 0.3956,
+          "per_class_f1": {
+            "benchmarks-eval": 0.4,
+            "databases-storage": 0.0,
+            "dev-tooling": 0.3529,
+            "developer-experience": 0.25,
+            "hardware-chips": 0.7692,
+            "inference-serving": 0.5,
+            "llm-agents": 0.4615,
+            "model-releases": 0.6364,
+            "networking-distributed": 0.0,
+            "open-source": 0.0,
+            "other": 0.5823,
+            "security-privacy": 0.4,
+            "systems-runtime": 0.5,
+            "training-methods": 0.3529,
+            "web-frontend": 0.3333
+          },
+          "ordinal": null,
+          "ece": 0.2659,
+          "confusion": {
+            "labels": [
+              "benchmarks-eval",
+              "databases-storage",
+              "dev-tooling",
+              "developer-experience",
+              "hardware-chips",
+              "inference-serving",
+              "llm-agents",
+              "model-releases",
+              "networking-distributed",
+              "open-source",
+              "other",
+              "security-privacy",
+              "systems-runtime",
+              "training-methods",
+              "web-frontend"
+            ],
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                3,
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                6,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                7,
+                0,
+                0,
+                2,
+                0,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                0,
+                2,
+                2,
+                1,
+                0,
+                3,
+                2,
+                0,
+                0,
+                23,
+                2,
+                4,
+                2,
+                1
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                1,
+                2,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                6,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                3,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                3,
+                0
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                3,
+                0,
+                1,
+                0,
+                2
+              ]
+            ]
+          }
+        },
+        "signal": {
+          "promoted": true,
+          "primary_metric": "mae",
+          "classes_in_use": 4,
+          "evaluated": 118,
+          "prior": {
+            "point": 0.9407,
+            "majority_class": "2"
+          },
+          "candidate": {
+            "point": 0.5678,
+            "ci95": [
+              0.4492,
+              0.678
+            ],
+            "delta_vs_prior": 0.3729,
+            "better_than_prior": true
+          },
+          "accuracy": 0.4915,
+          "macro_f1": 0.3805,
+          "per_class_f1": {
+            "0": 0.4789,
+            "1": 0.4318,
+            "2": 0.6111,
+            "3": 0.0
+          },
+          "ordinal": {
+            "mae": 0.5678,
+            "quadratic_weighted_kappa": 0.4922,
+            "ece": 0.0814
+          },
+          "ece": null,
+          "confusion": {
+            "labels": [
+              "0",
+              "1",
+              "2",
+              "3"
+            ],
+            "matrix": [
+              [
+                17,
+                11,
+                1,
+                0
+              ],
+              [
+                20,
+                19,
+                11,
+                0
+              ],
+              [
+                4,
+                8,
+                22,
+                2
+              ],
+              [
+                1,
+                0,
+                2,
+                0
+              ]
+            ]
+          }
+        },
+        "primary": {
+          "promoted": true,
+          "primary_metric": "positive_f1",
+          "classes_in_use": 2,
+          "evaluated": 118,
+          "prior": {
+            "point": 0.4474,
+            "majority_class": "True"
+          },
+          "candidate": {
+            "point": 0.7297,
+            "ci95": [
+              0.6071,
+              0.8315
+            ],
+            "delta_vs_prior": 0.2824,
+            "better_than_prior": true
+          },
+          "accuracy": 0.8305,
+          "macro_f1": 0.8031,
+          "per_class_f1": {
+            "False": 0.8765,
+            "True": 0.7297
+          },
+          "ordinal": null,
+          "ece": 0.1263,
+          "confusion": {
+            "labels": [
+              "False",
+              "True"
+            ],
+            "matrix": [
+              [
+                71,
+                13
+              ],
+              [
+                7,
+                27
+              ]
+            ]
+          }
+        },
+        "whyKey": {
+          "promoted": true,
+          "primary_metric": "macro_f1",
+          "classes_in_use": 7,
+          "evaluated": 122,
+          "prior": {
+            "point": 0.1032,
+            "majority_class": "other"
+          },
+          "candidate": {
+            "point": 0.4615,
+            "ci95": [
+              0.3613,
+              0.5511
+            ],
+            "delta_vs_prior": 0.3582,
+            "better_than_prior": true
+          },
+          "accuracy": 0.582,
+          "macro_f1": 0.4615,
+          "per_class_f1": {
+            "benchmark-or-paper": 0.375,
+            "community-debate": 0.3182,
+            "major-model-release": 0.5882,
+            "new-tool-release": 0.6667,
+            "other": 0.7107,
+            "security-incident": 0.0,
+            "systems-technique": 0.5714
+          },
+          "ordinal": null,
+          "ece": 0.1674,
+          "confusion": {
+            "labels": [
+              "benchmark-or-paper",
+              "community-debate",
+              "major-model-release",
+              "new-tool-release",
+              "other",
+              "security-incident",
+              "systems-technique"
+            ],
+            "matrix": [
+              [
+                3,
+                1,
+                1,
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                3,
+                7,
+                1,
+                0,
+                5,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                5,
+                1,
+                1,
+                0,
+                0
+              ],
+              [
+                1,
+                0,
+                0,
+                7,
+                0,
+                0,
+                3
+              ],
+              [
+                2,
+                17,
+                2,
+                2,
+                43,
+                0,
+                3
+              ],
+              [
+                0,
+                2,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+                6
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

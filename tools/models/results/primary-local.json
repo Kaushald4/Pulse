@@ -1,0 +1,91 @@
+{
+  "ranAt": "2026-09-23T04:42:34",
+  "candidate": "TF-IDF + logistic regression, primary head only",
+  "routing_mode": {
+    "declared": "empirical-threshold",
+    "probabilities_as_confidence": false
+  },
+  "test_split_read": false,
+  "test_ids_locked": 148,
+  "seed": 20260922,
+  "selection_pool": {
+    "construction": "training split only",
+    "rows": 676,
+    "excluded": {
+      "validation": 196,
+      "calibration": 100,
+      "test": 148
+    },
+    "cross_fitting": "5-fold, vectorizer and classifier refitted per fold, raw decision scores"
+  },
+  "threshold_selection": {
+    "objective": "highest coverage among thresholds satisfying every applicable constraint",
+    "constraints": {
+      "quality": 0.8,
+      "precision": 0.9,
+      "coverage": 0.4
+    },
+    "feasible_thresholds_found": 23,
+    "chosen": {
+      "f1": 0.87,
+      "precision": 0.9016,
+      "recall": 0.8406,
+      "accepted_local": 193,
+      "deferred": 145,
+      "coverage": 0.571,
+      "threshold": -0.0346
+    }
+  },
+  "held_out_confirmation": {
+    "rows": 338,
+    "f1": 0.9008,
+    "precision": 0.8842,
+    "recall": 0.918,
+    "accepted_local": 190,
+    "deferred": 148,
+    "coverage": 0.5621
+  },
+  "validation_single_evaluation": {
+    "rows": 196,
+    "f1": 0.8358,
+    "precision": 0.913,
+    "recall": 0.7706,
+    "accepted_local": 92,
+    "deferred": 104,
+    "coverage": 0.4694
+  },
+  "gates": {
+    "deployed_rule_quality": {
+      "target": 0.8,
+      "value": 0.8358,
+      "pass": true
+    },
+    "routing_precision": {
+      "target": 0.9,
+      "value": 0.913,
+      "pass": true
+    },
+    "routing_coverage": {
+      "target": 0.4,
+      "value": 0.4694,
+      "pass": true
+    },
+    "calibration_ece": {
+      "target": 0.05,
+      "value": 0.3266,
+      "blocking": false,
+      "status": "informational under empirical threshold routing"
+    }
+  },
+  "shippable": true,
+  "artifact": {
+    "path": "tools/models/artifacts/primary-local/primary-local.json",
+    "bytes": 280197,
+    "onnx_runtime_bytes": 0
+  },
+  "latency": {
+    "ms_per_item_p50": 0.0199,
+    "ms_per_item_p95": 0.02,
+    "reference": "Darwin arm64"
+  }
+}

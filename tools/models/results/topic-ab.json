@@ -1,0 +1,36 @@
+{
+  "ranAt": "2026-09-23T02:27:41",
+  "model": "bge-small-en-v1.5",
+  "pooling": "cls",
+  "evaluated_on": "validation",
+  "evaluated": 122,
+  "fields_with_own_classifier": 6,
+  "min_rows_per_field": 12,
+  "direct": {
+    "macro_f1": 0.3956,
+    "accuracy": 0.5,
+    "macro_f1_ci95": [
+      0.2994,
+      0.4965
+    ]
+  },
+  "hierarchical_predicted_field": {
+    "macro_f1": 0.3044,
+    "accuracy": 0.4262,
+    "macro_f1_ci95": [
+      0.1855,
+      0.3794
+    ]
+  },
+  "hierarchical_oracle_field": {
+    "macro_f1": 0.2761,
+    "accuracy": 0.4426,
+    "macro_f1_ci95": [
+      0.1883,
+      0.3577
+    ]
+  },
+  "field_error_cost_macro_f1": -0.0283,
+  "note": "field_error_cost is the macro F1 lost purely to predicting the field rather than knowing it",
+  "seed": 20260922
+}

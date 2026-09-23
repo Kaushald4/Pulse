@@ -1,0 +1,81 @@
+{
+  "record": "Pulse local-classification programme, closure decision",
+  "decidedAt": "2026-09-22",
+  "status": "closed",
+  "programme_status": "Stopped: no local head currently shippable under the frozen evaluation contract; revisit only with materially better supervision/data or a separately defined future experiment.",
+  "decision": "no local head is currently shippable",
+  "programme_state": "stopped, unless a future experiment begins with additional data or a separately defined evaluation protocol",
+
+  "findings": {
+    "shared_encoder_candidates": "no promoted head cleared its required Phase 1 gate",
+    "shared_encoder_detail": {
+      "backbones_benchmarked": ["all-MiniLM-L6-v2", "bge-small-en-v1.5"],
+      "protocol": "one shared backbone per candidate, all promoted heads trained jointly, identical fixed budget, one seed, no early stopping, converged before comparison",
+      "result": "neither backbone cleared topic, signal, primary or whyKey against their absolute targets, and no per-head backbone stitching was ever considered because the architecture requires one shared encoder"
+    },
+    "signal": "failed the required Spearman floor",
+    "signal_detail": {
+      "best_mae": 0.5255,
+      "mae_ceiling": 0.6,
+      "best_spearman": 0.4936,
+      "spearman_floor": 0.5,
+      "note": "the MAE half of the criterion passed while the correlation half did not, on the same frozen rule"
+    },
+    "primary_local_tfidf": "Phase 1 classifier quality passed, but the frozen deployed rule failed the independent test precision gate",
+    "primary_detail": {
+      "family": "B, separate local head model",
+      "form": "TF-IDF vectorizer plus logistic regression, one head, native runtime, no ONNX Runtime and no tokenizer",
+      "phase_1_classifier_quality": { "metric": "positive-class F1, open rule", "value": 0.8342, "result": "passed" },
+      "frozen_deployed_rule": {
+        "routing_mode": "empirical-threshold",
+        "threshold": -0.0346,
+        "selection_objective": "highest coverage among thresholds satisfying every applicable constraint",
+        "in_selection_precision_estimates": [0.9016, 0.8842, 0.9130],
+        "test_gate": { "metric": "routing precision", "value": 0.7917, "floor": 0.9, "result": "failed" },
+        "test_other_gates": {
+          "deployed_rule_quality": { "value": 0.8382, "floor": 0.8, "result": "passed" },
+          "routing_coverage": { "value": 0.5143, "floor": 0.4, "result": "passed" },
+          "calibration_ece": { "value": 0.3371, "blocking": false, "status": "informational under empirical routing" }
+        }
+      },
+      "interpretation": "a coverage-maximising objective parks a threshold on the precision boundary; three in-selection estimates around the floor did not carry to independent data, and the held-out half at 0.8842 was the visible warning"
+    },
+    "conclusion": "no local head satisfies the full shipping contract",
+    "existing_engine": "remains the classification path, unchanged",
+    "test_set": "now consumed; it must not be reused for model or threshold selection"
+  },
+
+  "final_artifacts_preserved": {
+    "artifact": "tools/models/artifacts/primary-local/primary-local.json",
+    "artifact_sha256": "a2c8d869e9810138",
+    "manifest": "tools/models/artifacts/primary-local/manifest.json",
+    "frozen_configuration": "tools/models/results/production-config-frozen.json",
+    "final_test": "tools/models/results/final-test-results.json",
+    "primary_ledger": "tools/models/results/primary-candidate-decision.json",
+    "phase_0_report": "tools/models/results/phase0-report.md",
+    "label_audit": "tools/models/results/label-audit.json",
+    "encoder_and_baseline_results": [
+      "tools/models/results/baseline-results-contract1.json",
+      "tools/models/results/encoder-results-contract1.json",
+      "tools/models/results/finetune-contract1-final.json",
+      "tools/models/results/paired-deltas-contract1-escalated.json",
+      "tools/models/results/topic-ab.json",
+      "tools/models/results/quantization.json",
+      "tools/models/results/numerical-parity.json"
+    ],
+    "state": "all preserved exactly as recorded; nothing regenerated, no metric edited"
+  },
+
+  "not_done": [
+    "the test split was not rerun",
+    "the frozen threshold was not modified using test results",
+    "nothing was retrained or reselected against the opened test set",
+    "ONNX Runtime was not introduced into the app",
+    "existing-engine routing was not changed"
+  ],
+
+  "reopening_conditions": [
+    "additional supervision gathered under the frozen contract, which has been the binding constraint throughout",
+    "a separately defined evaluation protocol, since this test set is consumed and cannot be reused for selection"
+  ]
+}

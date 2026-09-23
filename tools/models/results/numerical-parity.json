@@ -1,0 +1,35 @@
+{
+  "max_length": 512,
+  "tolerance": 0.001,
+  "fixtures": 6,
+  "models": {
+    "all-MiniLM-L6-v2": {
+      "candidate_repo": "Xenova/all-MiniLM-L6-v2",
+      "candidate_revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+      "reference_repo": "sentence-transformers/all-MiniLM-L6-v2",
+      "reference_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "pooling": "mean",
+      "dimension": 384,
+      "max_abs_diff": 1.210719347000122e-07,
+      "min_cosine": 0.9999999403953552,
+      "unit_norm_err": 5.960464477539063e-08,
+      "token_ids_identical": true,
+      "batch_invariance": 0.0,
+      "passed": true
+    },
+    "bge-small-en-v1.5": {
+      "candidate_repo": "Xenova/bge-small-en-v1.5",
+      "candidate_revision": "ea104dacec62c0de699686887e3f920caeb4f3e3",
+      "reference_repo": "BAAI/bge-small-en-v1.5",
+      "reference_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "pooling": "cls",
+      "dimension": 384,
+      "max_abs_diff": 0.0,
+      "min_cosine": 0.9999999403953552,
+      "unit_norm_err": 5.960464477539063e-08,
+      "token_ids_identical": true,
+      "batch_invariance": 0.0,
+      "passed": true
+    }
+  }
+}

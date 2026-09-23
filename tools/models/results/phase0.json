@@ -1,0 +1,218 @@
+{
+  "phase": 0,
+  "dataset": {
+    "exportedAt": "2026-09-22T20:26:21.052Z",
+    "snapshot": {
+      "path": "/Users/kaushal/Desktop/my-tech-journal/pulse/tools/models/artifacts/snapshot/pulse.db",
+      "source": "/Users/kaushal/Library/Application Support/com.pulse.desktop/pulse.db",
+      "takenAt": "2026-09-22T20:26:21.038Z"
+    },
+    "taxonomyVersion": "1",
+    "canonicalInputVersion": "1",
+    "counts": {
+      "rows": 1708,
+      "labelled": 674,
+      "unlabelled": 1034,
+      "contentChanged": 0
+    }
+  },
+  "totals": {
+    "rows": 1708,
+    "labelled": 674,
+    "unlabelled": 1034,
+    "usable": 674,
+    "content_changed_since_classification": 0
+  },
+  "heads": {
+    "category": {
+      "labelled": 674,
+      "present": 674,
+      "missing": 0,
+      "classes_seen": 4,
+      "counts": {
+        "news": 446,
+        "resource": 110,
+        "repo": 62,
+        "paper": 56
+      },
+      "largest_class": 446,
+      "smallest_class": 56,
+      "imbalance_ratio": 7.96,
+      "majority_baseline": 0.6617
+    },
+    "field": {
+      "labelled": 674,
+      "present": 674,
+      "missing": 0,
+      "classes_seen": 7,
+      "counts": {
+        "developer_tools": 370,
+        "ai_ml": 127,
+        "other": 65,
+        "systems_infra": 61,
+        "web_frontend": 23,
+        "security": 21,
+        "data": 7
+      },
+      "largest_class": 370,
+      "smallest_class": 7,
+      "imbalance_ratio": 52.86,
+      "majority_baseline": 0.549
+    },
+    "topic": {
+      "labelled": 674,
+      "present": 674,
+      "missing": 0,
+      "classes_seen": 15,
+      "counts": {
+        "other": 285,
+        "llm-agents": 75,
+        "dev-tooling": 55,
+        "security-privacy": 36,
+        "training-methods": 34,
+        "inference-serving": 32,
+        "systems-runtime": 30,
+        "model-releases": 29,
+        "benchmarks-eval": 22,
+        "web-frontend": 18,
+        "databases-storage": 15,
+        "developer-experience": 15,
+        "hardware-chips": 13,
+        "networking-distributed": 9,
+        "open-source": 6
+      },
+      "largest_class": 285,
+      "smallest_class": 6,
+      "imbalance_ratio": 47.5,
+      "majority_baseline": 0.4228
+    },
+    "signal": {
+      "labelled": 674,
+      "present": 583,
+      "missing": 91,
+      "classes_seen": 4,
+      "counts": {
+        "1": 229,
+        "2": 197,
+        "0": 139,
+        "3": 18
+      },
+      "largest_class": 229,
+      "smallest_class": 18,
+      "imbalance_ratio": 12.72,
+      "majority_baseline": 0.3928
+    },
+    "primary": {
+      "labelled": 674,
+      "present": 583,
+      "missing": 91,
+      "classes_seen": 2,
+      "counts": {
+        "false": 334,
+        "true": 249
+      },
+      "largest_class": 334,
+      "smallest_class": 249,
+      "imbalance_ratio": 1.34,
+      "majority_baseline": 0.5729
+    },
+    "whyKey": {
+      "labelled": 674,
+      "present": 674,
+      "missing": 0,
+      "classes_seen": 7,
+      "counts": {
+        "other": 372,
+        "new-tool-release": 87,
+        "benchmark-or-paper": 80,
+        "community-debate": 78,
+        "systems-technique": 23,
+        "major-model-release": 19,
+        "security-incident": 15
+      },
+      "largest_class": 372,
+      "smallest_class": 15,
+      "imbalance_ratio": 24.8,
+      "majority_baseline": 0.5519
+    }
+  },
+  "sources": {
+    "distinct_sources": 9,
+    "top_by_items": {
+      "hackernews": 505,
+      "rss": 469,
+      "reddit": 289,
+      "arxiv": 139,
+      "twitter": 102,
+      "lobsters": 91,
+      "huggingface": 62,
+      "github": 27,
+      "devto": 24
+    },
+    "top_by_labelled": {
+      "reddit": 266,
+      "hackernews": 236,
+      "rss": 101,
+      "arxiv": 47,
+      "lobsters": 20,
+      "twitter": 4
+    }
+  },
+  "temporal": {
+    "by_published_month": {
+      "2022-09": 1,
+      "2023-04": 1,
+      "2024-12": 1,
+      "2025-04": 4,
+      "2025-05": 2,
+      "2025-06": 3,
+      "2025-08": 1,
+      "2026-01": 3,
+      "2026-02": 3,
+      "2026-03": 1,
+      "2026-04": 1,
+      "2026-06": 26,
+      "2026-07": 27,
+      "2026-08": 90,
+      "2026-09": 1544
+    },
+    "by_labelled_month": {
+      "2026-09": 674
+    }
+  },
+  "provenance": {
+    "by_engine": {
+      "deepseek-v4-flash": 674
+    },
+    "distinct_engines": 1,
+    "confidence": {
+      "count": 0,
+      "mean": null,
+      "median": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "duplicates": {
+    "items_without_canonical_url": 0,
+    "distinct_canonical_urls": 1612,
+    "groups": {
+      "1": 1524,
+      "2": 81,
+      "3": 6,
+      "4": 1
+    },
+    "largest_group": 4,
+    "rows_in_multi_item_groups": 184,
+    "title_collisions": 120
+  },
+  "text": {
+    "labelled_with_excerpt": 153,
+    "labelled_without_excerpt": 521,
+    "excerpt_chars": {
+      "min": 8,
+      "median": 242,
+      "max": 600
+    }
+  }
+}
