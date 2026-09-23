@@ -108,13 +108,18 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while running pulse desktop application")
         .run(|app_handle, event| {
-            // Clicking the Dock icon, or activating Pulse again, asks the app to
-            // reopen itself. Closing the window only hides it, so without this
-            // handler that click does nothing and the tray becomes the only way
-            // back in. The request is not a window event, which is why it has to
-            // be caught here rather than next to the close handler above.
+            // Closing the window only hides it, so macOS has to be told how to
+            // bring it back: clicking the Dock icon arrives here as
+            // `RunEvent::Reopen`. That variant exists only on macOS, which is why
+            // the arm is compiled in only there rather than matched everywhere.
+            #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = event {
                 tray::show_main_window(app_handle);
             }
+
+            // Windows and Linux emit neither, so this keeps both bindings used
+            // and the closure warning-free on every platform.
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app_handle, event);
         });
 }
