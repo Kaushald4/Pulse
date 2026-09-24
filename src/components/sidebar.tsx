@@ -89,7 +89,7 @@ export function Sidebar() {
 
   const groups: Array<{ label: string; entries: NavEntry[] }> = [
     {
-      label: "Overview",
+      label: "Pulse",
       entries: [
         {
           key: "today",
@@ -98,57 +98,6 @@ export function Sidebar() {
           active: view === "today",
           onClick: () => goToTab("today"),
         },
-        {
-          key: "feed",
-          label: "Feed",
-          icon: Newspaper,
-          count: stats.total,
-          active: view === "feed" && filters.category === "all" && filters.state === "all",
-          onClick: () => goToFeed({}),
-        },
-        {
-          key: "resources",
-          label: "Resources",
-          icon: Package,
-          count: resources.length,
-          active: view === "resources",
-          onClick: () => goToTab("resources"),
-        },
-        {
-          key: "sources",
-          label: "Sources",
-          icon: Share2,
-          active: view === "sources",
-          onClick: () => goToTab("sources"),
-        },
-        {
-          key: "logs",
-          label: "Logs",
-          icon: Activity,
-          active: view === "logs",
-          onClick: () => goToTab("logs"),
-        },
-      ],
-    },
-    {
-      label: "Work",
-      entries: [
-        {
-          key: "jobs",
-          label: "Jobs",
-          icon: BriefcaseBusiness,
-          active: view === "jobs",
-          // Leaving the detail page behind: clicking Jobs always lands on the list.
-          onClick: () => {
-            useJobs.getState().closeJob();
-            goToTab("jobs");
-          },
-        },
-      ],
-    },
-    {
-      label: "Triage",
-      entries: [
         {
           key: "inbox",
           label: "Inbox",
@@ -184,8 +133,59 @@ export function Sidebar() {
       ],
     },
     {
-      label: "Streams",
+      label: "Work",
       entries: [
+        {
+          key: "jobs",
+          label: "Jobs",
+          icon: BriefcaseBusiness,
+          active: view === "jobs",
+          // Leaving the detail page behind: clicking Jobs always lands on the list.
+          onClick: () => {
+            useJobs.getState().closeJob();
+            goToTab("jobs");
+          },
+        },
+      ],
+    },
+    {
+      label: "System",
+      entries: [
+        {
+          key: "sources",
+          label: "Sources",
+          icon: Share2,
+          active: view === "sources",
+          onClick: () => goToTab("sources"),
+        },
+        {
+          key: "logs",
+          label: "Logs",
+          icon: Activity,
+          active: view === "logs",
+          onClick: () => goToTab("logs"),
+        },
+      ],
+    },
+    {
+      label: "Explore",
+      entries: [
+        {
+          key: "feed",
+          label: "All items",
+          icon: Newspaper,
+          count: stats.total,
+          active: view === "feed" && filters.category === "all" && filters.state === "all",
+          onClick: () => goToFeed({}),
+        },
+        {
+          key: "resources",
+          label: "Resources",
+          icon: Package,
+          count: resources.length,
+          active: view === "resources",
+          onClick: () => goToTab("resources"),
+        },
         {
           key: "repo",
           label: "Repositories",
