@@ -190,13 +190,6 @@ export function DashboardView() {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <StatTile value={basisGroups.length} label="Items" hint={basisLabel} icon={Newspaper} />
-        <StatTile value={counts.ai_ml ?? 0} label="AI & ML" hint={basisLabel} icon={Sparkles} />
-        <StatTile value={counts.systems_infra ?? 0} label="Systems & infra" hint={basisLabel} icon={Layers} />
-        <StatTile value={savedOrImportant} label="Saved & important" hint={basisLabel} icon={Bookmark} />
-      </div>
-
       <div
         className={
           showTopics
@@ -213,9 +206,11 @@ export function DashboardView() {
                 Daily briefing
               </h2>
               <Card>
-                <CardHeader className="gap-2 pb-3">
+                <CardHeader className="gap-2 pb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <CardTitle className="text-sm">{briefing?.title ?? "Daily Briefing"}</CardTitle>
+                    <CardTitle className="text-[15px] font-semibold tracking-tight">
+                      {briefing?.title ?? "Daily Briefing"}
+                    </CardTitle>
                     <div className="flex flex-wrap items-center gap-1">
                       {(briefing?.sourcesUsed ?? []).slice(0, 5).map((source) => (
                         <span key={source} className="text-[11px] text-muted-foreground">
@@ -225,16 +220,18 @@ export function DashboardView() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-[13px] leading-6 text-muted-foreground">
+                <CardContent className="space-y-4">
+                  {/* The summary is the part people actually read, so it gets a
+                      comfortable measure rather than the full card width. */}
+                  <p className="max-w-[68ch] text-[13.5px] leading-[1.7] text-muted-foreground">
                     {briefing?.summary ?? "Loading briefing…"}
                   </p>
                   {(briefing?.keyHappenings?.length ?? 0) > 0 && (
-                    <ul className="space-y-2 border-t border-border pt-3">
+                    <ul className="space-y-2.5">
                       {briefing?.keyHappenings.map((entry, index) => (
                         <li key={index} className="flex items-start gap-2.5 text-[13px] leading-5">
-                          <span className="mt-2 size-1 shrink-0 rounded-full bg-foreground/30" />
-                          <span className="text-foreground/90">{entry}</span>
+                          <span className="mt-[7px] size-1.5 shrink-0 rounded-full bg-primary/70" />
+                          <span className="text-foreground">{entry}</span>
                         </li>
                       ))}
                     </ul>
@@ -243,6 +240,23 @@ export function DashboardView() {
               </Card>
             </section>
           )}
+
+          {/* The counts live below the briefing rather than above it. They are
+              the same four numbers, but the briefing leads the page now instead
+              of a row of tiles taking its weight. Relocated, not removed. */}
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground">
+            <span className="tabular-nums font-medium text-foreground">{basisGroups.length}</span>
+            <span>items {basisLabel}</span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="tabular-nums font-medium text-foreground">{counts.ai_ml ?? 0}</span>
+            <span>AI &amp; ML</span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="tabular-nums font-medium text-foreground">{counts.systems_infra ?? 0}</span>
+            <span>systems</span>
+            <span className="text-muted-foreground/40">·</span>
+            <span className="tabular-nums font-medium text-foreground">{savedOrImportant}</span>
+            <span>saved &amp; important</span>
+          </p>
 
           <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -317,10 +331,10 @@ export function DashboardView() {
 
         {showTopics && (
           <aside className="xl:sticky xl:top-0">
-            <Card>
-              <CardHeader className="gap-1 pb-3">
-                <CardTitle className="flex items-center gap-1.5 text-sm">
-                  <Flame className="size-3.5 text-muted-foreground" />
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader className="gap-1 px-0 pb-3 pt-0">
+                <CardTitle className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <Flame className="size-3 text-muted-foreground" />
                   {topicSummary?.hasBaseline ? "Rising this week" : "Most discussed this week"}
                 </CardTitle>
                 <p className="text-[11px] leading-4 text-muted-foreground">
@@ -329,7 +343,7 @@ export function DashboardView() {
                     : "Last 7 days - no prior week to compare yet"}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-0.5">
+              <CardContent className="space-y-0.5 px-0 pb-0">
                 {topicSummary?.topics.map((row, index) => (
                   <button
                     key={row.topic}
@@ -338,7 +352,7 @@ export function DashboardView() {
                       setFilter({ tag: row.topic, category: "all" });
                       setView("feed");
                     }}
-                    className="block w-full rounded-md px-2 py-2 text-left transition-colors hover:bg-accent"
+                    className="-mx-2 block w-full rounded-md px-2 py-1.5 text-left transition-colors hover:bg-accent"
                   >
                     <div className="flex items-center gap-2">
                       <span className="w-3.5 shrink-0 text-[11px] tabular-nums text-muted-foreground">
