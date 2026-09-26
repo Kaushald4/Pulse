@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Search, RefreshCw } from "lucide-react";
+import { ThinkingOrb } from "thinking-orbs";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { usePulse } from "../store/pulse";
@@ -49,7 +50,11 @@ export function Header() {
         title={syncProgress ? `Syncing ${syncProgress.label}…` : "Sync all sources"}
         className="gap-1.5"
       >
-        <RefreshCw className={syncing ? "size-3.5 animate-spin" : "size-3.5"} />
+        {syncing ? (
+          <ThinkingOrb state="connecting" size={20} aria-hidden="true" />
+        ) : (
+          <RefreshCw className="size-3.5" />
+        )}
         <span className="hidden sm:inline">
           {syncing && syncProgress
             ? `Syncing ${syncProgress.index}/${syncProgress.total}`
