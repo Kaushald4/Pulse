@@ -59,6 +59,9 @@ importers:
       '@tauri-apps/plugin-updater':
         specifier: ^2.12.0
         version: 2.12.0
+      bot-avatars:
+        specifier: ^0.1.1
+        version: 0.1.1(react@18.3.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -101,6 +104,9 @@ importers:
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.1
+      thinking-orbs:
+        specifier: ^0.3.2
+        version: 0.3.2(react@18.3.1)
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -1282,6 +1288,11 @@ packages:
   bluebird@3.4.7:
     resolution: {integrity: sha512-iD3898SR7sWVRHbiQv+sHUtHnMvC1o3nW5rAcqnq3uOn07DSAppZYUkIGslDz6gXC7HfunPe7YVBgoEJASPcHA==}
 
+  bot-avatars@0.1.1:
+    resolution: {integrity: sha512-J1gamb44dLXWViX6N+qz8wQyMmVUEtv9GrrHXo+xP3GlzbVzPTO4g+bWme0F9OXpX31nyDXSnUG9/mctUi7t3w==}
+    peerDependencies:
+      react: '>=18.0.0'
+
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
@@ -1936,6 +1947,11 @@ packages:
   tar-stream@2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
+
+  thinking-orbs@0.3.2:
+    resolution: {integrity: sha512-QZFeBaPEzqhjiZoXy961EvDgaXk2WgXacF3Rbz+Sj5IfzDzBvTC86vdREUHniBffYibJFKSwbfllxLUdI/Xv6g==}
+    peerDependencies:
+      react: '>=18.0.0'
 
   tinybench@6.1.4:
     resolution: {integrity: sha512-9APumHG7r4yOk4X4WlkmE71aZcv1gvin1czO3OQ1U9iJcFA5Ja/ygyb0vPOVHTthFozUYs8CLoLUlM8grb2lTQ==}
@@ -3023,6 +3039,10 @@ snapshots:
 
   bluebird@3.4.7: {}
 
+  bot-avatars@0.1.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
@@ -3666,6 +3686,10 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
     optional: true
+
+  thinking-orbs@0.3.2(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   tinybench@6.1.4: {}
 

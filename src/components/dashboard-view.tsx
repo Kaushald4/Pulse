@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { BotAvatar } from "bot-avatars";
 import { Chip } from "./chip";
 import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
@@ -208,9 +209,16 @@ export function DashboardView() {
               <Card>
                 <CardHeader className="gap-2 pb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <CardTitle className="text-[15px] font-semibold tracking-tight">
-                      {briefing?.title ?? "Daily Briefing"}
-                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <BotAvatar
+                        state={briefingLoading ? "working" : "default"}
+                        size={32}
+                        aria-hidden="true"
+                      />
+                      <CardTitle className="text-[15px] font-semibold tracking-tight">
+                        {briefing?.title ?? "Daily Briefing"}
+                      </CardTitle>
+                    </div>
                     <div className="flex flex-wrap items-center gap-1">
                       {(briefing?.sourcesUsed ?? []).slice(0, 5).map((source) => (
                         <span key={source} className="text-[11px] text-muted-foreground">
