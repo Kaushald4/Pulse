@@ -4,6 +4,7 @@ import React from "react";
 import { Sidebar } from "../components/sidebar";
 import { Header } from "../components/header";
 import { DashboardView } from "../components/dashboard-view";
+import { BriefingsView } from "../components/briefings-view";
 import { FeedView } from "../components/feed/feed-view";
 import { ResourcesView } from "../components/resources-view";
 import { JobsView } from "../components/jobs/jobs-view";
@@ -205,6 +206,7 @@ export default function PulseApp() {
             ) : (
               <>
                 {view === "today" && <DashboardView />}
+                {view === "briefings" && <BriefingsView />}
                 {view === "feed" && <FeedView />}
                 {view === "resources" && <ResourcesView />}
                 {view === "jobs" && (selectedJobId ? <JobDetailView /> : <JobsView />)}

@@ -31,7 +31,7 @@ import type {
 import type { ScheduleDue } from "../../lib/schedule";
 
 export type NavigationTab =
-  "today" | "feed" | "resources" | "projects" | "jobs" | "sources" | "logs" | "settings";
+  "today" | "feed" | "resources" | "projects" | "jobs" | "sources" | "logs" | "settings" | "briefings";
 
 export interface Filters {
   category: ItemCategory;
@@ -113,10 +113,12 @@ export interface ItemsSlice {
   topicSummary: TopicSummary | null;
   resources: ResourceEntry[];
   briefing: DailyBriefing | null;
+  briefings: DailyBriefing[];
   briefingLoading: boolean;
   contentLoadingId: string | null;
 
   refresh: () => Promise<void>;
+  loadBriefings: () => Promise<void>;
   /** Records that the feed has been looked at, for the next visit. */
   markFeedSeen: () => Promise<void>;
   /** Widens the list by one page, for reading past what is already loaded. */
