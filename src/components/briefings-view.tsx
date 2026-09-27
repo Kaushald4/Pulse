@@ -33,7 +33,7 @@ function formatDay(date: string): string {
   return Number.isNaN(parsed.getTime()) ? date : dayFormat.format(parsed);
 }
 
-function Mentions({ ids }: { ids: string[] }) {
+export function Mentions({ ids }: { ids: string[] }) {
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState<PulseItem[] | null>(null);
 
