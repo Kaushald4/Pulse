@@ -99,6 +99,13 @@ export function Sidebar() {
           onClick: () => goToTab("today"),
         },
         {
+          key: "briefings",
+          label: "Briefings",
+          icon: Newspaper,
+          active: view === "briefings",
+          onClick: () => goToTab("briefings"),
+        },
+        {
           key: "inbox",
           label: "Inbox",
           icon: Inbox,

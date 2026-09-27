@@ -8,6 +8,7 @@ import { EMPTY_STATS } from "../../lib/db/rows";
 import { getAllResources } from "../../lib/db/resources";
 import { getPulseStats, getTopicSummary } from "../../lib/db/stats";
 import { ensureBriefing } from "../../lib/pipeline";
+import { getAllBriefings } from "../../lib/db/briefings";
 import { fetchAndSummarize } from "../../lib/content";
 import { fetchCuratedPreviews } from "../../lib/metadata";
 import { getFeedFacets } from "../../lib/db/feed-facets";
@@ -40,6 +41,7 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
   topicSummary: null,
   resources: [],
   briefing: null,
+  briefings: [],
   briefingLoading: false,
   contentLoadingId: null,
 
@@ -189,6 +191,10 @@ export const createItemsSlice: StateCreator<PulseStore, [], [], ItemsSlice> = (s
       kind === "more_like_this" ? "Signal preference updated" : "Signal de-emphasized",
       "Pulse will use this feedback in future rankings."
     );
+  },
+
+  loadBriefings: async () => {
+    set({ briefings: await getAllBriefings() });
   },
 
   regenerateBriefing: async () => {

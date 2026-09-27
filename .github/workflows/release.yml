@@ -1,7 +1,12 @@
 name: Release
 
-# Manual only
 on:
+  # The normal path: push a release tag and this runs.
+  #   git tag pulse-v0.1.6 && git push origin pulse-v0.1.6
+  push:
+    tags:
+      - "pulse-v*"
+  # Manual runs stay, for re-cutting a release or overriding the tag.
   workflow_dispatch:
     inputs:
       tag:
@@ -136,10 +141,17 @@ jobs:
         id: release
         run: |
           echo "version=$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
-          if [ -n "${{ inputs.tag }}" ]; then
-            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          # A pushed tag names the release itself; a manual run derives it.
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "draft=false" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=v$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
+            if [ -n "${{ inputs.tag }}" ]; then
+              echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+            else
+              echo "tag=v$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
+            fi
+            echo "draft=${{ inputs.draft }}" >> "$GITHUB_OUTPUT"
           fi
 
       # The installed app polls latest.json from releases/latest, so it has to be
@@ -159,7 +171,7 @@ jobs:
         with:
           tag_name: ${{ steps.release.outputs.tag }}
           name: Pulse ${{ steps.release.outputs.tag }}
-          draft: ${{ inputs.draft }}
+          draft: ${{ steps.release.outputs.draft }}
           generate_release_notes: true
           # A release that quietly ships one platform is worse than a red run.
           fail_on_unmatched_files: true

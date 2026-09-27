@@ -19,6 +19,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { BotAvatar } from "bot-avatars";
+import { Mentions } from "./briefings-view";
 import { Chip } from "./chip";
 import { StatTile } from "./stat-tile";
 import { EmptyState } from "./empty-state";
@@ -244,6 +245,7 @@ export function DashboardView() {
                       ))}
                     </ul>
                   )}
+                  {(briefing?.itemIds?.length ?? 0) > 0 && <Mentions ids={briefing?.itemIds ?? []} />}
                 </CardContent>
               </Card>
             </section>
