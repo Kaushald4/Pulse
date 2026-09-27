@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Chip } from "./chip";
+import { Favicon } from "./link-preview";
 import { usePulse } from "../store/pulse";
 import { getItemsByIds } from "../lib/db/items";
 import type { PulseItem } from "../lib/types";
@@ -50,28 +53,38 @@ function Mentions({ ids }: { ids: string[] }) {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="text-[12px] text-muted-foreground transition-colors hover:text-foreground"
+        aria-expanded={open}
+        className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
-        {open ? "Hide" : "Show"} {ids.length} mentions
+        <ChevronDown className={`size-3.5 transition-transform duration-200 ${open ? "" : "-rotate-90"}`} />
+        Mentions
+        <span className="font-normal text-muted-foreground/70">{ids.length}</span>
       </button>
       {open && (
-        <ul className="mt-2 space-y-1.5">
+        <ul className="mt-2.5 max-h-64 space-y-0.5 overflow-y-auto pr-1">
           {items === null ? (
-            <li className="text-[12px] text-muted-foreground">Loading…</li>
+            <li className="py-1 text-[12px] text-muted-foreground">Loading…</li>
           ) : items.length === 0 ? (
-            <li className="text-[12px] text-muted-foreground">None found.</li>
+            <li className="py-1 text-[12px] text-muted-foreground">None found.</li>
           ) : (
             items.map((item) => (
-              <li key={item.id} className="flex items-baseline gap-2 text-[12px]">
+              <li key={item.id}>
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="min-w-0 flex-1 truncate text-foreground decoration-muted-foreground/40 underline-offset-4 hover:underline"
+                  className="group -mx-1.5 flex items-center gap-2 rounded-md px-1.5 py-1.5 no-underline transition-colors hover:bg-accent"
                 >
-                  {item.title}
+                  <Favicon url={item.url} className="mt-0" />
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-foreground group-hover:underline">
+                    {item.title}
+                  </span>
+                  {item.topic && (
+                    <span className="shrink-0">
+                      <Chip label={item.topic} />
+                    </span>
+                  )}
                 </a>
-                {item.topic && <span className="shrink-0 text-muted-foreground">{item.topic}</span>}
               </li>
             ))
           )}
