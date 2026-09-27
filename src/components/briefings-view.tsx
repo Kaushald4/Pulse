@@ -139,7 +139,7 @@ export function BriefingsView() {
       ) : (
         <div>
           {shown.map((row) => (
-            <section key={row.id} className="space-y-2.5 pb-10">
+            <section key={row.id} className="space-y-2.5 pb-10 mb-5">
               <h2 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {formatDay(row.date)}
               </h2>
